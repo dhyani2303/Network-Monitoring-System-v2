@@ -4,24 +4,14 @@ import (
 	"PluginEngine/constants"
 )
 
-func ErrorHandler(context map[string]interface{}, errorCode string, err error) {
-
-	var errorArray []map[string]interface{}
+func ErrorHandler(errorCode string, errMessage string) map[string]interface{} {
 
 	error := make(map[string]interface{})
 
-	error[constants.Error] = err
-
 	error[constants.ErrorCode] = errorCode
 
-	error[constants.ErrorMessage] = err.Error()
+	error[constants.ErrorMessage] = errMessage
 
-	errorArray = append(errorArray, error)
-
-	context[constants.Error] = errorArray
-
-	context[constants.Status] = constants.Fail
-
-	return
+	return error
 
 }

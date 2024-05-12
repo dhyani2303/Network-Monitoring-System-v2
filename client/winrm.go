@@ -44,7 +44,7 @@ func (client *WinRmClient) CreateConnection() (*winrm.Client, error) {
 
 	endpointConfig := winrm.NewEndpoint(client.ip, client.port, false, true, nil, nil, nil, client.timeout)
 
-	winrRmClient, err := winrm.NewClient(endpointConfig, client.username, client.password)
+	winRmClient, err := winrm.NewClient(endpointConfig, client.username, client.password)
 
 	if err != nil {
 
@@ -52,7 +52,10 @@ func (client *WinRmClient) CreateConnection() (*winrm.Client, error) {
 
 		return nil, err
 	}
-	return winrRmClient, err
+	client.logger.Info(fmt.Sprintf("Successfully Created the client"))
+
+	return winRmClient, err
+
 }
 
 func (client *WinRmClient) ExecuteCommand(winRmClient *winrm.Client, command string) (string, string, int, error) {

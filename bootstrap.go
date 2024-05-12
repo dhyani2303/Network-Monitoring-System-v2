@@ -25,7 +25,13 @@ func main() {
 
 		context := make(map[string]interface{}, 1)
 
-		utils.ErrorHandler(context, constants.CONTEXTMISSINGERROR, fmt.Errorf("context is empty"))
+		errorArray := make([]map[string]interface{}, 1)
+
+		errorArray = append(errorArray, utils.ErrorHandler(constants.CONTEXTMISSINGERROR, "context is empty"))
+
+		context[constants.Error] = errorArray
+
+		context[constants.Status] = constants.Fail
 
 		result, err := utils.Encode(context)
 
@@ -33,7 +39,7 @@ func main() {
 
 			logger.Fatal(fmt.Sprintf("Error while encoding context: %v", err))
 
-			utils.ErrorHandler(context, constants.ENCODEERROR, err)
+			errorArray = append(errorArray, utils.ErrorHandler(constants.ENCODEERROR, err.Error()))
 
 			fmt.Println(context)
 
@@ -57,15 +63,25 @@ func main() {
 
 		logger.Fatal(fmt.Sprintf("Some error occurred during decoding the context %v", err))
 
-		utils.ErrorHandler(result, constants.DECODEERROR, err)
+		context := make(map[string]interface{}, 1)
+
+		errorArray := make([]map[string]interface{}, 0)
+
+		errorArray = append(errorArray, utils.ErrorHandler(constants.DECODEERROR, err.Error()))
+
+		context[constants.Status] = constants.Fail
+
+		context[constants.Result] = make([]map[string]interface{}, 0)
 
 		encodedResult, err := utils.Encode(result)
 
 		if err != nil {
 
-			utils.ErrorHandler(result, constants.ENCODEERROR, err)
+			utils.ErrorHandler(constants.ENCODEERROR, err.Error())
 
-			fmt.Println(result)
+			fmt.Println(context)
+
+			return
 		}
 		fmt.Println(encodedResult)
 
@@ -83,11 +99,17 @@ func main() {
 
 		} else if context[constants.RequestType] == constants.Collect {
 
-			//	go plugins.Collect(context)
+			go plugins.Collect(context, channel)
 
 		} else {
 
-			utils.ErrorHandler(context, constants.INVALIDREQUESTYPE, fmt.Errorf("request.type is invalid"))
+			errorArray := make([]map[string]interface{}, 0)
+
+			errorArray = append(errorArray, utils.ErrorHandler(constants.INVALIDREQUESTYPE, "request.type is invalid"))
+
+			context[constants.Status] = constants.Fail
+
+			context[constants.Result] = make([]map[string]interface{}, 0)
 
 			channel <- context
 
@@ -96,7 +118,9 @@ func main() {
 	}
 
 	for contextDataLength > 0 {
+
 		select {
+
 		case result := <-channel:
 
 			encodedResult, _ := utils.Encode(result)
