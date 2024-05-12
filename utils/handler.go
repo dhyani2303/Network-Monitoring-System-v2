@@ -1,18 +1,24 @@
-package utility
+package utils
 
-import "PluginEngine/utility/constants"
+import (
+	"PluginEngine/constants"
+)
 
 func ErrorHandler(context map[string]interface{}, errorCode string, err error) {
+
+	var errorArray []map[string]interface{}
 
 	error := make(map[string]interface{})
 
 	error[constants.Error] = err
 
-	error[constants.ErrorCode] = constants.DISCOVERYERROR
+	error[constants.ErrorCode] = errorCode
 
 	error[constants.ErrorMessage] = err.Error()
 
-	context[constants.Error] = error
+	errorArray = append(errorArray, error)
+
+	context[constants.Error] = errorArray
 
 	context[constants.Status] = constants.Fail
 
