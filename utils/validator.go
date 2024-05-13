@@ -47,6 +47,12 @@ func ValidateTimeOut(context map[string]interface{}) time.Duration {
 
 		context[constants.TimeOut] = constants.DefaultTimeOut
 
+	} else {
+		if timeOut, ok := (context[constants.TimeOut]).(float64); ok {
+
+			context[constants.TimeOut] = time.Duration(timeOut * float64(time.Second))
+		}
 	}
+
 	return context[constants.TimeOut].(time.Duration)
 }

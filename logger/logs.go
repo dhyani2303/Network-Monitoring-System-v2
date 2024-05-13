@@ -32,7 +32,7 @@ func write(level, message, directory, component string) {
 	currentTime := time.Now()
 
 	// Create the log file name
-	fileName := fmt.Sprintf("%s/%s%d-%s.log", directory, currentTime.Format("2006-01-02"), currentTime.Hour(), component)
+	fileName := fmt.Sprintf("%s/%s-%d-%s.log", directory, currentTime.Format("2006-01-02"), currentTime.Hour(), component)
 
 	err := os.MkdirAll(filepath.Dir(fileName), 0755)
 	if err != nil {
@@ -40,7 +40,6 @@ func write(level, message, directory, component string) {
 		return
 	}
 
-	fmt.Println(fileName)
 	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 
 	if err != nil {

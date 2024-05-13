@@ -7,17 +7,13 @@ const (
 
 	Password = "password"
 
-	IP = "ipAddress"
+	IP = "ip"
 
 	DefaultPort float64 = 5985
 
 	Port = "port"
 
-	MetricGroup = "metric.group"
-
 	RequestType = "request.type"
-
-	DeviceType = "device.type"
 
 	Discovery = "discovery"
 
@@ -29,8 +25,6 @@ const (
 
 	Fail = "fail"
 
-	Windows = "windows"
-
 	ErrorCode = "error.code"
 
 	Error = "error"
@@ -39,9 +33,11 @@ const (
 
 	Result = "result"
 
-	TimeOut = "request.timeout"
+	TimeOut = "request.timeout.nanoseconds"
 
 	DefaultTimeOut = 30 * time.Second
+
+	CredentialProfiles = "credential.profiles"
 
 	//error codes
 	DECODEERROR = "DECODE01"

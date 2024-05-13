@@ -30,9 +30,9 @@ func (client *WinRmClient) SetContext(context map[string]interface{}) {
 
 	client.username = utils.ToString(context[constants.Username])
 
-	client.password = utils.ToString(context[constants.Password].(string))
+	client.password = utils.ToString(context[constants.Password])
 
-	client.ip = utils.ToString(context[constants.IP].(string))
+	client.ip = utils.ToString(context[constants.IP])
 
 	client.port = utils.ValidatePort(context)
 

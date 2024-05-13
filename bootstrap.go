@@ -125,10 +125,17 @@ func main() {
 
 			encodedResult, _ := utils.Encode(result)
 
-			fmt.Println(encodedResult)
+			fmt.Print(encodedResult)
+
+			fmt.Print("||@@||")
 
 			contextDataLength--
 		}
 	}
+
+	defer func() {
+
+		close(channel)
+	}()
 
 }
