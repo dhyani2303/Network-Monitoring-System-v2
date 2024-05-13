@@ -109,6 +109,8 @@ func main() {
 
 			context[constants.Status] = constants.Fail
 
+			context[constants.Error] = errorArray
+
 			context[constants.Result] = make([]map[string]interface{}, 0)
 
 			channel <- context

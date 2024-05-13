@@ -22,56 +22,82 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 
 	client := client.WinRmClient{}
 
-	if credentialProfiles, ok := context[constants.CredentialProfiles].(map[string]interface{}); ok {
+	if credentialProfiles, ok := context[constants.CredentialProfiles].([]interface{}); ok {
 
 		for _, credential := range credentialProfiles {
 
+			fmt.Println(credential)
+
 			if credentialProfile, ok := credential.(map[string]interface{}); ok {
 
+				fmt.Println(credentialProfile)
+
 				credentialProfile[constants.IP] = context[constants.IP]
+
+				if context[constants.Port] != nil {
+
+					credentialProfile[constants.Port] = context[constants.Port]
+				}
+
+				if context[constants.TimeOut] != nil {
+
+					credentialProfile[constants.TimeOut] = context[constants.TimeOut]
+				}
 
 				client.SetContext(credentialProfile)
 			}
 
 			connectionContext, err := client.CreateConnection()
 
-			command := "hostname"
+			if err == nil {
 
-			output, errorOutput, exitCode, err := client.ExecuteCommand(connectionContext, command)
+				command := "hostname"
 
-			if err != nil || exitCode != 0 {
+				output, errorOutput, exitCode, err := client.ExecuteCommand(connectionContext, command)
 
-				logger.Error(fmt.Sprintf("Error occurred %v  %v", err, errorOutput))
-				continue
+				if err != nil || exitCode != 0 {
+
+					logger.Error(fmt.Sprintf("Error occurred %v  %v", err, errorOutput))
+
+					continue
+
+				} else {
+
+					fmt.Printf("%T", credential)
+
+					if id, ok := credential.(map[string]interface{})[constants.CredentialID]; ok {
+
+						context[constants.CredentialID] = id
+					}
+					result[constants.IP] = context[constants.IP]
+
+					result[constants.Hostname] = strings.Trim(output, "\r\n")
+
+					fmt.Println("Result:", result)
+
+					break
+
+				}
 			}
 
-			result[constants.IP] = context[constants.IP]
+		}
 
-			result[constants.Hostname] = strings.Trim(output, "\r\n")
+		fmt.Println(context)
+		if len(result) > 0 {
 
-			if len(result) <= 0 {
+			context[constants.Result] = result
 
-				context[constants.Status] = constants.Fail
+			context[constants.Status] = constants.Success
 
-				context[constants.Result] = result
+		} else {
 
-			} else {
+			context[constants.Status] = constants.Fail
 
-				//context[constants.Error] = errorArray
-
-				context[constants.Result] = result
-
-				context[constants.Status] = constants.Success
-
-			}
-
-			channel <- context
-
-			return
-
-			//}
 		}
 	}
+	channel <- context
+
+	return
 
 }
 

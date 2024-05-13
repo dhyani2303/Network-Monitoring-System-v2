@@ -39,6 +39,8 @@ const (
 
 	CredentialProfiles = "credential.profiles"
 
+	CredentialID = "credential.id"
+
 	//error codes
 	DECODEERROR = "DECODE01"
 
