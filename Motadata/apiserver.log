@@ -1,8 +1,0 @@
-[2024-05-14 19:17:21.015] [vert.x-eventloop-thread-1] [ERROR] [?:?] com.fasterxml.jackson.core.JsonParseException: Unexpected character ('}' (code 125)): was expecting double-quote to start field name
- at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 5, column: 2]
-[2024-05-14 19:17:28.473] [vert.x-eventloop-thread-1] [ERROR] [?:?] com.fasterxml.jackson.core.JsonParseException: Unexpected character ('}' (code 125)): was expecting double-quote to start field name
- at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 2]
-[2024-05-14 19:23:00.169] [vert.x-eventloop-thread-1] [ERROR] [?:?] com.fasterxml.jackson.core.JsonParseException: Unexpected character ('}' (code 125)): was expecting double-quote to start field name
- at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 2]
-[2024-05-15 19:19:52.474] [vert.x-eventloop-thread-1] [ERROR] [?:?] com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot deserialize value of type `java.util.LinkedHashMap<java.lang.Object,java.lang.Object>` from Array value (token `JsonToken.START_ARRAY`)
- at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 1]

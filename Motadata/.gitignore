@@ -12,13 +12,8 @@ target/
 *.iml
 *.ipr
 .idea
-apiserver.log
-.bootstrap.log
-.credential.log
-database.log
-discovery.log
-pollingengine.log
-processbuilder.log
+
+*.log
 ### Eclipse ###
 .apt_generated
 .classpath
