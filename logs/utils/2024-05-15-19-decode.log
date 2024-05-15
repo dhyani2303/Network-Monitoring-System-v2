@@ -1,0 +1,17 @@
+2024-05-15 19:06:25.789436546 Info Decoded & Marshalled  context successfully
+2024-05-15 19:07:10.130954459 Info Decoded & Marshalled  context successfully
+2024-05-15 19:19:10.218682481 Error Error in decoding base64 string : illegal base64 data at input byte 0
+2024-05-15 19:22:14.870784593 Error Error in decoding base64 string : illegal base64 data at input byte 0
+2024-05-15 19:26:54.72214121 Error Error in decoding base64 string : illegal base64 data at input byte 0
+2024-05-15 19:27:43.253429167 Error Error in decoding base64 string : illegal base64 data at input byte 0
+2024-05-15 19:36:38.984707203 Info Decoded & Marshalled  context successfully
+2024-05-15 19:40:04.565879853 Info Decoded & Marshalled  context successfully
+2024-05-15 19:41:34.215575401 Info Decoded & Marshalled  context successfully
+2024-05-15 19:42:16.931253805 Info Decoded & Marshalled  context successfully
+2024-05-15 19:44:50.012249841 Info Decoded & Marshalled  context successfully
+2024-05-15 19:47:58.153433757 Info Decoded & Marshalled  context successfully
+2024-05-15 19:53:30.300976951 Info Decoded & Marshalled  context successfully
+2024-05-15 19:54:13.869798909 Info Decoded & Marshalled  context successfully
+2024-05-15 19:54:36.154430219 Info Decoded & Marshalled  context successfully
+2024-05-15 19:55:08.005682445 Info Decoded & Marshalled  context successfully
+2024-05-15 19:57:26.847267842 Info Decoded & Marshalled  context successfully

@@ -1,0 +1,30 @@
+2024-05-12 21:03:19.095407592 Error Error in Marshalling Map to Json:json: unsupported value: encountered a cycle via map[string]interface {}
+
+2024-05-12 21:06:40.231715461 Error Error in Marshalling Map to Json:json: unsupported value: encountered a cycle via map[string]interface {}
+
+2024-05-12 21:16:58.775277307 Error Error in Marshalling Map to Json:json: unsupported value: encountered a cycle via map[string]interface {}
+
+2024-05-12 21:33:26.893642963 Info Encoding successful
+
+2024-05-12 21:34:48.590609466 Info Encoding successful
+
+2024-05-12 21:45:42.82923793 Info Encoding successful
+
+2024-05-12 21:47:51.721568557 Info Encoding successful
+
+2024-05-12 21:52:30.616703633 Info Encoding successful
+
+2024-05-12 21:53:11.700255215 Info Encoding successful
+
+2024-05-12 21:54:04.408680845 Info Encoding successful
+
+2024-05-12 21:54:16.049587187 Info Encoding successful
+
+2024-05-12 21:57:25.782339581 Info Encoding successful
+
+2024-05-12 21:57:39.247814132 Info Encoding successful
+
+2024-05-12 21:59:55.980134812 Info Encoding successful
+
+2024-05-12 21:59:55.98280778 Info Encoding successful
+

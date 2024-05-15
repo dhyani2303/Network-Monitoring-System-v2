@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2156e5a1-1c31-40b3-add5-50f1edc102a2" name="Changes" comment="made some changes in implementing discovery using multiple credential profile">
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/Bootstrap.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/APIServer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/Credential.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/Discovery.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/config/configuration.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/database/Database.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/DiscoveryEngine.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/PollingEngine.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/util/Constants.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/util/ProcessBuilders.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/util/Utils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/resources/logback.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pluginEngine/bootstrap.go" beforeDir="false" afterPath="$PROJECT_DIR$/../pluginEngine/bootstrap.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pluginEngine/plugins/windows.go" beforeDir="false" afterPath="$PROJECT_DIR$/../pluginEngine/plugins/windows.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pluginEngine/utils/validator.go" beforeDir="false" afterPath="$PROJECT_DIR$/../pluginEngine/utils/validator.go" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$USER_HOME$/sdk/go1.21.9" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../pluginEngine" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2gDeFWt4QW9wi26jOcNWjMUbIEv" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go Build.go build PluginEngine.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/root&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../pluginEngine/utility/constants" />
+      <recent name="$PROJECT_DIR$/../pluginEngine/metricstype/windows" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build PluginEngine">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="pluginEngine" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build PluginEngine" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="pluginEngine" />
+      <working_directory value="$PROJECT_DIR$/../pluginEngine" />
+      <parameters value="W3siaXAiOiIxNzIuMTYuOC4xMTMiLCJwb3J0Ijo1OTg1LCJjcmVkZW50aWFsLnByb2ZpbGVzIjpbeyJ1c2VybmFtZSI6ImRodmFuaSIsInBhc3N3b3JkIjoiTWluZEAxMjMiLCJjcmVkZW50aWFsLmlkIjoxfV0sInJlcXVlc3QudHlwZSI6ImRpc2NvdmVyeSJ9XQ==" />
+      <kind value="PACKAGE" />
+      <package value="PluginEngine" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/../pluginEngine/bootstrap.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build cpu.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="pluginEngine" />
+      <working_directory value="$PROJECT_DIR$/../pluginEngine" />
+      <kind value="FILE" />
+      <package value="PluginEngine" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/../pluginEngine/metricstype/windows/cpu.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build logs.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="pluginEngine" />
+      <working_directory value="$PROJECT_DIR$/../pluginEngine" />
+      <kind value="FILE" />
+      <package value="PluginEngine" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/../pluginEngine/logger/logs.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build windows.go (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="pluginEngine" />
+      <working_directory value="$PROJECT_DIR$/../pluginEngine" />
+      <kind value="FILE" />
+      <package value="PluginEngine" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/../pluginEngine/plugins/windows.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build windows.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="pluginEngine" />
+      <working_directory value="$PROJECT_DIR$/../pluginEngine" />
+      <kind value="FILE" />
+      <package value="PluginEngine" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/../pluginEngine/devices/windows.go" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="pluginEngine" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="DIRECTORY" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Go Build.go build PluginEngine" />
+      <item itemvalue="Go Build.go build cpu.go" />
+      <item itemvalue="Go Build.go build logs.go" />
+      <item itemvalue="Go Build.go build windows.go (1)" />
+      <item itemvalue="Go Build.go build windows.go" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build PluginEngine" />
+        <item itemvalue="Go Build.go build windows.go (1)" />
+        <item itemvalue="Go Build.go build logs.go" />
+        <item itemvalue="Go Build.go build cpu.go" />
+        <item itemvalue="Go Build.go build windows.go" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-gosdk-33c477a475b1-b97fc8a1e17c-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.14494.238" />
+        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-GO-241.14494.238" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Created Winrm Discovery flow" />
+    <MESSAGE value="Changed the flow structure of plugin engine" />
+    <MESSAGE value="Implemented the collect method" />
+    <MESSAGE value="Completed winrm plugin" />
+    <MESSAGE value="made some changes in implementing discovery using multiple credential profile" />
+    <option name="LAST_COMMIT_MESSAGE" value="made some changes in implementing discovery using multiple credential profile" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/../pluginEngine/bootstrap.go</url>
+          <line>11</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

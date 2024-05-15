@@ -1,0 +1,52 @@
+2024-05-13 22:01:35.874101837 Info Plugin Engine Initialized
+2024-05-13 22:01:35.874528885 Info Context: map[credential.profiles:[map[password:dhyani username:dhyani] map[password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:02:44.830551372 Info Plugin Engine Initialized
+2024-05-13 22:02:47.692188718 Info Context: map[credential.profiles:[map[password:dhyani username:dhyani] map[password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:03:40.428498413 Info Plugin Engine Initialized
+2024-05-13 22:03:40.428750984 Info Context: map[credential.profiles:[map[password:dhyani username:dhyani] map[password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:04:05.197033333 Info Plugin Engine Initialized
+2024-05-13 22:04:05.197271032 Info Context: map[credential.profiles:[map[password:dhyani username:dhyani] map[password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:04:52.841270877 Info Plugin Engine Initialized
+2024-05-13 22:04:52.841553038 Info Context: map[credential.profiles:[map[password:dhyani username:dhyani] map[password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:08:01.099532288 Info Plugin Engine Initialized
+2024-05-13 22:08:01.099823236 Info Context: map[credential.profiles:[map[password:dhyani username:dhyani] map[password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:08:52.335803052 Info Plugin Engine Initialized
+2024-05-13 22:08:52.336164482 Info Context: map[credential.profiles:[map[password:dhyani username:dhyani] map[password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:09:33.464222046 Info Plugin Engine Initialized
+2024-05-13 22:09:33.464512041 Info Context: map[credential.profiles:[map[password:dhyani username:dhyani] map[password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:16:34.610811738 Info Plugin Engine Initialized
+2024-05-13 22:16:34.611133626 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=1) password:dhyani username:dhyani] map[credential.id:%!s(float64=2) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:25:04.264177542 Info Plugin Engine Initialized
+2024-05-13 22:25:04.264545315 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=1) password:dhyani username:dhyani] map[credential.id:%!s(float64=2) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:26:31.201642484 Info Plugin Engine Initialized
+2024-05-13 22:26:31.201949674 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:28:12.478016648 Info Plugin Engine Initialized
+2024-05-13 22:28:12.478378239 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:28:59.331359377 Info Plugin Engine Initialized
+2024-05-13 22:28:59.331642693 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:36:43.828872715 Info Plugin Engine Initialized
+2024-05-13 22:36:43.829196996 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:38:23.027614351 Info Plugin Engine Initialized
+2024-05-13 22:38:23.027944953 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:40:36.09392824 Info Plugin Engine Initialized
+2024-05-13 22:40:36.094274278 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:41:04.751667898 Info Plugin Engine Initialized
+2024-05-13 22:41:04.751997373 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:41:50.224740914 Info Plugin Engine Initialized
+2024-05-13 22:41:50.225119649 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:42:50.984955815 Info Plugin Engine Initialized
+2024-05-13 22:42:50.985301852 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:43:40.523181634 Info Plugin Engine Initialized
+2024-05-13 22:43:40.523489097 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:44:40.815878828 Info Plugin Engine Initialized
+2024-05-13 22:44:40.816203164 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:44:46.145877686 Info Plugin Engine Initialized
+2024-05-13 22:44:46.146176733 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:46:13.027792232 Info Plugin Engine Initialized
+2024-05-13 22:46:13.028097933 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:50:46.61880647 Info Plugin Engine Initialized
+2024-05-13 22:50:46.619103948 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:51:37.232106735 Info Plugin Engine Initialized
+2024-05-13 22:51:37.232395997 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyni] map[credential.id:%!s(float64=1) password:dhyani username:Dhyani]] ip:192.168.137.30 request.type:discovery]
+2024-05-13 22:53:58.805640064 Info Plugin Engine Initialized
+2024-05-13 22:53:58.805973771 Info Context: map[credential.profiles:[map[credential.id:%!s(float64=2) password:dhyani username:dhyani]] ip:192.168.137.30 request.type:discovery]

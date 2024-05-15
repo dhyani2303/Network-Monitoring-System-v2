@@ -1,0 +1,20 @@
+[2024-05-15 17:26:01.134] [main] [ERROR] [?:?] java.io.IOException: error=2, No such file or directory
+[2024-05-15 17:26:30.085] [main] [ERROR] [?:?] java.io.IOException: error=2, No such file or directory
+[2024-05-15 17:26:55.641] [main] [ERROR] [?:?] java.io.IOException: error=2, No such file or directory
+[2024-05-15 17:28:12.214] [main] [ERROR] [?:?] java.io.IOException: error=2, No such file or directory
+[2024-05-15 19:19:10.212] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:22:14.862] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:25:36.021] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:27:43.246] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:36:38.977] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:40:04.556] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:41:34.208] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:44:50.005] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:47:58.145] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:53:30.293] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:54:36.145] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 19:57:26.838] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 20:08:59.763] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 20:11:03.229] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 20:13:20.887] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113
+[2024-05-15 20:16:38.810] [vert.x-worker-thread-1] [INFO ] [?:?] Device with IP address {} is up172.16.8.113

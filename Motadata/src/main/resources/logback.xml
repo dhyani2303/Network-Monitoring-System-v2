@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Console Appender -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread][%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="BOOTSTRAP_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>bootstrap.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}][%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="APISERVER_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>apiserver.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="CREDENTIAL_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>credential.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="DISCOVERY_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>discovery.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="DISCOVERENGINE_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>discoverengine.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="POLLINGENGINE_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>pollingengine.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="PROCESSBUILDER_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>processbuilder.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="DATABASE_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>database.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!-- Root Logger -->
+    <root level="info">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+    <logger name="org.motadata.Bootstrap" level="TRACE" additivity="false">
+        <appender-ref ref="BOOTSTRAP_LOGS" />
+    </logger>
+
+    <logger name="org.motadata.api.APIServer" level="TRACE" additivity="false">
+        <appender-ref ref="APISERVER_LOGS" />
+    </logger>
+
+    <logger name="org.motadata.api.Credential" level="TRACE" additivity="false">
+        <appender-ref ref="CREDENTIAL_LOGS" />
+    </logger>
+
+    <logger name="org.motadata.engine.DiscoveryEngine" level="TRACE" additivity="false">
+        <appender-ref ref="DISCOVERY_LOGS" />
+    </logger>
+
+    <logger name="org.motadata.engine.PollingEngine" level="TRACE" additivity="false">
+        <appender-ref ref="POLLINGENGINE_LOGS" />
+    </logger>
+
+    <logger name="org.motadata.engine.DiscoveryEngine" level="TRACE" additivity="false">
+        <appender-ref ref="DISCOVERYENGINE_LOGS" />
+    </logger>
+
+    <logger name="org.motadata.util.ProcessBuilders" level="TRACE" additivity="false">
+        <appender-ref ref="PROCESSBUILDER_LOGS" />
+    </logger>
+
+
+    <logger name="org.motadata.database.Database" level="TRACE" additivity="false">
+        <appender-ref ref="DATABASE_LOGS" />
+    </logger>
+
+
+</configuration>
