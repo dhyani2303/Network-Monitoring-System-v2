@@ -16,7 +16,7 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 
 	logger := logger.NewLogger("plugins", "windows")
 
-	//	errorArray := make([]map[string]interface{}, 0)
+	errorArray := make([]map[string]interface{}, 0)
 
 	result := make(map[string]interface{})
 
@@ -51,9 +51,19 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 
 				output, errorOutput, exitCode, err := client.ExecuteCommand(connectionContext, command)
 
-				if err != nil || exitCode != 0 {
+				if err != nil {
 
-					logger.Error(fmt.Sprintf("Error occurred %v  %v", err, errorOutput))
+					errorArray = append(errorArray, utils.ErrorHandler(constants.CONNECTIONERROR, err.Error()))
+
+					logger.Error(fmt.Sprintf("Error occurred %v\n", err))
+
+					continue
+
+				} else if exitCode != 0 {
+
+					errorArray = append(errorArray, utils.ErrorHandler(constants.COMMANDERROR, errorOutput))
+
+					logger.Error(fmt.Sprintf("Error occurred %v\n", errorOutput))
 
 					continue
 
@@ -70,12 +80,16 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 					break
 
 				}
+			} else {
+				errorArray = append(errorArray, utils.ErrorHandler(constants.CONNECTIONERROR, err.Error()))
+
+				logger.Error(fmt.Sprintf("Error occurred %v", err))
+
+				continue
 			}
 
 		}
 		if len(result) > 0 {
-
-			context[constants.Result] = result
 
 			context[constants.Status] = constants.Success
 
@@ -86,6 +100,10 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 			context[constants.CredentialID] = -1
 
 		}
+		context[constants.Result] = result
+
+		context[constants.Error] = errorArray
+
 	}
 	channel <- context
 

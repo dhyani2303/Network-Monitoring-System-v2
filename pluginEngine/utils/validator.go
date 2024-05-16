@@ -2,7 +2,6 @@ package utils
 
 import (
 	"PluginEngine/constants"
-	"fmt"
 	"reflect"
 	"strconv"
 	"time"
@@ -15,9 +14,7 @@ func ValidatePort(context map[string]interface{}) int {
 		context[constants.Port] = constants.DefaultPort
 	} else {
 
-		portType := reflect.TypeOf(constants.Port)
-
-		fmt.Println(portType == reflect.TypeOf(""))
+		portType := reflect.TypeOf(context[constants.Port])
 
 		if portType == reflect.TypeOf("") {
 
