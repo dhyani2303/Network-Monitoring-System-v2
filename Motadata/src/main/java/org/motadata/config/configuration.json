@@ -1,4 +1,6 @@
 {
-  "httpHost": "http://localhost",
-  "httpPort": 8000
+  "http.host": "localhost",
+  "http.port": 8000,
+  "poll.time":1000,
+  "batch.size": 5
 }

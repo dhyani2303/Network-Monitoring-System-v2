@@ -3,8 +3,8 @@ package org.motadata.api;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 
@@ -34,15 +34,8 @@ public class APIServer extends AbstractVerticle {
 
             if (buffer.length() <= 0) {
 
-                var result = new JsonObject();
 
-                result.put(Constants.ERRORCODE, Constants.EMPTYBODY);
-
-                result.put(Constants.ERRORMESSAGE, "Request body is empty");
-
-                result.put(Constants.STATUS, Constants.FAIL);
-
-                result.put(Constants.ERROR, "Empty Body");
+              var result= errorHandler("Empty Body","Request body is empty",Constants.EMPTYBODY);
 
                 ctx.response().setStatusCode(400).end(result.toBuffer());
 
@@ -62,19 +55,11 @@ public class APIServer extends AbstractVerticle {
                     }
                 } catch (Exception exception) {
 
-                    var response = new JsonObject();
+                    var result = errorHandler("JSON ERROR","Invalid JSON Format",Constants.INVALIDJSON);
 
-                    response.put(Constants.STATUS,Constants.FAIL);
+                    ctx.response().setStatusCode(400).end(result.toBuffer());
 
-                    response.put(Constants.ERROR,"JSON ERROR");
-
-                    response.put(Constants.ERRORCODE,Constants.INVALIDJSON);
-
-                    response.put(Constants.ERRORMESSAGE,"Invalid JSON Format");
-
-                    ctx.response().setStatusCode(400).end(response.toBuffer());
-
-                    LOGGER.error(exception.getCause());
+                   LOGGER.error(exception.getCause().toString());
                 }
             }
         }));
@@ -97,17 +82,11 @@ public class APIServer extends AbstractVerticle {
 
         router.post(Constants.DISCOVERYAPI).handler(ctx -> ctx.request().bodyHandler(buffer -> {
 
+
             if (buffer.length() <= 0) {
 
-                var result = new JsonObject();
 
-                result.put(Constants.ERRORCODE, Constants.EMPTYBODY);
-
-                result.put(Constants.ERRORMESSAGE, "Request body is empty");
-
-                result.put(Constants.STATUS, Constants.FAIL);
-
-                result.put(Constants.ERROR, "Empty Body");
+                var result= errorHandler("Empty Body","Request body is empty",Constants.EMPTYBODY);
 
                 ctx.response().setStatusCode(400).end(result.toBuffer());
 
@@ -129,19 +108,12 @@ public class APIServer extends AbstractVerticle {
 
                 }catch (Exception exception) {
 
-                    var response = new JsonObject();
 
-                    response.put(Constants.STATUS,Constants.FAIL);
+                    var result = errorHandler("JSON ERROR","Invalid JSON Format",Constants.INVALIDJSON);
 
-                    response.put(Constants.ERROR,"JSON ERROR");
+                    ctx.response().setStatusCode(400).end(result.toBuffer());
 
-                    response.put(Constants.ERRORCODE,Constants.INVALIDJSON);
-
-                    response.put(Constants.ERRORMESSAGE,"Invalid JSON Format");
-
-                    ctx.response().setStatusCode(400).end(response.toBuffer());
-
-                    LOGGER.error(exception.getCause());
+                    LOGGER.error(exception.getCause().toString());
                 }
 
 
@@ -166,15 +138,7 @@ public class APIServer extends AbstractVerticle {
 
             if (buffer.length() <= 0) {
 
-                var result = new JsonObject();
-
-                result.put(Constants.ERRORCODE, Constants.EMPTYBODY);
-
-                result.put(Constants.ERRORMESSAGE, "Request body is empty");
-
-                result.put(Constants.STATUS, Constants.FAIL);
-
-                result.put(Constants.ERROR, "Empty Body");
+                var result= errorHandler("Empty Body","Request body is empty",Constants.EMPTYBODY);
 
                 ctx.response().setStatusCode(400).end(result.toBuffer());
 
@@ -193,19 +157,11 @@ public class APIServer extends AbstractVerticle {
                   });
                 }catch (Exception exception) {
 
-                    var response = new JsonObject();
+                    var result = errorHandler("JSON ERROR","Invalid JSON Format",Constants.INVALIDJSON);
 
-                    response.put(Constants.STATUS,Constants.FAIL);
+                    ctx.response().setStatusCode(400).end(result.toBuffer());
 
-                    response.put(Constants.ERROR,"JSON ERROR");
-
-                    response.put(Constants.ERRORCODE,Constants.INVALIDJSON);
-
-                    response.put(Constants.ERRORMESSAGE,"Invalid JSON Format");
-
-                    ctx.response().setStatusCode(400).end(response.toBuffer());
-
-                    LOGGER.error(exception.getCause());
+                    LOGGER.error(exception.getCause().toString());
                 }
 
 
@@ -214,15 +170,70 @@ public class APIServer extends AbstractVerticle {
 
         router.post(Constants.PROVISION).handler(ctx -> {
 
+            ctx.request().bodyHandler(buffer -> {
 
+
+                if (buffer.length() <= 0) {
+
+                    var result = errorHandler("Empty Body", "Request body is empty", Constants.EMPTYBODY);
+
+                    ctx.response().setStatusCode(400).end(result.toBuffer());
+
+                } else {
+
+                    try {
+                        var dataToSend = buffer.toJsonObject();
+
+                     var result=   Provision.provisionDevice(dataToSend);
+
+                     if (result.getString(Constants.STATUS).equals(Constants.FAIL))
+                     {
+                         ctx.response().setStatusCode(400).end(result.toBuffer());
+
+                     }
+                     else
+                     {
+                         ctx.json(result);
+
+                     }
+
+
+                    } catch (Exception exception) {
+
+                        var result = errorHandler("JSON ERROR", "Invalid JSON Format", Constants.INVALIDJSON);
+
+                        ctx.response().setStatusCode(400).end(result.toBuffer());
+
+                        LOGGER.error(exception.getCause().toString());
+                    }
+
+
+                }
+            });
         });
 
 
-        httpServer.requestHandler(router).listen(8000);
+        httpServer.requestHandler(router).listen();
 
 
         promise.complete();
 
 
     }
+
+     JsonObject errorHandler(String error,String errorMessage,String errorCode)
+     {
+         JsonObject result = new JsonObject();
+
+         result.put(Constants.ERROR,error);
+
+         result.put(Constants.ERRORMESSAGE,errorMessage);
+
+         result.put(Constants.ERRORCODE,errorCode);
+
+         result.put(Constants.STATUS,Constants.FAIL);
+
+
+         return result;
+     }
 }

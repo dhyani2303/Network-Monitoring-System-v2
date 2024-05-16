@@ -1,7 +1,7 @@
 package org.motadata.api;
 
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import org.motadata.database.Database;
 import org.motadata.util.Constants;
@@ -29,7 +29,7 @@ public class Credential
 
                 response.put(Constants.STATUS, Constants.SUCCESS);
 
-                LOGGER.info("New Credential profile with id {} has been successfully created"+ id);
+                LOGGER.info("New Credential profile with id {} has been successfully created",id);
 
             } else {
 

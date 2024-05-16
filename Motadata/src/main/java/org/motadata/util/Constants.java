@@ -2,10 +2,13 @@ package org.motadata.util;
 
 public class Constants {
 
-    public static final String HTTPPORT ="httpPort";
+    public static final String HTTPPORT ="http.port";
 
+    public static final String HTTPHOST ="http.host";
 
-    public static final String HTTPHOST ="httpHost";
+    public static final String POLL_TIME ="poll.time";
+
+    public static final String BATCH_SIZE="batch.size";
 
     public static final String CREDENTIALAPI ="/credential";
 
@@ -57,7 +60,13 @@ public class Constants {
 
     public static final String DISCOVERY ="discovery";
 
+    public static final String COLLECT ="collect";
+
     public static final String VALID_CREDENTIALS="validCredentials";
+
+    public static final String VERIFY_DISCOVERY_ID="verifyDiscoveryId";
+
+    public static final String VERIFY_PROVISION="verifyProvision";
 
     public static final String PLUGINPATH="/home/dhyani/Documents/Network-Monitoring-System-v2/pluginEngine/PluginEngine";
 
@@ -74,6 +83,12 @@ public class Constants {
     public static final String EMPTYDISCVOERYFIELD ="DISCOVERYFIELD001";
 
     public static final String EMPTYDISCOVERY ="DISCOVERY001";
+
+    public static final String EMPTY_PROVISION ="PROVISION001";
+
+    public static final String EMPTY_PROVISION_FIELD="PROVISION_FIELD_001";
+
+    public static final String PROVISION_ERROR = "PROVISION002";
 
     public static final String INCORRECTCREDENTIAL="CREDENTIAL002";
 

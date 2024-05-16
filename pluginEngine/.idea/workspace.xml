@@ -39,21 +39,16 @@
   }
 }]]></component>
   <component name="RunManager">
-    <configuration name="go build PluginEngine" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+    <configuration name="go build PluginEngine" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
       <module name="pluginEngine" />
       <working_directory value="$PROJECT_DIR$" />
-      <parameters value="WwogIHsKICAgICJpcCI6ICIxNzIuMTYuOC4xMTMiLAogICAgInBvcnQiOiAiNTk4NSIsCiAgICAiY3JlZGVudGlhbC5wcm9maWxlcyI6CiAgICBbewogICAgInVzZXJuYW1lIjogImRodmFuaSIsCiAgICAicGFzc3dvcmQiOiAiTWluZEAxMiIsCiJjcmVkZW50aWFsLmlkIjoxCiAgICB9XSwKICAgICJyZXF1ZXN0LnR5cGUiOiAiZGlzY292ZXJ5IgogIH0KXQ==" />
+      <parameters value="WwogIHsKICAgICJpcCI6ICIxNzIuMTYuOC4xMTMiLAogICAgInBvcnQiOiAiNTk4NSIsCiAgICAidXNlcm5hbWUiOiAiZGh2YW5pIiwKICAgICJwYXNzd29yZCI6ICJNaW5kQDEyMyIsCiAgICAicmVxdWVzdC50eXBlIjogImNvbGxlY3QiLAoiY3JlZGVudGlhbC5pZHMiIDpbMV0KICB9Cl0=" />
       <kind value="PACKAGE" />
       <package value="PluginEngine" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/bootstrap.go" />
       <method v="2" />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Go Build.go build PluginEngine" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>

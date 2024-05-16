@@ -1,8 +1,8 @@
 package org.motadata.util;
 
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.io.BufferedReader;
@@ -36,19 +36,19 @@ public class ProcessBuilders {
             {
                 if (line.contains("/0%"))
                 {
-                    LOGGER.info("Device with IP address {} is up"+ ipAddress);
+                    LOGGER.info("Device with IP address {} is up",ipAddress);
 
                     return true;
                 }
                 else
                 {
-                    LOGGER.info("Device with IP address {} is down"+ ipAddress);
+                    LOGGER.info("Device with IP address {} is down", ipAddress);
                 }
             }
 
         } catch(IOException | InterruptedException e)
         {
-           LOGGER.error(e.getCause());
+           LOGGER.error(e.getCause().toString());
 
         }
         return false;
@@ -98,13 +98,15 @@ public class ProcessBuilders {
             {
                 var result = Utils.decode(s);
 
-                resultArray.add(result);
+                if (result!=null) {
+                    resultArray.add(result);
+                }
 
             }
 
         } catch(IOException | InterruptedException e)
         {
-            LOGGER.error(e.getCause());
+            LOGGER.error(e.getCause().toString());
 
         }
 

@@ -3,11 +3,15 @@ package org.motadata.api;
 import io.vertx.core.json.JsonObject;
 import org.motadata.database.Database;
 import org.motadata.util.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Discovery {
 
     public static final Database discoveryDatabase = Database.getDatabase(Constants.DISCOVERYDATABASE);
 
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(Discovery.class);
     public static JsonObject createDiscovery(JsonObject discoveryDetails) {
 
         var result = new JsonObject();
@@ -30,6 +34,8 @@ public class Discovery {
 
                         result.put(Constants.STATUS,Constants.FAIL);
 
+                        LOGGER.info("Creation of discovery profile failed because one of the credential Id is incorrect");
+
                         return  result;
 
                     }
@@ -43,6 +49,8 @@ public class Discovery {
 
                 result.put(Constants.ERRORCODE,Constants.SUCCESSCODE);
 
+                LOGGER.info("Discovery profile created  successfully with id {}",id);
+
 
             } else {
                 result.put(Constants.ERROR, "Empty Discovery field");
@@ -53,6 +61,9 @@ public class Discovery {
 
                 result.put(Constants.STATUS,Constants.FAIL);
 
+                LOGGER.info("Creation of discovery profile failed because either ip or port or credential field is empty");
+
+
             }
         } else {
             result.put(Constants.ERROR, "Empty Discovery");
@@ -62,6 +73,9 @@ public class Discovery {
             result.put(Constants.ERRORMESSAGE, "IP or Port or Credential Profiles are not present");
 
             result.put(Constants.STATUS,Constants.FAIL);
+
+            LOGGER.info("Creation of discovery profile failed because either ip or port profile is not present");
+
         }
 
         return result;
@@ -74,6 +88,7 @@ public class Discovery {
         if (result.isEmpty()){
 
             result.put(Constants.MESSAGE,"No Discovery profiles are present");
+
         }
 
         result.put(Constants.STATUS,Constants.SUCCESS);
