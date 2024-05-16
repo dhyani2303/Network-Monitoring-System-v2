@@ -8,7 +8,6 @@ import io.vertx.core.json.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -45,9 +44,9 @@ public class Utils
 
     public static String encode(JsonArray context)
     {
-       var result= Base64.getEncoder().encodeToString(context.toString().getBytes());
+       return Base64.getEncoder().encodeToString(context.toString().getBytes());
 
-       return result;
+
     }
 
     public static JsonObject decode(String context)
@@ -68,9 +67,8 @@ public class Utils
 
         String[] bufferSplit = buffer.toString().split("\\|\\|@@\\|\\|");
 
-        for(int i=0;i<bufferSplit.length;i++)
-        {
-            var result = decode(bufferSplit[i]);
+        for (String s : bufferSplit) {
+            var result = decode(s);
 
             System.out.println(result);
         }

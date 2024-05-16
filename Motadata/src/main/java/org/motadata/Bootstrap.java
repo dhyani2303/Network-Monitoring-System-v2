@@ -4,7 +4,6 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.ThreadingModel;
 import io.vertx.core.Vertx;
 import org.motadata.api.APIServer;
-import org.motadata.api.Discovery;
 import org.motadata.database.Database;
 import org.motadata.engine.DiscoveryEngine;
 import org.motadata.util.Constants;
@@ -27,16 +26,9 @@ public class Bootstrap {
 
         Utils.setConfig();
 
-        vertx.deployVerticle(APIServer.class.getName()).onComplete(handler -> {
+        vertx.deployVerticle(APIServer.class.getName()).onComplete(handler -> System.out.println("Successful"));
 
-            System.out.println("Successful");
-
-        });
-
-        vertx.deployVerticle(DiscoveryEngine.class.getName(),verticleDeployementOptions).onComplete(handler ->{
-
-            System.out.println("Discovery Engine deployed successfully");
-                });
+        vertx.deployVerticle(DiscoveryEngine.class.getName(),verticleDeployementOptions).onComplete(handler -> System.out.println("Discovery Engine deployed successfully"));
 
     }
 }

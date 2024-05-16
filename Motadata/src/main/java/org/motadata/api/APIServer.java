@@ -11,7 +11,6 @@ import io.vertx.ext.web.Router;
 import org.motadata.util.Utils;
 import org.motadata.util.Constants;
 
-import java.nio.Buffer;
 
 public class APIServer extends AbstractVerticle {
 
@@ -31,59 +30,54 @@ public class APIServer extends AbstractVerticle {
 
         var eb = vertx.eventBus();
 
-        router.post(Constants.CREDENTIALAPI).handler(ctx -> {
+        router.post(Constants.CREDENTIALAPI).handler(ctx -> ctx.request().bodyHandler(buffer -> {
 
-            ctx.request().bodyHandler(buffer -> {
+            if (buffer.length() <= 0) {
 
-                if (buffer.length() <= 0) {
+                var result = new JsonObject();
 
-                    var result = new JsonObject();
+                result.put(Constants.ERRORCODE, Constants.EMPTYBODY);
 
-                    result.put(Constants.ERRORCODE, Constants.EMPTYBODY);
+                result.put(Constants.ERRORMESSAGE, "Request body is empty");
 
-                    result.put(Constants.ERRORMESSAGE, "Request body is empty");
+                result.put(Constants.STATUS, Constants.FAIL);
 
-                    result.put(Constants.STATUS, Constants.FAIL);
+                result.put(Constants.ERROR, "Empty Body");
 
-                    result.put(Constants.ERROR, "Empty Body");
-
-                    ctx.response().setStatusCode(400).end(result.toBuffer());
+                ctx.response().setStatusCode(400).end(result.toBuffer());
 
 
-                } else {
-                    try {
-                        var credentialDetails = buffer.toJsonObject();
+            } else {
+                try {
+                    var credentialDetails = buffer.toJsonObject();
 
-                        var result = Credential.createCredential(credentialDetails);
+                    var result = Credential.createCredential(credentialDetails);
 
-                        if (result.getString(Constants.STATUS).equals(Constants.FAIL)) {
+                    if (result.getString(Constants.STATUS).equals(Constants.FAIL)) {
 
-                            ctx.response().setStatusCode(400).end(result.toBuffer());
-                        } else {
+                        ctx.response().setStatusCode(400).end(result.toBuffer());
+                    } else {
 
-                            ctx.json(result);
-                        }
-                    } catch (Exception exception) {
-
-                        var response = new JsonObject();
-
-                        response.put(Constants.STATUS,Constants.FAIL);
-
-                        response.put(Constants.ERROR,"JSON ERROR");
-
-                        response.put(Constants.ERRORCODE,Constants.INVALIDJSON);
-
-                        response.put(Constants.ERRORMESSAGE,"Invalid JSON Format");
-
-                        ctx.response().setStatusCode(400).end(response.toBuffer());
-
-                        LOGGER.error(exception.getCause());
+                        ctx.json(result);
                     }
+                } catch (Exception exception) {
+
+                    var response = new JsonObject();
+
+                    response.put(Constants.STATUS,Constants.FAIL);
+
+                    response.put(Constants.ERROR,"JSON ERROR");
+
+                    response.put(Constants.ERRORCODE,Constants.INVALIDJSON);
+
+                    response.put(Constants.ERRORMESSAGE,"Invalid JSON Format");
+
+                    ctx.response().setStatusCode(400).end(response.toBuffer());
+
+                    LOGGER.error(exception.getCause());
                 }
-            });
-
-
-        });
+            }
+        }));
 
         router.get(Constants.CREDENTIALAPI).handler(ctx -> {
 
@@ -101,62 +95,58 @@ public class APIServer extends AbstractVerticle {
 
         });
 
-        router.post(Constants.DISCOVERYAPI).handler(ctx -> {
+        router.post(Constants.DISCOVERYAPI).handler(ctx -> ctx.request().bodyHandler(buffer -> {
 
-            ctx.request().bodyHandler(buffer -> {
+            if (buffer.length() <= 0) {
 
-                if (buffer.length() <= 0) {
+                var result = new JsonObject();
 
-                    var result = new JsonObject();
+                result.put(Constants.ERRORCODE, Constants.EMPTYBODY);
 
-                    result.put(Constants.ERRORCODE, Constants.EMPTYBODY);
+                result.put(Constants.ERRORMESSAGE, "Request body is empty");
 
-                    result.put(Constants.ERRORMESSAGE, "Request body is empty");
+                result.put(Constants.STATUS, Constants.FAIL);
 
-                    result.put(Constants.STATUS, Constants.FAIL);
+                result.put(Constants.ERROR, "Empty Body");
 
-                    result.put(Constants.ERROR, "Empty Body");
-
-                    ctx.response().setStatusCode(400).end(result.toBuffer());
+                ctx.response().setStatusCode(400).end(result.toBuffer());
 
 
-                } else {
+            } else {
 
-                    try {
-                        var result = Discovery.createDiscovery(buffer.toJsonObject());
+                try {
+                    var result = Discovery.createDiscovery(buffer.toJsonObject());
 
-                        if (result.getString(Constants.STATUS).equals(Constants.FAIL)) {
+                    if (result.getString(Constants.STATUS).equals(Constants.FAIL)) {
 
-                            ctx.response().setStatusCode(400).end(result.toBuffer());
-                        }
-                        else
-                        {
+                        ctx.response().setStatusCode(400).end(result.toBuffer());
+                    }
+                    else
+                    {
 
-                            ctx.json(result);
-                        }
-
-                    }catch (Exception exception) {
-
-                        var response = new JsonObject();
-
-                        response.put(Constants.STATUS,Constants.FAIL);
-
-                        response.put(Constants.ERROR,"JSON ERROR");
-
-                        response.put(Constants.ERRORCODE,Constants.INVALIDJSON);
-
-                        response.put(Constants.ERRORMESSAGE,"Invalid JSON Format");
-
-                        ctx.response().setStatusCode(400).end(response.toBuffer());
-
-                        LOGGER.error(exception.getCause());
+                        ctx.json(result);
                     }
 
+                }catch (Exception exception) {
 
+                    var response = new JsonObject();
+
+                    response.put(Constants.STATUS,Constants.FAIL);
+
+                    response.put(Constants.ERROR,"JSON ERROR");
+
+                    response.put(Constants.ERRORCODE,Constants.INVALIDJSON);
+
+                    response.put(Constants.ERRORMESSAGE,"Invalid JSON Format");
+
+                    ctx.response().setStatusCode(400).end(response.toBuffer());
+
+                    LOGGER.error(exception.getCause());
                 }
-            });
 
-        });
+
+            }
+        }));
         router.get(Constants.DISCOVERYAPI).handler(ctx -> {
 
             var result =Discovery.getDiscovery();
@@ -172,59 +162,55 @@ public class APIServer extends AbstractVerticle {
 
 
         });
-        router.post(Constants.DISCOVERYRUNAPI).handler(ctx -> {
+        router.post(Constants.DISCOVERYRUNAPI).handler(ctx -> ctx.request().bodyHandler(buffer -> {
 
-            ctx.request().bodyHandler(buffer -> {
+            if (buffer.length() <= 0) {
 
-                if (buffer.length() <= 0) {
+                var result = new JsonObject();
 
-                    var result = new JsonObject();
+                result.put(Constants.ERRORCODE, Constants.EMPTYBODY);
 
-                    result.put(Constants.ERRORCODE, Constants.EMPTYBODY);
+                result.put(Constants.ERRORMESSAGE, "Request body is empty");
 
-                    result.put(Constants.ERRORMESSAGE, "Request body is empty");
+                result.put(Constants.STATUS, Constants.FAIL);
 
-                    result.put(Constants.STATUS, Constants.FAIL);
+                result.put(Constants.ERROR, "Empty Body");
 
-                    result.put(Constants.ERROR, "Empty Body");
-
-                    ctx.response().setStatusCode(400).end(result.toBuffer());
+                ctx.response().setStatusCode(400).end(result.toBuffer());
 
 
-                } else {
+            } else {
 
-                    try {
-                        var dataToSend = buffer.toJsonObject();
+                try {
+                    var dataToSend = buffer.toJsonObject();
 
-                      eb.request(Constants.DISCOVERYADDRESS,dataToSend,handler->{
+                  eb.request(Constants.DISCOVERYADDRESS,dataToSend,handler->{
 
-                          if (handler.succeeded())
-                          {
-                              ctx.response().end(handler.result().body().toString());
-                          }
-                      });
-                    }catch (Exception exception) {
+                      if (handler.succeeded())
+                      {
+                          ctx.response().end(handler.result().body().toString());
+                      }
+                  });
+                }catch (Exception exception) {
 
-                        var response = new JsonObject();
+                    var response = new JsonObject();
 
-                        response.put(Constants.STATUS,Constants.FAIL);
+                    response.put(Constants.STATUS,Constants.FAIL);
 
-                        response.put(Constants.ERROR,"JSON ERROR");
+                    response.put(Constants.ERROR,"JSON ERROR");
 
-                        response.put(Constants.ERRORCODE,Constants.INVALIDJSON);
+                    response.put(Constants.ERRORCODE,Constants.INVALIDJSON);
 
-                        response.put(Constants.ERRORMESSAGE,"Invalid JSON Format");
+                    response.put(Constants.ERRORMESSAGE,"Invalid JSON Format");
 
-                        ctx.response().setStatusCode(400).end(response.toBuffer());
+                    ctx.response().setStatusCode(400).end(response.toBuffer());
 
-                        LOGGER.error(exception.getCause());
-                    }
-
-
+                    LOGGER.error(exception.getCause());
                 }
-            });
 
-        });
+
+            }
+        }));
 
         router.post(Constants.PROVISION).handler(ctx -> {
 

@@ -79,8 +79,6 @@ public class Constants {
 
     public static final String INCORRECTDISCOVERY="DISCOVERY002";
 
-    public static final String DEVICEAVAILABILITY="DEVICEAVAILABILITY001";
-
     public static final String INVALIDJSON="JSON001";
 
     public static final String FAILED_DISCOVERY="DISCOVERY_FAILED001";
