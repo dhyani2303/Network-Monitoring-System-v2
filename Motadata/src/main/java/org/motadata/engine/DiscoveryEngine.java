@@ -17,6 +17,8 @@ public class DiscoveryEngine extends AbstractVerticle
 
     public static final Database credentialDatabase = Database.getDatabase(Constants.CREDENTIALDATABASE);
 
+    public static final Database validCredentials = Database.getDatabase(Constants.VALID_CREDENTIALS);
+
     public static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryEngine.class);
 
     public void start(Promise<Void> promise)
@@ -74,9 +76,54 @@ public class DiscoveryEngine extends AbstractVerticle
 
                         context.add(discoveryProfileDetails);
 
-                     var value = ProcessBuilders.spawnPluginEngine(context);
+                     var output = ProcessBuilders.spawnPluginEngine(context);
 
-                     requestedData.reply(value);
+                     //for discovery there will be only one context passed
+
+                        var contextResult = output.getJsonObject(0);
+
+                        if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                        {
+                            var validCredentialData = new JsonObject();
+
+                            validCredentialData.put(Constants.DISCOVERYID,requestedData.body().getString(Constants.DISCOVERYID));
+
+                            validCredentialData.put(Constants.CREDENTIALID,contextResult.getString(Constants.CREDENTIALID));
+
+                            validCredentials.create(validCredentialData);
+
+                            result.put(Constants.STATUS,Constants.SUCCESS);
+
+                            result.put(Constants.ERRORCODE,Constants.SUCCESSCODE);
+
+                            result.put(Constants.MESSAGE,"Discovery of the device is successful");
+
+                            LOGGER.info("Discovery succeeded");
+
+                        }
+                        else
+                        {
+
+                            var errorInResult = contextResult.getJsonArray(Constants.ERROR);
+
+                            var errors = new JsonArray();
+
+                            for (Object error : errorInResult)
+                            {
+                                errors.add(error);
+                            }
+
+                            result.put(Constants.ERROR,errors);
+
+                            result.put(Constants.ERRORMESSAGE,"Discovery Failed");
+
+                            result.put(Constants.STATUS,Constants.FAIL);
+
+                            result.put(Constants.ERRORCODE,Constants.FAILED_DISCOVERY);
+
+                            LOGGER.info("Discovery failed "+ errors);
+
+                        }
 
                     }
                     else
@@ -89,7 +136,9 @@ public class DiscoveryEngine extends AbstractVerticle
 
                         result.put(Constants.ERRORCODE,Constants.INCORRECTDISCOVERY);
 
-                        LOGGER.info("Discovery failed because the device with ip address {} is down"+ discoveryProfileDetails.getString(Constants.IP));
+                        LOGGER.info("Discovery failed because the device with ip address {} is down"+discoveryProfileDetails.getString(Constants.IP));
+
+
                     }
 
                 }
@@ -136,6 +185,8 @@ public class DiscoveryEngine extends AbstractVerticle
             LOGGER.info("Discovery failed because context provided is empty");
 
         }
+
+        requestedData.reply(result);
 
     }
 

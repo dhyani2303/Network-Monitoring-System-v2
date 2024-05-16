@@ -200,8 +200,6 @@ public class APIServer extends AbstractVerticle {
 
                           if (handler.succeeded())
                           {
-                              System.out.println(handler.result().body());
-
                               ctx.response().end(handler.result().body().toString());
                           }
                       });

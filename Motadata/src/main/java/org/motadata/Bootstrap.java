@@ -23,6 +23,8 @@ public class Bootstrap {
 
         Database.createDatabase(Constants.CREDENTIALDATABASE);
 
+        Database.createDatabase(Constants.VALID_CREDENTIALS);
+
         Utils.setConfig();
 
         vertx.deployVerticle(APIServer.class.getName()).onComplete(handler -> {

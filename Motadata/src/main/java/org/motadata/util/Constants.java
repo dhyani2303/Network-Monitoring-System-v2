@@ -57,6 +57,8 @@ public class Constants {
 
     public static final String DISCOVERY ="discovery";
 
+    public static final String VALID_CREDENTIALS="validCredentials";
+
     public static final String PLUGINPATH="/home/dhyani/Documents/Network-Monitoring-System-v2/pluginEngine/PluginEngine";
 
 
@@ -80,6 +82,8 @@ public class Constants {
     public static final String DEVICEAVAILABILITY="DEVICEAVAILABILITY001";
 
     public static final String INVALIDJSON="JSON001";
+
+    public static final String FAILED_DISCOVERY="DISCOVERY_FAILED001";
 
 
 
