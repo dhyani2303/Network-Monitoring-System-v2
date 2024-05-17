@@ -8,11 +8,12 @@ import io.vertx.core.json.JsonObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.TimeUnit;
 
 
-public class ProcessBuilders {
+public class ProcessBuilderUtil {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(ProcessBuilders.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(ProcessBuilderUtil.class);
 
     public static boolean checkAvailability(JsonObject data)
     {
@@ -26,9 +27,20 @@ public class ProcessBuilders {
         {
             Process process = processBuilder.start();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+           var timeout= process.waitFor(Long.parseLong(Utils.configMap.get(Constants.PROCESS_TIMEOUT).toString()), TimeUnit.SECONDS);
 
-            process.waitFor();
+           process.waitFor();
+
+           if (!timeout)
+            {
+                process.destroyForcibly();
+
+                LOGGER.warn("Process has been killed as it exceeded the timeout duration");
+
+                return false;
+            }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
             String line;
 
@@ -65,7 +77,7 @@ public class ProcessBuilders {
 
         String  encodedContext = Utils.encode(context);
 
-        ProcessBuilder processBuilder = new ProcessBuilder(Constants.PLUGINPATH,encodedContext);
+        ProcessBuilder processBuilder = new ProcessBuilder(Constants.PLUGIN_PATH,encodedContext);
 
         processBuilder.redirectErrorStream(true);
 
@@ -73,9 +85,22 @@ public class ProcessBuilders {
         {
             Process process = processBuilder.start();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            var timeout= process.waitFor(Long.parseLong(Utils.configMap.get(Constants.PROCESS_TIMEOUT).toString()), TimeUnit.SECONDS);
 
-            process.waitFor();
+
+
+            if (!timeout)
+            {
+                process.destroyForcibly();
+
+                LOGGER.warn("Process has been killed as it exceeded the timeout duration");
+
+                return null;
+
+            }
+//
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
             String line;
 
@@ -99,6 +124,7 @@ public class ProcessBuilders {
                 var result = Utils.decode(s);
 
                 if (result!=null) {
+
                     resultArray.add(result);
                 }
 

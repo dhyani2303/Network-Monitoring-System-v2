@@ -43,7 +43,6 @@ public class Database {
             LOGGER.info("Database with name {} already exists",name);
         }
 
-
     }
 
     public static void addValidCredentials(Long discoveryId,Long credentialId)
@@ -90,9 +89,6 @@ public class Database {
     {
         return validCredentials.get(discoveryId);
     }
-
-
-
 
     public static Database getDatabase(String name)
     {
@@ -141,11 +137,88 @@ public class Database {
         return result.copy();
     }
 
+    public void update(JsonObject updatedData,long id)
+    {
+
+        var previousData = DATA.get(id);
+
+        var mapOfUpdatedData = updatedData.getMap();
+
+        var keysOfUpdatedData = mapOfUpdatedData.keySet();
+
+        for (var key : keysOfUpdatedData)
+        {
+            previousData.put(key,mapOfUpdatedData.get(key));
+        }
+
+
+    }
+
+    public boolean delete(long id)
+    {
+        //for discovery id present in provisioned devices
+        if (provisionedDevices.contains(id))
+        {
+            return false;
+        }
+        else
+        {
+          //to delete credential id
+            var discoveredDevices = validCredentials.entrySet();
+
+            for ( var validCredential : discoveredDevices)
+            {
+                if (validCredential.getValue().equals(id))
+                {
+                    if (provisionedDevices.contains(validCredential.getKey()))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        validCredentials.remove(validCredential.getKey());
+
+                        DATA.remove(id);
+
+                        return true;
+                    }
+                }
+
+            }
+            //to delete discovery id
+            if (validCredentials.containsKey(id) )
+            {
+                validCredentials.remove(id);
+            }
+            DATA.remove(id);
+
+            return true;
+
+
+        }
+    }
+
     public boolean verify(long key)
     {
         LOGGER.info("Verification for the key {} is served",key);
 
-        return DATA.containsKey(key);
+       return DATA.containsKey(key);
 
+    }
+
+    public boolean verify(String name)
+    {
+        var jsonValues = DATA.values();
+
+        for (var jsonValue : jsonValues)
+        {
+            if (name.equals(jsonValue.getString(Constants.NAME)))
+            {
+                return true;
+            }
+
+        }
+
+        return false;
     }
 }

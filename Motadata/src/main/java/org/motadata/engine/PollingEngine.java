@@ -6,7 +6,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.motadata.database.Database;
 import org.motadata.util.Constants;
-import org.motadata.util.ProcessBuilders;
+import org.motadata.util.FileUtil;
+import org.motadata.util.ProcessBuilderUtil;
 import org.motadata.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +16,9 @@ public class PollingEngine extends AbstractVerticle {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(PollingEngine.class);
 
-    Database credentialDatabase = Database.getDatabase(Constants.CREDENTIALDATABASE);
+    Database credentialDatabase = Database.getDatabase(Constants.CREDENTIAL_DATABASE);
 
-    Database discoveryDatabase = Database.getDatabase(Constants.DISCOVERYDATABASE);
+    Database discoveryDatabase = Database.getDatabase(Constants.DISCOVERY_DATABASE);
 
     public void start(Promise<Void> start) {
 
@@ -42,7 +43,7 @@ public class PollingEngine extends AbstractVerticle {
 
                         var discoveryDetails = discoveryDatabase.get(Long.parseLong(id.toString()));
 
-                        var available = ProcessBuilders.checkAvailability(discoveryDetails);
+                        var available = ProcessBuilderUtil.checkAvailability(discoveryDetails);
 
                         if (available) {
                             var credentialId = Database.getCredentialId(Long.parseLong(id.toString()));
@@ -57,19 +58,46 @@ public class PollingEngine extends AbstractVerticle {
 
                             context.add(discoveryDetails);
 
-                            var outputs = ProcessBuilders.spawnPluginEngine(context);
+                            var outputs = ProcessBuilderUtil.spawnPluginEngine(context);
+
+                            if (outputs!=null) {
+                                for (Object output : outputs) {
+
+                                    var jsonData = new JsonObject(output.toString());
+
+                                    if (jsonData.getString(Constants.STATUS).equals(Constants.SUCCESS)) {
+
+                                        FileUtil.writeToFile(vertx, jsonData).onSuccess(v -> {
+
+                                                    LOGGER.info("Content written to file {}", jsonData);
+
+                                                })
+                                                .onFailure(err -> {
+
+                                                    LOGGER.error("Failed to write file", err);
 
 
-                            System.out.println(outputs);
+                                                });
+
+                                    } else {
+                                        LOGGER.error("Polling status is fail {}", jsonData);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                LOGGER.warn("Null has been return from plugin engine");
+                            }
+
 
                         } else {
                             result.put(Constants.ERROR, "Device Availability");
 
-                            result.put(Constants.ERRORMESSAGE, "Device is down for a while");
+                            result.put(Constants.ERROR_MESSAGE, "Device is down for a while");
 
                             result.put(Constants.STATUS, Constants.FAIL);
 
-                            result.put(Constants.ERRORCODE, Constants.INCORRECTDISCOVERY);
+                            result.put(Constants.ERROR_CODE, Constants.INCORRECT_DISCOVERY);
 
                             LOGGER.info("Discovery failed because the device with ip address {} is down", discoveryDetails.getString(Constants.IP));
                         }

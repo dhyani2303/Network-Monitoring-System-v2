@@ -75,6 +75,13 @@
             <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
         </encoder>
     </appender>
+
+    <appender name="FILE_UTIL_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>fileutils.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
     <!-- Root Logger -->
     <root level="info">
         <appender-ref ref="STDOUT" />
@@ -107,7 +114,7 @@
         <appender-ref ref="DISCOVERYENGINE_LOGS" />
     </logger>
 
-    <logger name="org.motadata.util.ProcessBuilders" level="TRACE" additivity="false">
+    <logger name="org.motadata.util.ProcessBuilderUtil" level="TRACE" additivity="false">
         <appender-ref ref="PROCESSBUILDER_LOGS" />
     </logger>
 
@@ -120,6 +127,9 @@
         <appender-ref ref="UTILS_LOGS" />
     </logger>
 
+    <logger name="org.motadata.util.FileUtil" level="TRACE" additivity="false">
+        <appender-ref ref="FILE_UTIL_LOGS" />
+    </logger>
 
 
 

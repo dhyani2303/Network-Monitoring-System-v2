@@ -14,31 +14,31 @@ public class Provision {
     {
         var result = new JsonObject();
 
-        if (context.containsKey(Constants.DISCOVERYID))
+        if (context.containsKey(Constants.DISCOVERY_ID))
         {
-            if (!(context.getString(Constants.DISCOVERYID).isEmpty()))
+            if (!(context.getString(Constants.DISCOVERY_ID).isEmpty()))
             {
-                if (Database.verifyId(Long.parseLong(context.getString(Constants.DISCOVERYID)),Constants.VERIFY_DISCOVERY_ID))
+                if (Database.verifyId(Long.parseLong(context.getString(Constants.DISCOVERY_ID)),Constants.VERIFY_DISCOVERY_ID))
                 {
-                    if (!(Database.verifyId(Long.parseLong(context.getString(Constants.DISCOVERYID)),Constants.VERIFY_PROVISION)))
+                    if (!(Database.verifyId(Long.parseLong(context.getString(Constants.DISCOVERY_ID)),Constants.VERIFY_PROVISION)))
                     {
-                        Database.addProvisionDevice(Long.parseLong(context.getString(Constants.DISCOVERYID)));
+                        Database.addProvisionDevice(Long.parseLong(context.getString(Constants.DISCOVERY_ID)));
 
                         result.put(Constants.MESSAGE, "Device has been provisioned successfully");
 
-                        result.put(Constants.ERRORCODE, Constants.SUCCESSCODE);
+                        result.put(Constants.ERROR_CODE, Constants.SUCCESS_CODE);
 
                         result.put(Constants.STATUS,Constants.SUCCESS);
 
-                        LOGGER.info("Device with id {} is provisioned",context.getString(Constants.DISCOVERYID));
+                        LOGGER.info("Device with id {} is provisioned",context.getString(Constants.DISCOVERY_ID));
                     }
                     else
                     {
                         result.put(Constants.ERROR, "Already Provisioned");
 
-                        result.put(Constants.ERRORCODE, Constants.PROVISION_ERROR);
+                        result.put(Constants.ERROR_CODE, Constants.PROVISION_ERROR);
 
-                        result.put(Constants.ERRORMESSAGE, "The device is already provisioned");
+                        result.put(Constants.ERROR_MESSAGE, "The device is already provisioned");
 
                         result.put(Constants.STATUS,Constants.FAIL);
 
@@ -51,9 +51,9 @@ public class Provision {
                 {
                     result.put(Constants.ERROR, "Discovery Not Done");
 
-                    result.put(Constants.ERRORCODE, Constants.PROVISION_ERROR);
+                    result.put(Constants.ERROR_CODE, Constants.PROVISION_ERROR);
 
-                    result.put(Constants.ERRORMESSAGE, "The device is not discovered yet");
+                    result.put(Constants.ERROR_MESSAGE, "The device is not discovered yet");
 
                     result.put(Constants.STATUS,Constants.FAIL);
 
@@ -66,9 +66,9 @@ public class Provision {
             {
                 result.put(Constants.ERROR, "Empty Discovery Field");
 
-                result.put(Constants.ERRORCODE, Constants.EMPTY_PROVISION_FIELD);
+                result.put(Constants.ERROR_CODE, Constants.EMPTY_PROVISION_FIELD);
 
-                result.put(Constants.ERRORMESSAGE, "Discovery ID is empty");
+                result.put(Constants.ERROR_MESSAGE, "Discovery ID is empty");
 
                 result.put(Constants.STATUS,Constants.FAIL);
 
@@ -80,9 +80,9 @@ public class Provision {
         {
             result.put(Constants.ERROR, "Empty Provision");
 
-            result.put(Constants.ERRORCODE, Constants.EMPTY_PROVISION);
+            result.put(Constants.ERROR_CODE, Constants.EMPTY_PROVISION);
 
-            result.put(Constants.ERRORMESSAGE, "Discovery ID is not present");
+            result.put(Constants.ERROR_MESSAGE, "Discovery ID is not present");
 
             result.put(Constants.STATUS,Constants.FAIL);
 
