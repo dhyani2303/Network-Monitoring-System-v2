@@ -116,9 +116,9 @@ public class Database {
         JsonObject result = new JsonObject();
 
         DATA.forEach((key, value) ->
-        {
-            result.put(String.valueOf(key), value);
-        });
+
+            result.put(String.valueOf(key), value)
+        );
 
         LOGGER.info("Get all the data has been served");
 

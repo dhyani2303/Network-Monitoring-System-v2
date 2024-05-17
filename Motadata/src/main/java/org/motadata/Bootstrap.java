@@ -38,11 +38,11 @@ public class Bootstrap {
             LOGGER.info("Discovery Engine has been deployed")
         );
 
-        vertx.deployVerticle(PollingEngine.class.getName(),verticleDeployementOptions).onComplete(handler->{
+        vertx.deployVerticle(PollingEngine.class.getName(),verticleDeployementOptions).onComplete(handler->
 
-            LOGGER.info("Polling Engine has been deployed");
+            LOGGER.info("Polling Engine has been deployed")
 
-        });
+        );
 
     }
 }

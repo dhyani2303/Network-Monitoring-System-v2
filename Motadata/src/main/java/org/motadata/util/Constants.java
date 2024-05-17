@@ -28,10 +28,6 @@ public class Constants {
 
     public static final String PASSWORD ="password";
 
-    public static final String CREDENTIAL_NAME ="credential.name";
-
-    public static final String DISCOVERY_NAME ="discovery.name";
-
     public static final String ERROR="error";
 
     public static final String ERROR_MESSAGE ="error.message";
