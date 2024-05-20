@@ -6,9 +6,10 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import org.motadata.api.APIServer;
 import org.motadata.database.Database;
+
+import org.motadata.constants.Constants;
 import org.motadata.engine.DiscoveryEngine;
 import org.motadata.engine.PollingEngine;
-import org.motadata.constants.Constants;
 import org.motadata.util.Utils;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,8 @@ public class Bootstrap {
         Database.createDatabase(Constants.DISCOVERY_DATABASE);
 
         Database.createDatabase(Constants.CREDENTIAL_DATABASE);
+
+        Database.createDatabase(Constants.PROVISION_DATABASE);
 
         Utils.setConfig(vertx).onComplete(configHandler -> {
 

@@ -28,7 +28,9 @@ public class Utils
 
     private static final AtomicLong counter = new AtomicLong(0);
 
-    public static long getNewId(){
+    public static long getNewId()
+    {
+        LOGGER.info("A request to generate a new id has come");
 
         return counter.incrementAndGet();
     }
@@ -37,28 +39,37 @@ public class Utils
     {
         Promise<Void> promise = Promise.promise();
 
-        vertx.fileSystem().readFile(System.getProperty("user.dir") + "/config/configuration.json",handler->{
-
-            if (handler.succeeded())
+        try {
+            vertx.fileSystem().readFile(System.getProperty("user.dir") + "/config/configuration.json", handler ->
             {
-                var data = handler.result().toJsonObject();
+                if (handler.succeeded())
+                {
+                    var data = handler.result().toJsonObject();
 
-                for (var key : data.fieldNames()) {
+                    for (var key : data.fieldNames())
+                    {
+                        configMap.put(key, data.getValue(key));
+                    }
 
-                    configMap.put(key, data.getValue(key));
+                    LOGGER.info("Set config method has run successfully");
+
+                    promise.complete();
                 }
+                else
+                {
+                    LOGGER.error("Some error occurred in setConfig method {}",handler.cause().toString());
 
-                promise.complete();
-            }
-            else
-            {
-                LOGGER.error(handler.cause().toString());
+                    promise.fail(handler.cause());
+                }
+            });
 
-                promise.fail(handler.cause());
-            }
-        });
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Some exception occurred in setConfig method");
 
-
+            promise.fail("Exception occurred");
+        }
         return promise.future();
 
     }
@@ -67,54 +78,40 @@ public class Utils
     {
         Promise<Void> promise = Promise.promise();
 
-        var ip = data.getString(Constants.IP_ADDRESS);
+        try {
 
-        var now = LocalDateTime.now();
+            var ip = data.getString(Constants.IP_ADDRESS);
 
-        data.put(Constants.TIMESTAMP, now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            var now = LocalDateTime.now();
 
-        var fileName = ip + ".txt";
+            data.put(Constants.TIMESTAMP, now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        var buffer = Buffer.buffer(data.encodePrettily());
+            var fileName = ip + ".txt";
 
-        vertx.fileSystem().openBlocking(fileName,new OpenOptions().setAppend(true).setCreate(true)).write(buffer).onComplete(handler->
-                {
-                    LOGGER.info("Content written to file");
+            var buffer = Buffer.buffer(data.encodePrettily());
 
-                    promise.complete();
+            vertx.fileSystem().openBlocking(fileName, new OpenOptions().setAppend(true).setCreate(true)).write(buffer).onComplete(handler ->
+            {
+                LOGGER.info("Content has been written to the file named {}",fileName);
 
-                }).onFailure(handler->
-                {
-                    LOGGER.warn("Error occurred while opening the file {}",handler.getCause().toString());
+                promise.complete();
 
-                    promise.fail(handler.getCause());
-                });
+            }).onFailure(handler ->
+            {
+                LOGGER.warn("Error occurred while opening the file {}", handler.getCause().toString());
 
-        return promise.future();
-    }
-
-    public static String encode(JsonArray context)
-    {
-       return Base64.getEncoder().encodeToString(context.toString().getBytes());
-    }
-
-    public static JsonObject decode(String context)
-    {
-
-        if (context!=null) {
-
-            var decodedBytes = Base64.getDecoder().decode(context);
-            
-            return new JsonObject(new String(decodedBytes));
+                promise.fail(handler.getCause());
+            });
 
         }
-        else
+        catch (Exception exception)
         {
-            return null;
+            LOGGER.error("Some exception occurred in writeToFile method",exception);
+
+             promise.fail("Exception occurred");
         }
+        return promise.future();
 
     }
-
-
 
 }

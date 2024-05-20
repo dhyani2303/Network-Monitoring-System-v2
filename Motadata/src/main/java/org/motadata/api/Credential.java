@@ -18,62 +18,62 @@ public class Credential {
 
     public final static Database credentialDatabase = Database.getDatabase(Constants.CREDENTIAL_DATABASE);
 
-    public static JsonObject deleteCredential(String id) {
-
-        var response = new JsonObject();
-
-        var idVerification = credentialDatabase.verify(Long.parseLong(id));
-
-        if (idVerification) {
-            var result = credentialDatabase.delete(Long.parseLong(id));
-
-            if (result) {
-                response.put(Constants.ERROR_CODE, Constants.SUCCESS_CODE);
-
-                response.put(Constants.MESSAGE, "Successfully deleted the credential profile");
-
-                response.put(Constants.STATUS, Constants.SUCCESS);
-
-                LOGGER.info("Deletion successful of id {}", id);
-
-            } else {
-                response.put(Constants.ERROR_MESSAGE, "Device is already provisioned");
-
-                response.put(Constants.ERROR, "Device Provisioned");
-
-                response.put(Constants.ERROR_CODE, Constants.ALREADY_PROVISION);
-
-                response.put(Constants.STATUS, Constants.FAIL);
-
-                LOGGER.info("Unable to delete as the credential id is already provisioned", id);
-            }
-
-        } else {
-            response.put(Constants.ERROR_MESSAGE, "Id does not exist");
-
-            response.put(Constants.ERROR, "Invalid Id");
-
-            response.put(Constants.ERROR_CODE, Constants.INVALID_CREDENTIAL_ID);
-
-            response.put(Constants.STATUS, Constants.FAIL);
-
-            LOGGER.info("Unable to delete as the credential id is invalid id: {}", id);
-
-        }
-
-        return response;
-    }
+//    public static JsonObject deleteCredential(String id) {
+//
+//        var response = new JsonObject();
+//
+//        var idVerification = credentialDatabase.verify(Long.parseLong(id));
+//
+//        if (idVerification) {
+//            var result = credentialDatabase.delete(Long.parseLong(id));
+//
+//            if (result) {
+//                response.put(Constants.ERROR_CODE, Constants.SUCCESS_CODE);
+//
+//                response.put(Constants.MESSAGE, "Successfully deleted the credential profile");
+//
+//                response.put(Constants.STATUS, Constants.SUCCESS);
+//
+//                LOGGER.info("Deletion successful of id {}", id);
+//
+//            } else {
+//                response.put(Constants.ERROR_MESSAGE, "Device is already provisioned");
+//
+//                response.put(Constants.ERROR, "Device Provisioned");
+//
+//                response.put(Constants.ERROR_CODE, Constants.ALREADY_PROVISION);
+//
+//                response.put(Constants.STATUS, Constants.FAIL);
+//
+//                LOGGER.info("Unable to delete as the credential id is already provisioned", id);
+//            }
+//
+//        } else {
+//            response.put(Constants.ERROR_MESSAGE, "Id does not exist");
+//
+//            response.put(Constants.ERROR, "Invalid Id");
+//
+//            response.put(Constants.ERROR_CODE, Constants.INVALID_CREDENTIAL_ID);
+//
+//            response.put(Constants.STATUS, Constants.FAIL);
+//
+//            LOGGER.info("Unable to delete as the credential id is invalid id: {}", id);
+//
+//        }
+//
+//        return response;
+//    }
 
     private Router router;
 
-    public void setRouter(Vertx vertx)
+    public void init(Vertx vertx)
     {
         router = Router.router(vertx);
 
         router.route().handler(BodyHandler.create());
     }
 
-    public Router init()
+    public Router getRouter()
     {
         router.post(Constants.ROUTE_PATH).handler(this::createCredential);
 
@@ -94,7 +94,8 @@ public class Credential {
 
         var response = new JsonObject();
 
-        try {
+        try
+        {
             if (data.isEmpty())
             {
                 response = Handler.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
@@ -106,11 +107,11 @@ public class Credential {
             }
             else
             {
-                if (data.containsKey(Constants.USERNAME) && data.containsKey(Constants.PASSWORD) && data.containsKey(Constants.NAME) &&
+                if (data.containsKey(Constants.USERNAME) && data.containsKey(Constants.PASSWORD) && data.containsKey(Constants.CREDENTIAL_PROFILE_NAME) &&
 
-                            (!(data.getString(Constants.USERNAME).isEmpty())) && (!(data.getString(Constants.PASSWORD).isEmpty())) && (!(data.getString(Constants.NAME).isEmpty()))) {
+                            (!(data.getString(Constants.USERNAME).isEmpty())) && (!(data.getString(Constants.PASSWORD).isEmpty())) && (!(data.getString(Constants.CREDENTIAL_PROFILE_NAME).isEmpty()))) {
 
-                    if (!credentialDatabase.verify(data.getString(Constants.NAME)))
+                    if (!credentialDatabase.verify(Constants.CREDENTIAL_PROFILE_NAME,data.getString(Constants.CREDENTIAL_PROFILE_NAME)))
                         {
                             var id = credentialDatabase.create(data);
 
@@ -176,13 +177,16 @@ public class Credential {
 
         var response = new JsonObject();
 
-        try {
+        try
+        {
             System.out.println(credentialDatabase.get().isEmpty());
 
             var result = credentialDatabase.get();
 
-            if (result != null) {
-                if (result.isEmpty()) {
+            if (result != null)
+            {
+                if (result.isEmpty())
+                {
                     LOGGER.info("Unable to get the credential details as there are no credential profiles");
 
                     response.put(Constants.MESSAGE, "No credential profiles are present");
@@ -197,7 +201,9 @@ public class Credential {
                 LOGGER.info("Get request for {} has been served with result {}", Constants.CREDENTIAL_API, response);
 
                 context.response().setStatusCode(200).end(response.encodePrettily());
-            } else {
+            }
+            else
+            {
                 response = Handler.errorHandler("Failure", "Failed to get the credential profiles", Constants.EXCEPTION);
 
                 LOGGER.error("Some exception might have occurred while fetching the data as the result is null");
@@ -205,7 +211,8 @@ public class Credential {
                 context.response().setStatusCode(500).end(response.encodePrettily());
 
             }
-        } catch (Exception exception)
+        }
+        catch (Exception exception)
         {
             response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
@@ -221,14 +228,18 @@ public class Credential {
     private void getCredential(RoutingContext context)
     {
         var response = new JsonObject();
-        try {
+
+        try
+        {
             var credentialId = context.pathParam(Constants.ID);
 
 
-            if (credentialDatabase.verify(Long.parseLong(credentialId))) {
+            if (credentialDatabase.verify(Long.parseLong(credentialId)))
+            {
                 response = credentialDatabase.get(Long.parseLong(credentialId));
 
-                if (response != null) {
+                if (response != null)
+                {
                     response.put(Constants.STATUS, Constants.SUCCESS);
 
                     response.put(Constants.ERROR_CODE, Constants.SUCCESS_CODE);
@@ -237,7 +248,9 @@ public class Credential {
 
                     context.response().setStatusCode(200).end(response.encodePrettily());
 
-                } else {
+                }
+                else
+                {
                     response = Handler.errorHandler("Failure", "Failed to get the credential profile", Constants.EXCEPTION);
 
                     LOGGER.error("Some exception might have occurred while fetching the data as the result is null");
@@ -245,15 +258,14 @@ public class Credential {
                     context.response().setStatusCode(500).end(response.encodePrettily());
 
                 }
-            } else {
-
+            }
+            else
+            {
                 response = Handler.errorHandler("Invalid ID", "Id does not exist", Constants.INVALID_CREDENTIAL_ID);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
                 LOGGER.info("Unable to get the credential details as there are no credential profile with specific id");
-
-
             }
         }
         catch (Exception exception)

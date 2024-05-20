@@ -39,18 +39,17 @@ public class DiscoveryEngine extends AbstractVerticle {
 
             var discoveryProfileDetails = discoveryDatabase.get(Long.parseLong(discoveryId));
 
-            if (ProcessUtil.checkAvailability(discoveryProfileDetails))
-            {
+          //  if (ProcessUtil.checkAvailability(discoveryProfileDetails))
+          //  {
                 var context = new JsonArray();
 
-                var  credentialIds =  discoveryProfileDetails.getJsonArray(Constants.CREDENTIAL_IDS);
+                var  credentialIds =  discoveryProfileDetails.getJsonArray(Constants.CREDENTIAL_IDS).copy();
 
                 var credentialProfiles = new JsonArray();
+
                 for (var credentialId : credentialIds)
                 {
                     var credentialDetails = credentialDatabase.get(Long.parseLong(credentialId.toString()));
-
-                    System.out.println(credentialDetails);
 
                     credentialDetails.put(Constants.CREDENTIAL_ID, credentialId);
 
@@ -79,7 +78,7 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                         contextResult.remove(Constants.RESULT);
 
-                        System.out.println(contextResult);
+                        contextResult.remove(Constants.REQUEST_TYPE);
 
                         discoveryDatabase.update(contextResult,Long.parseLong(discoveryId));
 
@@ -96,7 +95,7 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                 }
 
-            }
+           // }
         }
         catch (Exception exception)
         {

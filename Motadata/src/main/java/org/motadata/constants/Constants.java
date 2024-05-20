@@ -20,7 +20,9 @@ public class Constants {
 
     public static final String RUN_API ="/run/:id";
 
-    public static final String PROVISION ="/provision";
+    public static final String RUN_API_RESULT ="/run/result/:id";
+
+    public static final String PROVISION_API ="/provision/*";
 
     public static final String USERNAME ="user.name";
 
@@ -58,6 +60,8 @@ public class Constants {
 
     public static final String DISCOVERY_DATABASE ="discovery.database";
 
+    public static final String PROVISION_DATABASE ="provision.database";
+
     public static final String CREDENTIAL_ID ="credential.id";
 
     public static final String REQUEST_TYPE ="request.type";
@@ -68,17 +72,21 @@ public class Constants {
 
     public static final String RESULT ="result";
 
-    public static final String NAME ="name";
+    public static final String CREDENTIAL_PROFILE_NAME ="credential.profile.name";
+
+    public static final String DISCOVERY_PROFILE_NAME ="discovery.profile.name";
+
+    public static final String PROVISION_ID ="provision.id";
 
     public static final String PROCESS_TIMEOUT ="process.timeout";
-
-    public static final String VERIFY_DISCOVERY_ID="verify.discovery.id";
-
-    public static final String VERIFY_PROVISION="verify.provision";
 
     public static final String PLUGIN_PATH ="plugin.path";
 
     public static final String VALID_CREDENTIAL_ID = "valid.credential.id";
+
+    public static final String SEPERATOR = "||@@||";
+
+    public static final String REGEX_SEPERATOR = "\\|\\|@@\\|\\|";
 
     //Error code
     public static final String INCORRECT_CREDENTIAL ="CREDENTIAL001";
@@ -87,15 +95,9 @@ public class Constants {
 
     public static final String INVALID_CREDENTIAL_ID ="CREDENTIAL003";
 
-    public static final String EMPTY_CREDENTIAL_FIELDS ="CREDENTIAL_FIELD001";
-
     public static final String EMPTY_BODY ="EMPTY_BODY001";
 
     public static final String SUCCESS_CODE ="SUCCESS001";
-
-    public static final String EMPTY_DISCOVERY_FIELD ="DISCOVERY_FIELD001";
-
-    public static final String EMPTY_DISCOVERY ="DISCOVERY001";
 
     public static final String INCORRECT_DISCOVERY ="DISCOVERY002";
 
@@ -103,17 +105,9 @@ public class Constants {
 
     public static final String INVALID_DISCOVERY_ID ="DISCOVERY004";
 
-    public static final String TIMEOUT ="TIMEOUT001";
-
-    public static final String EMPTY_PROVISION ="PROVISION001";
-
-    public static final String EMPTY_PROVISION_FIELD="PROVISION_FIELD_001";
-
     public static final String PROVISION_ERROR = "PROVISION002";
 
     public static final String ALREADY_PROVISION ="PROVISION003";
-
-    public static final String INVALID_JSON ="JSON001";
 
     public static final String EXCEPTION ="EXCEPTION001";
 

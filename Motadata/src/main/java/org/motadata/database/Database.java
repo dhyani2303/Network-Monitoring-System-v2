@@ -18,7 +18,7 @@ public class Database {
 
     private static final HashMap<String,Database> instances = new HashMap<>();
 
-    final ConcurrentMap<Long, JsonObject> items = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, JsonObject> items = new ConcurrentHashMap<>();
 
     private Database()
     {}
@@ -203,7 +203,7 @@ public class Database {
         }
     }
 
-    public boolean verify(String name)
+    public boolean verify(String field,String name)
     {
         try
         {
@@ -211,7 +211,7 @@ public class Database {
 
             for (var value : values)
             {
-                if (name.equals(value.getString(Constants.NAME)))
+                if (name.equals(value.getString(field)))
                 {
                     return true;
                 }

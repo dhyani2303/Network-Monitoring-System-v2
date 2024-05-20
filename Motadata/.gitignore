@@ -13,7 +13,6 @@ target/
 *.ipr
 .idea
 /pluginEngine
-172.16.8.113.json
 
 *.log
 ### Eclipse ###

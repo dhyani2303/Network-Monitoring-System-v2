@@ -17,7 +17,7 @@ public class PollingEngine extends AbstractVerticle
 
     Database credentialDatabase = Database.getDatabase(Constants.CREDENTIAL_DATABASE);
 
-    Database discoveryDatabase = Database.getDatabase(Constants.DISCOVERY_DATABASE);
+    Database provisionDatabase = Database.getDatabase(Constants.PROVISION_DATABASE);
 
     public void start(Promise<Void> start)
     {
@@ -27,75 +27,65 @@ public class PollingEngine extends AbstractVerticle
         {
             var context = new JsonArray();
 
-            var result = new JsonObject();
+            try
+            {
+                if (!provisionDatabase.get().isEmpty())
+                {
+                    var provisionDevices = provisionDatabase.get();
 
-            var provisionedDevices = Database.getProvisionedDevices();
-
-            if (!provisionedDevices.isEmpty()) {
-
-                for (Object id : provisionedDevices) {
-
-                    var discoveryDetails = discoveryDatabase.get(Long.parseLong(id.toString()));
-
-                    var available = ProcessUtil.checkAvailability(discoveryDetails);
-
-                    if (available)
+                    for (var provisionedDevice : provisionDevices)
                     {
-                        var credentialId = Database.getCredentialId(Long.parseLong(id.toString()));
+                        var entries = JsonObject.mapFrom(provisionedDevice);
+                     //   if (ProcessUtil.checkAvailability(device))
+                      //  {
 
-                        var credentialDetails = credentialDatabase.get(credentialId);
+                            var credentialDetails = credentialDatabase.get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString()));
 
-                        discoveryDetails.put(Constants.USERNAME, credentialDetails.getString(Constants.USERNAME));
+                            entries.put(Constants.REQUEST_TYPE,Constants.COLLECT);
 
-                        discoveryDetails.put(Constants.PASSWORD, credentialDetails.getString(Constants.PASSWORD));
+                          entries.put(Constants.USERNAME,credentialDetails.getString(Constants.USERNAME));
 
-                        discoveryDetails.put(Constants.REQUEST_TYPE, Constants.COLLECT);
+                          entries.put(Constants.PASSWORD,credentialDetails.getString(Constants.PASSWORD));
 
-                        context.add(discoveryDetails);
+                            context.add(entries);
 
-                        var outputs = ProcessUtil.spawnPluginEngine(context);
+                            var outputs = ProcessUtil.spawnPluginEngine(context);
 
-                        if (outputs != null)
-                        {
-                            for (Object output : outputs)
+                            if (outputs != null)
                             {
-                                var jsonData = new JsonObject(output.toString());
-
-                                if (jsonData.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                                for (var output : outputs)
                                 {
-                                    Utils.writeToFile(vertx, jsonData).onSuccess(v ->
+                                    var jsonData = new JsonObject(output.toString());
 
-                                                    LOGGER.info("Content written to file {}", jsonData))
+                                    if (jsonData.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                                    {
+                                        Utils.writeToFile(vertx, jsonData).onSuccess(v ->
 
-                                            .onFailure(err ->
+                                                        LOGGER.trace("Content written to file {}", jsonData))
 
-                                                    LOGGER.error("Failed to write file", err));
+                                                .onFailure(err ->
 
+                                                        LOGGER.error("Failed to write file", err));
+
+                                    }
+                                    else
+                                    {
+                                        LOGGER.error("Polling status is fail {}", jsonData);
+                                    }
                                 }
-                                else
-                                {
-                                    LOGGER.error("Polling status is fail {}", jsonData);
-                                }
+                            } else {
+                                LOGGER.warn("Null has been return from plugin engine");
                             }
-                        }
-                        else
-                        {
-                            LOGGER.warn("Null has been return from plugin engine");
-                        }
-                    }
-                    else
-                    {
-                        result.put(Constants.ERROR, "Device Availability");
+                       // } else {
 
-                        result.put(Constants.ERROR_MESSAGE, "Device is down for a while");
-
-                        result.put(Constants.STATUS, Constants.FAIL);
-
-                        result.put(Constants.ERROR_CODE, Constants.INCORRECT_DISCOVERY);
-
-                        LOGGER.info("Discovery failed because the device with ip address {} is down", discoveryDetails.getString(Constants.IP_ADDRESS));
+                         //   LOGGER.info("Polling failed because the device with ip address {} is down",JsonObject.mapFrom(provisionedDevice).getString(Constants.IP_ADDRESS));
+                       // }
                     }
                 }
+            }
+            catch (Exception exception)
+            {
+                LOGGER.error("Some exception occurred ",exception);
             }
 
         });

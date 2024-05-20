@@ -1,7 +1,6 @@
 package org.motadata.api;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -10,7 +9,6 @@ import io.vertx.ext.web.handler.BodyHandler;
 import org.motadata.database.Database;
 import org.motadata.constants.Constants;
 import org.motadata.util.Handler;
-import org.motadata.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +76,7 @@ public class Discovery {
 
     private EventBus eventBus;
 
-    public void setRouter(Vertx vertx)
+    public void init(Vertx vertx)
     {
         router = Router.router(vertx);
 
@@ -98,6 +96,8 @@ public class Discovery {
         router.put(Constants.API_WITH_PARAMS).handler(this::updateDiscovery);
 
         router.post(Constants.RUN_API).handler(this::discoveryRun);
+
+        router.get(Constants.RUN_API_RESULT).handler(this::discoveryRunResult);
 
 
         return router;
@@ -124,12 +124,14 @@ public class Discovery {
             }
             else
             {
-                if (data.containsKey(Constants.IP_ADDRESS) && data.containsKey(Constants.PORT) && data.containsKey(Constants.CREDENTIAL_IDS) && data.containsKey(Constants.NAME) &&
-                        (!(data.getString(Constants.IP_ADDRESS).isEmpty())) && (!(data.getJsonArray(Constants.CREDENTIAL_IDS).isEmpty())) && (!(data.getString(Constants.PORT).isEmpty())) && (!(data.getString(Constants.NAME).isEmpty())))
+                if (data.containsKey(Constants.IP_ADDRESS) && data.containsKey(Constants.PORT) && data.containsKey(Constants.CREDENTIAL_IDS) && data.containsKey(Constants.DISCOVERY_PROFILE_NAME) &&
+
+                        (!(data.getString(Constants.IP_ADDRESS).isEmpty())) && (!(data.getJsonArray(Constants.CREDENTIAL_IDS).isEmpty())) && (!(data.getString(Constants.PORT).isEmpty())) && (!(data.getString(Constants.DISCOVERY_PROFILE_NAME).isEmpty())))
+
                 {
-                    if (!discoveryDatabase.verify(data.getString(Constants.NAME)))
+                    if (!discoveryDatabase.verify(Constants.DISCOVERY_PROFILE_NAME,data.getString(Constants.DISCOVERY_PROFILE_NAME)))
                     {
-                        var credentialProfiles = data.getJsonArray(Constants.CREDENTIAL_IDS);
+                        var credentialProfiles = data.getJsonArray(Constants.CREDENTIAL_IDS).copy();
 
                         for (var credentialId : credentialProfiles)
                         {
@@ -145,7 +147,7 @@ public class Discovery {
                             }
                         }
 
-                        data.put(Constants.VALID_CREDENTIAL_ID,"");
+                        data.put(Constants.VALID_CREDENTIAL_ID,-1);
 
                         var id = discoveryDatabase.create(data);
 
@@ -202,7 +204,6 @@ public class Discovery {
         var response = new JsonObject();
 
         try {
-            System.out.println(discoveryDatabase.get().isEmpty());
 
             var result = discoveryDatabase.get();
 
@@ -397,6 +398,52 @@ public class Discovery {
         }
 
     }
+
+    private void discoveryRunResult(RoutingContext context)
+    {
+        var response = new JsonObject();
+        try
+        {
+            var id = context.pathParam(Constants.ID);
+
+            if (discoveryDatabase.verify(Long.parseLong(id)))
+            {
+                var result = discoveryDatabase.get(Long.parseLong(id));
+
+                if (result.getLong(Constants.VALID_CREDENTIAL_ID)!=-1)
+                {
+                    response.put(Constants.STATUS,Constants.SUCCESS);
+
+                    response.put(Constants.MESSAGE,"The device has been successfully discovered");
+
+                    response.put(Constants.VALID_CREDENTIAL_ID,result.getValue(Constants.VALID_CREDENTIAL_ID));
+
+                    context.response().setStatusCode(200).end(response.encodePrettily());
+
+                    LOGGER.error("Get discovery run api has been served successfully with result {}",response);
+
+
+                }
+                else
+                {
+                   response= Handler.errorHandler("Failed Discovery","Failed to run discovery",Constants.FAILED_DISCOVERY);
+
+                   context.response().setStatusCode(400).end(response.encodePrettily());
+
+                    LOGGER.error("Get discovery run api has been served successfully with result {}",response);
+
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+
+            context.response().setStatusCode(200).end(response.encodePrettily());
+
+            LOGGER.error("Some exception occurred in discovey-run-result api ",exception);
+
+        }    }
 
 }
 
