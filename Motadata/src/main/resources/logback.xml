@@ -114,7 +114,7 @@
         <appender-ref ref="DISCOVERYENGINE_LOGS" />
     </logger>
 
-    <logger name="org.motadata.util.ProcessBuilderUtil" level="TRACE" additivity="false">
+    <logger name="org.motadata.util.ProcessUtil" level="TRACE" additivity="false">
         <appender-ref ref="PROCESSBUILDER_LOGS" />
     </logger>
 

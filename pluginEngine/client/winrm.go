@@ -11,7 +11,7 @@ import (
 )
 
 type WinRmClient struct {
-	ip string
+	ipAddress string
 
 	password string
 
@@ -26,15 +26,23 @@ type WinRmClient struct {
 
 func (client *WinRmClient) SetContext(context map[string]interface{}) {
 
+	defer func() {
+
+		if err := recover(); err != nil {
+
+			client.logger.Fatal(fmt.Sprintf("%s", err))
+		}
+	}()
+
 	client.logger = logger.NewLogger("client", "WindowsClient")
 
-	client.username = utils.ToString(context[constants.Username])
+	client.username = utils.ToString(context[constants.USERNAME])
 
-	client.password = utils.ToString(context[constants.Password])
+	client.password = utils.ToString(context[constants.PASSWORD])
 
-	client.ip = utils.ToString(context[constants.IP])
+	client.ipAddress = utils.ToString(context[constants.IP_ADDRESS])
 
-	client.port = utils.ValidatePort(context)
+	client.port = utils.SetPort(context)
 
 	client.timeout = utils.ValidateTimeOut(context)
 
@@ -42,13 +50,21 @@ func (client *WinRmClient) SetContext(context map[string]interface{}) {
 
 func (client *WinRmClient) CreateConnection() (*winrm.Client, error) {
 
-	endpointConfig := winrm.NewEndpoint(client.ip, client.port, false, true, nil, nil, nil, client.timeout)
+	defer func() {
+
+		if err := recover(); err != nil {
+
+			client.logger.Fatal(fmt.Sprintf("%s", err))
+		}
+	}()
+
+	endpointConfig := winrm.NewEndpoint(client.ipAddress, client.port, false, true, nil, nil, nil, client.timeout)
 
 	winRmClient, err := winrm.NewClient(endpointConfig, client.username, client.password)
 
 	if err != nil {
 
-		client.logger.Error(fmt.Sprintf("Error creating winRmClient: %v\n", err))
+		client.logger.Error(fmt.Sprintf("Error in creating winRmClient: %v\n", err))
 
 		return nil, err
 	}
@@ -59,6 +75,14 @@ func (client *WinRmClient) CreateConnection() (*winrm.Client, error) {
 }
 
 func (client *WinRmClient) ExecuteCommand(winRmClient *winrm.Client, command string) (string, string, int, error) {
+
+	defer func() {
+
+		if err := recover(); err != nil {
+
+			client.logger.Fatal(fmt.Sprintf("%s", err))
+		}
+	}()
 
 	output, errorOutput, exitCode, err := winRmClient.RunPSWithContext(context.Background(), command)
 

@@ -8,7 +8,7 @@ import org.motadata.api.APIServer;
 import org.motadata.database.Database;
 import org.motadata.engine.DiscoveryEngine;
 import org.motadata.engine.PollingEngine;
-import org.motadata.util.Constants;
+import org.motadata.constants.Constants;
 import org.motadata.util.Utils;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +16,9 @@ public class Bootstrap {
 
     public static void main(String[] args) {
 
-
         var LOGGER = LoggerFactory.getLogger(Bootstrap.class);
 
-        Vertx vertx = Vertx.vertx(new VertxOptions().setInternalBlockingPoolSize(10));
+        var vertx = Vertx.vertx(new VertxOptions().setInternalBlockingPoolSize(10));
 
         var verticleDeployementOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER);
 
@@ -27,22 +26,25 @@ public class Bootstrap {
 
         Database.createDatabase(Constants.CREDENTIAL_DATABASE);
 
-        Utils.setConfig();
+        Utils.setConfig(vertx).onComplete(configHandler -> {
 
-        vertx.deployVerticle(APIServer.class.getName()).onComplete(handler->
+            vertx.deployVerticle(APIServer.class.getName()).onComplete(handler -> {
 
-                LOGGER.info("API server has been deployed"));
+                LOGGER.info("API server has been deployed");
 
-        vertx.deployVerticle(DiscoveryEngine.class.getName(),verticleDeployementOptions).onComplete(handler ->
+                vertx.deployVerticle(DiscoveryEngine.class.getName(), verticleDeployementOptions).onComplete(discoveryEngineHandler ->
 
-            LOGGER.info("Discovery Engine has been deployed")
-        );
+                        LOGGER.info("Discovery Engine has been deployed")
+                );
 
-        vertx.deployVerticle(PollingEngine.class.getName(),verticleDeployementOptions).onComplete(handler->
+                vertx.deployVerticle(PollingEngine.class.getName(), verticleDeployementOptions).onComplete(pollingEnginehHandler ->
 
-            LOGGER.info("Polling Engine has been deployed")
+                        LOGGER.info("Polling Engine has been deployed")
 
-        );
+                );
+
+            });
+        });
 
     }
 }

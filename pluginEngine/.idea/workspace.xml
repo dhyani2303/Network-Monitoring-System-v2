@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11072b6d-0123-4b0a-a636-7e9cd8baff88" name="Changes" comment="Made changes in the discovery function to return error on failure of discovery" />
+    <list default="true" id="11072b6d-0123-4b0a-a636-7e9cd8baff88" name="Changes" comment="Made changes in the discovery function to return error on failure of discovery">
+      <change beforePath="$PROJECT_DIR$/bootstrap.go" beforeDir="false" afterPath="$PROJECT_DIR$/bootstrap.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/winrm.go" beforeDir="false" afterPath="$PROJECT_DIR$/client/winrm.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/constants/constants.go" beforeDir="false" afterPath="$PROJECT_DIR$/constants/constants.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plugins/windows.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugins/windows.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/helper.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/helper.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/validator.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/validator.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,7 +40,7 @@
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "/home/dhyani/Documents/Network-Monitoring-System-v2",
+    "last_opened_file_path": "/root/GolandProjects/awesomeProject/panicDeferRecover",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm"
@@ -42,7 +50,7 @@
     <configuration name="go build PluginEngine" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
       <module name="pluginEngine" />
       <working_directory value="$PROJECT_DIR$" />
-      <parameters value="WwogIHsKICAgICJpcCI6ICIxNzIuMTYuOC4xMTMiLAogICAgInBvcnQiOiAiNTk4NSIsCiAgICAidXNlcm5hbWUiOiAiZGh2YW5pIiwKICAgICJwYXNzd29yZCI6ICJNaW5kQDEyMyIsCiAgICAicmVxdWVzdC50eXBlIjogImNvbGxlY3QiLAoiY3JlZGVudGlhbC5pZHMiIDpbMV0KICB9Cl0=" />
+      <parameters value="W3siaXAuYWRkcmVzcyI6IjE3Mi4xNi44LjExMyIsIm5hbWUiOiJ3aW5kb3ciLCJwb3J0Ijo1OTg1LCJjcmVkZW50aWFsLmlkcyI6WzFdLCJ2YWxpZC5jcmVkZW50aWFsLmlkIjoiIiwiY3JlZGVudGlhbC5wcm9maWxlcyI6W3sidXNlci5uYW1lIjoiZGh2YW5pIiwicGFzc3dvcmQiOiJNaW5kQDEyMyIsIm5hbWUiOiJ3aW5kb3ciLCJjcmVkZW50aWFsLmlkIjoxfV0sInJlcXVlc3QudHlwZSI6ImRpc2NvdmVyeSJ9XQ== " />
       <kind value="PACKAGE" />
       <package value="PluginEngine" />
       <directory value="$PROJECT_DIR$" />

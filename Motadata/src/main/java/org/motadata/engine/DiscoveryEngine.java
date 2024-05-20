@@ -8,11 +8,12 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.motadata.database.Database;
-import org.motadata.util.Constants;
-import org.motadata.util.ProcessBuilderUtil;
+import org.motadata.constants.Constants;
+import org.motadata.util.ProcessUtil;
+
+import java.util.jar.JarOutputStream;
 
 public class DiscoveryEngine extends AbstractVerticle {
-
 
     public static final Database discoveryDatabase = Database.getDatabase(Constants.DISCOVERY_DATABASE);
 
@@ -20,177 +21,89 @@ public class DiscoveryEngine extends AbstractVerticle {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryEngine.class);
 
-    public void start(Promise<Void> promise) {
+    public void start(Promise<Void> promise)
+    {
+        var eventBus = vertx.eventBus();
 
-        var eb = vertx.eventBus();
+        eventBus.localConsumer(Constants.DISCOVERY_ADDRESS, this::handler);
 
-        eb.localConsumer(Constants.DISCOVERY_ADDRESS, this::handler);
-
-      promise.complete();
+        promise.complete();
 
     }
 
-
-    public void handler(Message<JsonObject> requestedData) {
-
-        JsonObject result = new JsonObject();
-
-        if (requestedData.body().containsKey(Constants.DISCOVERY_ID))
+    public void handler(Message<String> message)
+    {
+        try
         {
+            var discoveryId = message.body();
 
-            if (!(requestedData.body().getString(Constants.DISCOVERY_ID).isEmpty()))
+            var discoveryProfileDetails = discoveryDatabase.get(Long.parseLong(discoveryId));
+
+            if (ProcessUtil.checkAvailability(discoveryProfileDetails))
             {
+                var context = new JsonArray();
 
-                var discoveryId = requestedData.body().getString(Constants.DISCOVERY_ID);
+                var  credentialIds =  discoveryProfileDetails.getJsonArray(Constants.CREDENTIAL_IDS);
 
-                var verificationResult = discoveryDatabase.verify(Long.parseLong(discoveryId));
+                var credentialProfiles = new JsonArray();
+                for (var credentialId : credentialIds)
+                {
+                    var credentialDetails = credentialDatabase.get(Long.parseLong(credentialId.toString()));
 
-                if (verificationResult) {
+                    System.out.println(credentialDetails);
 
-                    var discoveryProfileDetails = discoveryDatabase.get(Long.parseLong(discoveryId));
+                    credentialDetails.put(Constants.CREDENTIAL_ID, credentialId);
 
-                    var availabilityResult = ProcessBuilderUtil.checkAvailability(discoveryProfileDetails);
+                    credentialProfiles.add(credentialDetails);
+                }
 
-                   if (availabilityResult) {
+                discoveryProfileDetails.put(Constants.CREDENTIAL_PROFILES, credentialProfiles);
 
-                        JsonArray context = new JsonArray();
+                discoveryProfileDetails.put(Constants.REQUEST_TYPE, Constants.DISCOVERY);
 
-                        JsonArray credentialProfiles = new JsonArray();
+                context.add(discoveryProfileDetails);
 
-                        var credentialIds = new JsonArray();
+                var results = ProcessUtil.spawnPluginEngine(context);
 
-                        credentialIds = discoveryProfileDetails.getJsonArray(Constants.CREDENTIAL_IDS);
+                if (results != null)
+                {
+                    var contextResult = results.getJsonObject(0);
 
-                        for (Object credentialId : credentialIds) {
+                    if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                    {
+                        contextResult.remove(Constants.CREDENTIAL_PROFILES);
 
-                            var credentialDetails = credentialDatabase.get(Long.parseLong(credentialId.toString()));
+                        contextResult.remove(Constants.ERROR);
 
-                            credentialDetails.put(Constants.CREDENTIAL_ID, credentialId);
+                        contextResult.remove(Constants.STATUS);
 
-                            credentialProfiles.add(credentialDetails);
+                        contextResult.remove(Constants.RESULT);
 
-                        }
+                        System.out.println(contextResult);
 
-                        discoveryProfileDetails.put(Constants.CREDENTIAL_PROFILES, credentialProfiles);
+                        discoveryDatabase.update(contextResult,Long.parseLong(discoveryId));
 
-                        discoveryProfileDetails.put(Constants.REQUEST_TYPE, Constants.DISCOVERY);
-
-                        discoveryProfileDetails.remove(Constants.CREDENTIAL_IDS);
-
-                        context.add(discoveryProfileDetails);
-
-                        var output = ProcessBuilderUtil.spawnPluginEngine(context);
-
-                        //for discovery there will be only one context passed
-
-                       if (output!=null)
-                       {
-                           var contextResult = output.getJsonObject(0);
-
-                           if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
-                           {
-
-                               Database.addValidCredentials(Long.valueOf(discoveryId), contextResult.getLong(Constants.CREDENTIAL_ID));
-
-                               result.put(Constants.STATUS, Constants.SUCCESS);
-
-                               result.put(Constants.ERROR_CODE, Constants.SUCCESS_CODE);
-
-                               result.put(Constants.MESSAGE, "Discovery of the device is successful");
-
-                               LOGGER.info("Discovery succeeded");
-
-                           } else {
-
-                               var errorInResult = contextResult.getJsonArray(Constants.ERROR);
-
-                               var errors = new JsonArray();
-
-                               for (Object error : errorInResult) {
-                                   errors.add(error);
-                               }
-
-                               result.put(Constants.ERROR, errors);
-
-                               result.put(Constants.ERROR_MESSAGE, "Discovery Failed");
-
-                               result.put(Constants.STATUS, Constants.FAIL);
-
-                               result.put(Constants.ERROR_CODE, Constants.FAILED_DISCOVERY);
-
-                               LOGGER.info("Discovery failed {}", errors);
-
-                           }
-                       }
-                       else
-                       {
-                           LOGGER.info("The output of spawning process builder came out to be null");
-
-                           result.put(Constants.ERROR, "Discovery failure");
-
-                           result.put(Constants.ERROR_MESSAGE, "Failed as the output of plugin engine did not come in limited time");
-
-                           result.put(Constants.STATUS, Constants.FAIL);
-
-                           result.put(Constants.ERROR_CODE, Constants.TIMEOUT);
-                       }
-
-                   }
-                else {
-                        result.put(Constants.ERROR, "Device Availability");
-
-                        result.put(Constants.ERROR_MESSAGE, "Device is down for a while");
-
-                        result.put(Constants.STATUS, Constants.FAIL);
-
-                        result.put(Constants.ERROR_CODE, Constants.INCORRECT_DISCOVERY);
-
-                        LOGGER.info("Discovery failed because the device with ip address {} is down", discoveryProfileDetails.getString(Constants.IP));
-
-
+                        LOGGER.info("Discovery ran successfully");
                     }
-
-               }
-                else {
-                    result.put(Constants.ERROR, "Invalid Discovery Id");
-
-                    result.put(Constants.ERROR_MESSAGE, "Discovery Id does not exist");
-
-                    result.put(Constants.STATUS, Constants.FAIL);
-
-                    result.put(Constants.ERROR_CODE, Constants.INCORRECT_DISCOVERY);
-
-                    LOGGER.info("Discovery failed because the discovery id {} does not exist", discoveryId);
+                    else
+                    {
+                        LOGGER.info("Discovery failed  errors found are {}: ",contextResult.getJsonArray(Constants.ERROR) );
+                    }
+                }
+                else
+                {
+                    LOGGER.info("The output of spawning process builder came out to be null as the output did not come in limited time");
 
                 }
 
-            } else {
-                result.put(Constants.ERROR, "Empty field");
-
-                result.put(Constants.ERROR_MESSAGE, "Discovery Id is  empty");
-
-                result.put(Constants.STATUS, Constants.FAIL);
-
-                result.put(Constants.ERROR_CODE, Constants.EMPTY_DISCOVERY_FIELD);
-
-                LOGGER.info("Discovery failed because the discovery id is empty");
-
             }
-
-        } else {
-            result.put(Constants.ERROR, "Empty context");
-
-            result.put(Constants.ERROR_MESSAGE, "Discovery Ids are not present");
-
-            result.put(Constants.STATUS, Constants.FAIL);
-
-            result.put(Constants.ERROR_CODE, Constants.EMPTY_DISCOVERY);
-
-            LOGGER.info("Discovery failed because context provided is empty");
-
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Some exception occurred in the handler method",exception);
         }
 
-        requestedData.reply(result);
+
 
     }
 

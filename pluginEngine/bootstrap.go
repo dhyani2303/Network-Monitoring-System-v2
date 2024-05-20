@@ -17,33 +17,40 @@ func main() {
 
 	logger := logger.NewLogger("bootstrap", "main")
 
-	logger.Info("Plugin Engine Initialized")
+	defer func() {
+
+		if err := recover(); err != nil {
+
+			logger.Fatal(fmt.Sprintf("Some panic occurred %v\n", err))
+
+		}
+
+		close(channel)
+	}()
+
+	logger.Info("New Request has come to plugin engine")
 
 	if len(os.Args) < 2 {
 
-		logger.Fatal(constants.CONTEXTMISSINGERROR + " Context is empty")
+		logger.Fatal(constants.CONTEXT_MISSING_ERROR + " Context is empty")
 
 		context := make(map[string]interface{}, 1)
 
-		errorArray := make([]map[string]interface{}, 1)
+		errors := make([]map[string]interface{}, 1)
 
-		errorArray = append(errorArray, utils.ErrorHandler(constants.CONTEXTMISSINGERROR, "context is empty"))
+		errors = append(errors, utils.ErrorHandler(constants.CONTEXT_MISSING_ERROR, "context is empty"))
 
-		context[constants.Error] = errorArray
+		context[constants.ERROR] = errors
 
-		context[constants.Status] = constants.Fail
+		context[constants.STATUS] = constants.FAIL
 
 		result, err := utils.Encode(context)
 
 		if err != nil {
 
-			logger.Fatal(fmt.Sprintf("Error while encoding context: %v", err))
-
-			errorArray = append(errorArray, utils.ErrorHandler(constants.ENCODEERROR, err.Error()))
+			logger.Fatal(fmt.Sprintf("ERROR while encoding context: %v error:%v", context, err))
 
 		} else {
-
-			//unsure how to handle the case when encoding fails
 
 			fmt.Println(result)
 
@@ -53,9 +60,9 @@ func main() {
 
 	}
 
-	contextData, err := utils.Decode(os.Args[1])
+	contexts, err := utils.Decode(os.Args[1])
 
-	contextDataLength := len(contextData)
+	contextsLength := len(contexts)
 
 	if err != nil {
 
@@ -63,53 +70,57 @@ func main() {
 
 		context := make(map[string]interface{}, 1)
 
-		errorArray := make([]map[string]interface{}, 0)
+		errors := make([]map[string]interface{}, 0)
 
-		errorArray = append(errorArray, utils.ErrorHandler(constants.DECODEERROR, err.Error()))
+		errors = append(errors, utils.ErrorHandler(constants.DECODE_ERROR, err.Error()))
 
-		context[constants.Status] = constants.Fail
+		context[constants.STATUS] = constants.FAIL
 
-		context[constants.Result] = make([]map[string]interface{}, 0)
+		context[constants.RESULT] = make([]map[string]interface{}, 0)
 
-		encodedResult, err := utils.Encode(result)
+		result, err := utils.Encode(result)
 
 		if err != nil {
 
-			utils.ErrorHandler(constants.ENCODEERROR, err.Error())
-
-			fmt.Println(context)
+			logger.Fatal(fmt.Sprintf("ERROR occurred while encoding the context: %v,error : %v ", context, err))
 
 			return
 		}
-		fmt.Println(encodedResult)
+		fmt.Println(result)
 
 		return
 
 	}
 
-	for _, context := range contextData {
+	for _, context := range contexts {
 
 		logger.Info(fmt.Sprintf("Context: %s", context))
 
-		if context[constants.RequestType] == constants.Discovery {
+		if context[constants.REQUEST_TYPE] == constants.DISCOVERY {
+
+			logger.Info(fmt.Sprintf("Request Type of the context is discovery"))
 
 			go plugins.Discovery(context, channel)
 
-		} else if context[constants.RequestType] == constants.Collect {
+		} else if context[constants.REQUEST_TYPE] == constants.COLLECT {
+
+			logger.Info(fmt.Sprintf("Request Type of the context is collect"))
 
 			go plugins.Collect(context, channel)
 
 		} else {
 
-			errorArray := make([]map[string]interface{}, 0)
+			logger.Info(fmt.Sprintf("Context does not have valid request type"))
 
-			errorArray = append(errorArray, utils.ErrorHandler(constants.INVALIDREQUESTYPE, "request.type is invalid"))
+			errors := make([]map[string]interface{}, 0)
 
-			context[constants.Status] = constants.Fail
+			errors = append(errors, utils.ErrorHandler(constants.INVALID_REQUEST_TYPE, "request.type is invalid"))
 
-			context[constants.Error] = errorArray
+			context[constants.STATUS] = constants.FAIL
 
-			context[constants.Result] = make([]map[string]interface{}, 0)
+			context[constants.ERROR] = errors
+
+			context[constants.RESULT] = make([]map[string]interface{}, 0)
 
 			channel <- context
 
@@ -117,7 +128,7 @@ func main() {
 
 	}
 
-	for contextDataLength > 0 {
+	for contextsLength > 0 {
 
 		select {
 
@@ -125,17 +136,10 @@ func main() {
 
 			encodedResult, _ := utils.Encode(result)
 
-			fmt.Print(encodedResult)
+			fmt.Print(encodedResult + constants.SEPERATOR)
 
-			fmt.Print("||@@||")
-
-			contextDataLength--
+			contextsLength--
 		}
 	}
-
-	defer func() {
-
-		close(channel)
-	}()
 
 }

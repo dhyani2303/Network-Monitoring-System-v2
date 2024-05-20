@@ -2,7 +2,7 @@ package org.motadata.api;
 
 import io.vertx.core.json.JsonObject;
 import org.motadata.database.Database;
-import org.motadata.util.Constants;
+import org.motadata.constants.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +18,9 @@ public class Provision {
         {
             if (!(context.getString(Constants.DISCOVERY_ID).isEmpty()))
             {
-                if (Database.verifyId(Long.parseLong(context.getString(Constants.DISCOVERY_ID)),Constants.VERIFY_DISCOVERY_ID))
+                if (Database.exist(Long.parseLong(context.getString(Constants.DISCOVERY_ID)),Constants.VERIFY_DISCOVERY_ID))
                 {
-                    if (!(Database.verifyId(Long.parseLong(context.getString(Constants.DISCOVERY_ID)),Constants.VERIFY_PROVISION)))
+                    if (!(Database.exist(Long.parseLong(context.getString(Constants.DISCOVERY_ID)),Constants.VERIFY_PROVISION)))
                     {
                         Database.addProvisionDevice(Long.parseLong(context.getString(Constants.DISCOVERY_ID)));
 

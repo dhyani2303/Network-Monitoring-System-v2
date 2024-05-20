@@ -5,30 +5,26 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.motadata.database.Database;
-import org.motadata.util.Constants;
-import org.motadata.util.FileUtil;
-import org.motadata.util.ProcessBuilderUtil;
+import org.motadata.constants.Constants;
+import org.motadata.util.ProcessUtil;
 import org.motadata.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PollingEngine extends AbstractVerticle {
-
+public class PollingEngine extends AbstractVerticle
+{
     public static final Logger LOGGER = LoggerFactory.getLogger(PollingEngine.class);
 
     Database credentialDatabase = Database.getDatabase(Constants.CREDENTIAL_DATABASE);
 
     Database discoveryDatabase = Database.getDatabase(Constants.DISCOVERY_DATABASE);
 
-    public void start(Promise<Void> start) {
-
-
+    public void start(Promise<Void> start)
+    {
         var pollTime = Long.parseLong(Utils.configMap.get(Constants.POLL_TIME).toString());
 
-        var batchSize = Integer.parseInt(Utils.configMap.get(Constants.BATCH_SIZE).toString());
-
-        vertx.setPeriodic(pollTime, handler -> {
-
+        vertx.setPeriodic(pollTime, handler ->
+        {
             var context = new JsonArray();
 
             var result = new JsonObject();
@@ -37,78 +33,71 @@ public class PollingEngine extends AbstractVerticle {
 
             if (!provisionedDevices.isEmpty()) {
 
-                if (provisionedDevices.size()<batchSize) {
+                for (Object id : provisionedDevices) {
 
-                    for (Object id : provisionedDevices) {
+                    var discoveryDetails = discoveryDatabase.get(Long.parseLong(id.toString()));
 
-                        var discoveryDetails = discoveryDatabase.get(Long.parseLong(id.toString()));
+                    var available = ProcessUtil.checkAvailability(discoveryDetails);
 
-                        var available = ProcessBuilderUtil.checkAvailability(discoveryDetails);
+                    if (available)
+                    {
+                        var credentialId = Database.getCredentialId(Long.parseLong(id.toString()));
 
-                        if (available) {
-                            var credentialId = Database.getCredentialId(Long.parseLong(id.toString()));
+                        var credentialDetails = credentialDatabase.get(credentialId);
 
-                            var credentialDetails = credentialDatabase.get(credentialId);
+                        discoveryDetails.put(Constants.USERNAME, credentialDetails.getString(Constants.USERNAME));
 
-                            discoveryDetails.put(Constants.USERNAME, credentialDetails.getString(Constants.USERNAME));
+                        discoveryDetails.put(Constants.PASSWORD, credentialDetails.getString(Constants.PASSWORD));
 
-                            discoveryDetails.put(Constants.PASSWORD, credentialDetails.getString(Constants.PASSWORD));
+                        discoveryDetails.put(Constants.REQUEST_TYPE, Constants.COLLECT);
 
-                            discoveryDetails.put(Constants.REQUEST_TYPE, Constants.COLLECT);
+                        context.add(discoveryDetails);
 
-                            context.add(discoveryDetails);
+                        var outputs = ProcessUtil.spawnPluginEngine(context);
 
-                            var outputs = ProcessBuilderUtil.spawnPluginEngine(context);
+                        if (outputs != null)
+                        {
+                            for (Object output : outputs)
+                            {
+                                var jsonData = new JsonObject(output.toString());
 
-                            if (outputs!=null) {
-                                for (Object output : outputs) {
+                                if (jsonData.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                                {
+                                    Utils.writeToFile(vertx, jsonData).onSuccess(v ->
 
-                                    var jsonData = new JsonObject(output.toString());
+                                                    LOGGER.info("Content written to file {}", jsonData))
 
-                                    if (jsonData.getString(Constants.STATUS).equals(Constants.SUCCESS)) {
+                                            .onFailure(err ->
 
-                                        FileUtil.writeToFile(vertx, jsonData).onSuccess(v -> {
+                                                    LOGGER.error("Failed to write file", err));
 
-                                                    LOGGER.info("Content written to file {}", jsonData);
-
-                                                })
-                                                .onFailure(err -> {
-
-                                                    LOGGER.error("Failed to write file", err);
-
-
-                                                });
-
-                                    } else {
-                                        LOGGER.error("Polling status is fail {}", jsonData);
-                                    }
+                                }
+                                else
+                                {
+                                    LOGGER.error("Polling status is fail {}", jsonData);
                                 }
                             }
-                            else
-                            {
-                                LOGGER.warn("Null has been return from plugin engine");
-                            }
-
-
-                        } else {
-                            result.put(Constants.ERROR, "Device Availability");
-
-                            result.put(Constants.ERROR_MESSAGE, "Device is down for a while");
-
-                            result.put(Constants.STATUS, Constants.FAIL);
-
-                            result.put(Constants.ERROR_CODE, Constants.INCORRECT_DISCOVERY);
-
-                            LOGGER.info("Discovery failed because the device with ip address {} is down", discoveryDetails.getString(Constants.IP));
                         }
+                        else
+                        {
+                            LOGGER.warn("Null has been return from plugin engine");
+                        }
+                    }
+                    else
+                    {
+                        result.put(Constants.ERROR, "Device Availability");
 
+                        result.put(Constants.ERROR_MESSAGE, "Device is down for a while");
+
+                        result.put(Constants.STATUS, Constants.FAIL);
+
+                        result.put(Constants.ERROR_CODE, Constants.INCORRECT_DISCOVERY);
+
+                        LOGGER.info("Discovery failed because the device with ip address {} is down", discoveryDetails.getString(Constants.IP_ADDRESS));
                     }
                 }
-                else
-                {
-                    //create batch size
-                }
             }
+
         });
 
     }

@@ -1,0 +1,9 @@
+{
+  "http.host": "localhost",
+  "http.port": 8000,
+  "poll.time":60000,
+  "batch.size": 5,
+  "process.timeout": 60,
+  "plugin.path": "/home/dhyani/Documents/Network-Monitoring-System-v2/Motadata/pluginEngine/PluginEngine"
+
+}

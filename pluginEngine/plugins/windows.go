@@ -16,44 +16,56 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 
 	logger := logger.NewLogger("plugins", "windows")
 
-	errorArray := make([]map[string]interface{}, 0)
+	errors := make([]map[string]interface{}, 0)
 
 	result := make(map[string]interface{})
 
 	client := client.WinRmClient{}
 
-	if credentialProfiles, ok := context[constants.CredentialProfiles].([]interface{}); ok {
+	defer func() {
+
+		if err := recover(); err != nil {
+
+			logger.Fatal(fmt.Sprintf("Some panic occurred %v\n", err))
+
+		}
+
+	}()
+
+	logger.Info(fmt.Sprintf("Inside the Discovery Method"))
+
+	if credentialProfiles, ok := context[constants.CREDENTIAL_PROFILES].([]interface{}); ok {
 
 		for _, credential := range credentialProfiles {
 
 			if credentialProfile, ok := credential.(map[string]interface{}); ok {
 
-				credentialProfile[constants.IP] = context[constants.IP]
+				credentialProfile[constants.IP_ADDRESS] = context[constants.IP_ADDRESS]
 
-				if context[constants.Port] != nil {
+				if context[constants.PORT] != nil {
 
-					credentialProfile[constants.Port] = context[constants.Port]
+					credentialProfile[constants.PORT] = context[constants.PORT]
 				}
 
-				if context[constants.TimeOut] != nil {
+				if context[constants.TIMEOUT] != nil {
 
-					credentialProfile[constants.TimeOut] = context[constants.TimeOut]
+					credentialProfile[constants.TIMEOUT] = context[constants.TIMEOUT]
 				}
 
 				client.SetContext(credentialProfile)
 			}
 
-			connectionContext, err := client.CreateConnection()
+			connection, err := client.CreateConnection()
 
 			if err == nil {
 
 				command := "hostname"
 
-				output, errorOutput, exitCode, err := client.ExecuteCommand(connectionContext, command)
+				output, errorOutput, exitCode, err := client.ExecuteCommand(connection, command)
 
 				if err != nil {
 
-					errorArray = append(errorArray, utils.ErrorHandler(constants.CONNECTIONERROR, err.Error()))
+					errors = append(errors, utils.ErrorHandler(constants.CONNECTION_ERROR, err.Error()))
 
 					logger.Error(fmt.Sprintf("Error occurred %v\n", err))
 
@@ -61,7 +73,7 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 
 				} else if exitCode != 0 {
 
-					errorArray = append(errorArray, utils.ErrorHandler(constants.COMMANDERROR, errorOutput))
+					errors = append(errors, utils.ErrorHandler(constants.COMMAND_ERROR, errorOutput))
 
 					logger.Error(fmt.Sprintf("Error occurred %v\n", errorOutput))
 
@@ -69,21 +81,22 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 
 				} else {
 
-					if id, ok := credential.(map[string]interface{})[constants.CredentialID]; ok {
+					if id, ok := credential.(map[string]interface{})[constants.CREDENTIAL_ID]; ok {
 
-						context[constants.CredentialID] = id
+						context[constants.VALID_CREDENTIAL_ID] = id
 					}
-					result[constants.IP] = context[constants.IP]
+					result[constants.IP_ADDRESS] = context[constants.IP_ADDRESS]
 
-					result[constants.Hostname] = strings.Trim(output, "\r\n")
+					result[constants.HOSTNAME] = strings.Trim(output, "\r\n")
 
 					break
 
 				}
 			} else {
-				errorArray = append(errorArray, utils.ErrorHandler(constants.CONNECTIONERROR, err.Error()))
 
-				logger.Error(fmt.Sprintf("Error occurred %v", err))
+				errors = append(errors, utils.ErrorHandler(constants.CONNECTION_ERROR, err.Error()))
+
+				logger.Error(fmt.Sprintf("ERROR occurred %v", err))
 
 				continue
 			}
@@ -91,23 +104,21 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 		}
 		if len(result) > 0 {
 
-			context[constants.Status] = constants.Success
+			context[constants.STATUS] = constants.SUCCESS
 
 		} else {
 
-			context[constants.Status] = constants.Fail
+			context[constants.STATUS] = constants.FAIL
 
-			context[constants.CredentialID] = -1
+			context[constants.VALID_CREDENTIAL_ID] = -1
 
 		}
-		context[constants.Result] = result
+		context[constants.RESULT] = result
 
-		context[constants.Error] = errorArray
+		context[constants.ERROR] = errors
 
 	}
 	channel <- context
-
-	return
 
 }
 
@@ -116,6 +127,16 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 	logger := logger.NewLogger("plugins", "windows")
 
 	logger.Info("Inside the Collect method")
+
+	defer func() {
+
+		if err := recover(); err != nil {
+
+			logger.Fatal(fmt.Sprintf("Some panic occurred %v\n", err))
+
+		}
+
+	}()
 
 	cpuMetrics := "(Get-Counter -Counter \"\\Processor(_total)\\% Idle Time\") | Select-Object -ExpandProperty CounterSamples |  Select-Object @{Name='system.cpu.idle.percent';Expression={($_.CookedValue)}} | fl;" +
 		"(Get-Counter -Counter \"\\Processor(_Total)\\% Interrupt Time\")| Select-Object -ExpandProperty CounterSamples |  Select-Object @{Name='system.cpu.interrupt.percent';Expression={($_.CookedValue)}}  | format-list;" +
@@ -143,7 +164,7 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 		"$diskInfo = Get-CimInstance -Class Win32_LogicalDisk | \n    Select-Object  @{Label='Used'; expression={($_.Size - $_.FreeSpace)}},@{Label='Total'; expression={($_.Size)}} | \n    Measure-Object -Property Used,Total -Sum\n\n$usedSum = $diskInfo | Where-Object { $_.Property -eq 'Used' } | Select-Object -ExpandProperty Sum\n$totalSum = $diskInfo | Where-Object { $_.Property -eq 'Total' } | Select-Object -ExpandProperty Sum\n\n$percentageUsed = ($usedSum / $totalSum) * 100\n\nWrite-Output \"system.disk.used.percent: $percentageUsed\";"
 
 	systemMetrics := "Write-Output (\"system.serial.number:\" + (Get-WmiObject Win32_BIOS).SerialNumber);" +
-		"Write-Output (\"started.time.seconds:\" + (((get-date)- (gcim Win32_OperatingSystem).LastBootUpTime).totalSeconds));" +
+		"Write-Output (\"system.started.time.seconds:\" + (((get-date)- (gcim Win32_OperatingSystem).LastBootUpTime).totalSeconds));" +
 		"Write-Output (\"system.logical.processors:\" + (Get-WmiObject Win32_ComputerSystem).NumberOfLogicalProcessors);" +
 		"Write-Output (\"system.virtual:\" +  (Get-WmiObject Win32_ComputerSystem));" +
 		"Write-Output (\"system.os.name:\" + (Get-WmiObject Win32_OperatingSystem).Caption);" +
@@ -154,7 +175,7 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 		"Write-Output (\"system.name:\" + (Get-WmiObject -Class Win32_ComputerSystem).Name);" +
 		"Write-Output (\"system.threads:\" + (Get-WmiObject -Class Win32_PerfFormattedData_PerfOS_System).Threads);" +
 		"Write-Output (\"system.processor.queue.length:\" + (Get-Counter -Counter \"\\System\\Processor Queue Length\").CounterSamples.CookedValue);" +
-		"Write-Output (\"started.time: \"  + ((get-date)- (gcim Win32_OperatingSystem).LastBootUpTime));" +
+		"Write-Output (\"system.started.time: \"  + ((get-date)- (gcim Win32_OperatingSystem).LastBootUpTime));" +
 		"Write-Output (\"system.os.version:\" + (Get-WmiObject -Class Win32_OperatingSystem).Version);" +
 		"Write-Output (\"system.physical.processors:\" +(Get-WmiObject -Class Win32_ComputerSystem).NumberOfProcessors);" +
 		"Write-Output (\"system.running.processes:\" + (Get-Counter -Counter \"\\System\\Processes\").CounterSamples.CookedValue);" +
@@ -170,11 +191,11 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 		"(Get-Counter -Counter \"\\Network Interface(*)\\Bytes Received/sec\" | Select-Object -ExpandProperty CounterSamples | Measure-Object -Property CookedValue -Sum | Select-Object @{Name='system.network.in.bytes.per.sec';Expression={($_.Sum)}} | fl);" +
 		"Write-Output (\"system.network.tcp.connections:\" +  (Get-Counter -Counter \"\\TCPv4\\Connections Established\").CounterSamples.CookedValue);"
 
-	memoryMetrics := "Write-Output (\"memory.free.percent:\" + ((Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory / (Get-WmiObject Win32_OperatingSystem).TotalVisibleMemorySize)*100);" +
+	memoryMetrics := "Write-Output (\"system.memory.free.percent:\" + ((Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory / (Get-WmiObject Win32_OperatingSystem).TotalVisibleMemorySize)*100);" +
 		"Write-Output (\"system.cache.memory.bytes:\" +  (Get-WmiObject Win32_PerfFormattedData_PerfOS_Memory).CacheBytes);" +
-		"Write-Output (\"memory.used.percent:\" + ([Math]::Round(((Get-WmiObject Win32_OperatingSystem).TotalVisibleMemorySize - (Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory) / (Get-WmiObject Win32_OperatingSystem).TotalVisibleMemorySize * 100, 2)));" +
-		"Write-Output (\"memory.used.bytes:\" + ((Get-WmiObject Win32_OperatingSystem).TotalVisibleMemorySize - (Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory));" +
-		"Write-Output (\"memory.committed.bytes:\" + (Get-Counter -Counter \"\\Memory\\Committed Bytes\").CounterSamples.CookedValue);" +
+		"Write-Output (\"system.memory.used.percent:\" + ([Math]::Round(((Get-WmiObject Win32_OperatingSystem).TotalVisibleMemorySize - (Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory) / (Get-WmiObject Win32_OperatingSystem).TotalVisibleMemorySize * 100, 2)));" +
+		"Write-Output (\"system.memory.used.bytes:\" + ((Get-WmiObject Win32_OperatingSystem).TotalVisibleMemorySize - (Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory));" +
+		"Write-Output (\"system.memory.committed.bytes:\" + (Get-Counter -Counter \"\\Memory\\Committed Bytes\").CounterSamples.CookedValue);" +
 		"Write-Output (\"system.memory.installed.bytes:\" + (Get-WmiObject -Class Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory));" +
 		"Write-Output (\"system.memory.free.bytes: \"  + (Get-Counter -Counter \"\\Memory\\Free & Zero Page List Bytes\").CounterSamples.CookedValue);" +
 		"Write-Output (\"system.pages.per.sec: \"  + (Get-Counter -Counter \"\\Memory\\Pages/sec\").CounterSamples.CookedValue);" +
@@ -187,181 +208,183 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 	commandLength := len(commands)
 
-	errorArray := make([]map[string]interface{}, 0)
+	errors := make([]map[string]interface{}, 0)
 
 	internalChannel := make(chan map[string]interface{}, 6)
 
 	result := make(map[string]interface{})
 
-	client := client.WinRmClient{}
-
-	client.SetContext(context)
-
-	connectionContext, err := client.CreateConnection()
-
 	var wg sync.WaitGroup
 
-	if err != nil {
+	for _, command := range commands {
 
-		logger.Error(fmt.Sprintf("Unable to create connection context: %v", err))
+		wg.Add(1)
 
-		errorArray = append(errorArray, utils.ErrorHandler(constants.CONNECTIONERROR, err.Error()))
+		go func(command string, channel chan map[string]interface{}) {
 
-		context[constants.Error] = errorArray
+			client := client.WinRmClient{}
 
-		context[constants.Result] = result
+			client.SetContext(context)
 
-		context[constants.Status] = constants.Fail
+			connection, err := client.CreateConnection()
 
-		channel <- context
+			if err != nil {
 
-		return
-	} else {
+				response := make(map[string]interface{})
 
-		for i, command := range commands {
+				logger.Error(fmt.Sprintf("Unable to create connection context: %v", err))
 
-			wg.Add(1)
+				errors = append(errors, utils.ErrorHandler(constants.CONNECTION_ERROR, err.Error()))
 
-			go func(command string, channel chan map[string]interface{}) {
+				response[constants.ERROR] = errors
 
-				defer wg.Done()
+				response[constants.RESULT] = make(map[string]interface{})
 
-				logger.Info(fmt.Sprintf("Executing command number: %v", i))
+				internalChannel <- response
 
-				output, errorOutput, exitCode, err := client.ExecuteCommand(connectionContext, command)
-
-				if err != nil {
-
-					mapToReturn := make(map[string]interface{})
-
-					logger.Error(fmt.Sprintf("Error while making connection for command %v\n", command))
-
-					err := utils.ErrorHandler(constants.CONNECTIONERROR, err.Error())
-
-					mapToReturn[constants.Error] = err
-
-					mapToReturn[constants.Result] = make(map[string]interface{})
-
-					logger.Info(fmt.Sprintf("%v\n", context))
-
-					internalChannel <- mapToReturn
-
-					return
-
-				}
-
-				if exitCode != 0 {
-
-					mapToReturn := make(map[string]interface{})
-
-					logger.Error(fmt.Sprintf("Error while making executing command %v\n", command))
-
-					err := utils.ErrorHandler(constants.COMMANDERROR, errorOutput)
-
-					mapToReturn[constants.Error] = err
-
-					mapToReturn[constants.Result] = make(map[string]interface{})
-
-					internalChannel <- mapToReturn
-
-					return
-
-				} else {
-
-					mapToReturn := make(map[string]interface{})
-
-					result := strings.TrimSpace(output)
-
-					resultSlice := strings.Split(result, "\r\n")
-
-					var cleanedSlice []string
-
-					for _, line := range resultSlice {
-
-						if line != "" {
-
-							cleanedSlice = append(cleanedSlice, line)
-
-						}
-					}
-
-					resultMap := make(map[string]interface{})
-
-					for _, element := range cleanedSlice {
-
-						metric := strings.SplitN(element, ":", 2)
-
-						metric[0] = strings.TrimSpace(metric[0])
-
-						metric[1] = strings.TrimSpace(metric[1])
-
-						if utils.MetricsMap[metric[0]] == "Count" {
-
-							value, err := strconv.ParseFloat(metric[1], 64)
-
-							if err != nil {
-
-								logger.Error(fmt.Sprintf("cannot convert to float %v\n", err))
-
-							} else {
-								resultMap[metric[0]] = value
-
-							}
-						} else {
-							resultMap[metric[0]] = metric[1]
-						}
-
-					}
-
-					mapToReturn[constants.Result] = resultMap
-
-					mapToReturn[constants.Error] = nil
-
-					internalChannel <- mapToReturn
-
-				}
-
-			}(command, internalChannel)
-
-		}
-
-		go func() {
-			wg.Wait()
-
-			close(internalChannel)
-		}()
-
-		for commandLength > 0 {
-			select {
-			case output := <-internalChannel:
-
-				if output[constants.Error] != nil {
-
-					errorArray = append(errorArray, output[constants.Error].(map[string]interface{}))
-				}
-
-				maps.Copy(result, output[constants.Result].(map[string]interface{}))
-
-				commandLength--
+				return
 			}
-		}
 
-		if len(errorArray) > 0 {
+			defer wg.Done()
 
-			context[constants.Status] = constants.Fail
+			logger.Info(fmt.Sprintf("Executing command with command name : %v", command))
 
-		} else {
+			output, errorOutput, exitCode, err := client.ExecuteCommand(connection, command)
 
-			context[constants.Status] = constants.Success
+			if err != nil {
 
-		}
-		context[constants.Result] = result
+				response := make(map[string]interface{})
 
-		context[constants.Error] = errorArray
+				logger.Error(fmt.Sprintf("ERROR while making connection for command %v\n", command))
 
-		channel <- context
+				err := utils.ErrorHandler(constants.CONNECTION_ERROR, err.Error())
 
-		return
+				response[constants.ERROR] = err
+
+				response[constants.RESULT] = make(map[string]interface{})
+
+				logger.Info(fmt.Sprintf("%v\n", context))
+
+				internalChannel <- response
+
+				return
+
+			}
+
+			if exitCode != 0 {
+
+				response := make(map[string]interface{})
+
+				logger.Error(fmt.Sprintf("ERROR while making executing command %v\n", command))
+
+				err := utils.ErrorHandler(constants.COMMAND_ERROR, errorOutput)
+
+				response[constants.ERROR] = err
+
+				response[constants.RESULT] = make(map[string]interface{})
+
+				internalChannel <- response
+
+				return
+
+			} else {
+
+				response := make(map[string]interface{})
+
+				output := strings.TrimSpace(output)
+
+				lines := strings.Split(output, "\r\n")
+
+				var cleanedResult []string
+
+				for _, line := range lines {
+
+					if line != "" {
+
+						cleanedResult = append(cleanedResult, line)
+
+					}
+				}
+
+				result := make(map[string]interface{})
+
+				for _, element := range cleanedResult {
+
+					metric := strings.SplitN(element, ":", 2)
+
+					metric[0] = strings.TrimSpace(metric[0])
+
+					metric[1] = strings.TrimSpace(metric[1])
+
+					if utils.MetricsMap[metric[0]] == "Count" {
+
+						value, err := strconv.ParseFloat(metric[1], 64)
+
+						if err != nil {
+
+							logger.Error(fmt.Sprintf("cannot convert to float %v\n", err))
+
+						} else {
+
+							result[metric[0]] = value
+
+						}
+					} else {
+
+						result[metric[0]] = metric[1]
+					}
+
+				}
+
+				response[constants.RESULT] = result
+
+				response[constants.ERROR] = ""
+
+				internalChannel <- response
+
+			}
+
+		}(command, internalChannel)
+
 	}
 
+	go func() {
+		wg.Wait()
+
+		close(internalChannel)
+	}()
+
+	for commandLength > 0 {
+
+		select {
+
+		case output := <-internalChannel:
+
+			if output[constants.ERROR] != "" {
+
+				errors = append(errors, output[constants.ERROR].(map[string]interface{}))
+			}
+
+			maps.Copy(result, output[constants.RESULT].(map[string]interface{}))
+
+			commandLength--
+		}
+	}
+
+	if len(errors) > 0 {
+
+		context[constants.STATUS] = constants.FAIL
+
+	} else {
+
+		context[constants.STATUS] = constants.SUCCESS
+
+	}
+	context[constants.RESULT] = result
+
+	context[constants.ERROR] = errors
+
+	channel <- context
+
+	return
 }

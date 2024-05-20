@@ -4,7 +4,7 @@ package org.motadata.database;
 import io.vertx.core.impl.ConcurrentHashSet;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.motadata.util.Constants;
+import org.motadata.constants.Constants;
 import org.motadata.util.Utils;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,209 +16,218 @@ public class Database {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(Database.class);
 
-    private static HashMap<String,Database> instanceMap = new HashMap<>();
+    private static final HashMap<String,Database> instances = new HashMap<>();
 
-    private static ConcurrentMap<Long,Long> validCredentials = new ConcurrentHashMap<>();
-
-    private static ConcurrentHashSet<Long> provisionedDevices = new ConcurrentHashSet<>();
-
-    final ConcurrentMap<Long, JsonObject> DATA = new ConcurrentHashMap<>();
-
+    final ConcurrentMap<Long, JsonObject> items = new ConcurrentHashMap<>();
 
     private Database()
     {}
 
     public static void createDatabase(String name)
     {
-        if (!(instanceMap.containsKey(name)))
+        try
         {
-            Database database = new Database();
+            if (!(instances.containsKey(name)))
+            {
+                Database database = new Database();
 
-            instanceMap.put(name,database);
+                instances.put(name, database);
 
-            LOGGER.info("New database is created for {}",name);
+                LOGGER.info("New database is created for {}", name);
+            }
+            else
+            {
+                LOGGER.info("Database with name {} already exists", name);
+            }
         }
-        else
+        catch (Exception exception)
         {
-            LOGGER.info("Database with name {} already exists",name);
+            LOGGER.error("Exception occurred in createDatabase method {}",exception.getCause().toString());
         }
-
-    }
-
-    public static void addValidCredentials(Long discoveryId,Long credentialId)
-    {
-        validCredentials.put(discoveryId,credentialId);
-    }
-
-    public static boolean verifyId(Long id, String requestType)
-    {
-        if (requestType.equals(Constants.VERIFY_DISCOVERY_ID)) {
-
-            return validCredentials.containsKey(id);
-        }
-     if (requestType.equals(Constants.VERIFY_PROVISION))
-        {
-
-            return provisionedDevices.contains(id);
-
-        }
-      return false;
-    }
-
-
-    public static void addProvisionDevice(long discoveryId)
-    {
-        provisionedDevices.add(discoveryId);
-    }
-
-    public static JsonArray getProvisionedDevices()
-    {
-
-        var devices = new JsonArray();
-
-        for (long id : provisionedDevices)
-        {
-            devices.add(id);
-
-        }
-
-        return devices;
-    }
-
-    public static long getCredentialId(long discoveryId)
-    {
-        return validCredentials.get(discoveryId);
     }
 
     public static Database getDatabase(String name)
     {
         LOGGER.info("Get database request has been served for database {}",name);
 
-        return instanceMap.get(name);
+        return instances.get(name);
 
     }
 
-
-    public long create(JsonObject dataToPut)
+    public long create(JsonObject object)
     {
-      var id = Utils.getNewId();
-
-      DATA.put(id,dataToPut);
-
-        LOGGER.info("Data added to database and id is {}",id);
-
-      return  id;
-
-    }
-
-    public JsonObject get(){
-
-        JsonObject result = new JsonObject();
-
-        DATA.forEach((key, value) ->
-
-            result.put(String.valueOf(key), value)
-        );
-
-        LOGGER.info("Get all the data has been served");
-
-        return result.copy();
-
-    }
-
-    public JsonObject get(long id){
-
-        var result = new JsonObject();
-
-        result = DATA.get(id);
-
-        LOGGER.info("Get the data for id {} has been served",id);
-
-        return result.copy();
-    }
-
-    public void update(JsonObject updatedData,long id)
-    {
-
-        var previousData = DATA.get(id);
-
-        var mapOfUpdatedData = updatedData.getMap();
-
-        var keysOfUpdatedData = mapOfUpdatedData.keySet();
-
-        for (var key : keysOfUpdatedData)
+        try
         {
-            previousData.put(key,mapOfUpdatedData.get(key));
+            var id = Utils.getNewId();
+
+            items.put(id, object);
+
+            LOGGER.info("Data added to database and id is {}", id);
+
+            return id;
         }
+        catch (Exception exception)
+        {
+            LOGGER.error("Some exception occurred in function create () {}",exception.getCause().toString());
 
-
+            return -1;
+        }
     }
 
-    public boolean delete(long id)
+    public JsonArray get()
     {
-        //for discovery id present in provisioned devices
-        if (provisionedDevices.contains(id))
+        try
         {
-            return false;
-        }
-        else
-        {
-          //to delete credential id
-            var discoveredDevices = validCredentials.entrySet();
+            var result = new JsonArray();
 
-            for ( var validCredential : discoveredDevices)
+            items.forEach((key, value) ->
             {
-                if (validCredential.getValue().equals(id))
-                {
-                    if (provisionedDevices.contains(validCredential.getKey()))
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        validCredentials.remove(validCredential.getKey());
+                value.put(Constants.ID, key);
 
-                        DATA.remove(id);
+                result.add(value);
+            });
 
-                        return true;
-                    }
-                }
+            LOGGER.info("Get all the data has been served");
 
-            }
-            //to delete discovery id
-            if (validCredentials.containsKey(id) )
-            {
-                validCredentials.remove(id);
-            }
-            DATA.remove(id);
+            return result.copy();
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Some exception occurred while serving in the function get() {}",exception.getCause().toString());
 
-            return true;
+            return null;
+        }
 
+    }
+
+    public JsonObject get(long id)
+    {
+        try
+        {
+            var result = new JsonObject();
+
+            result = items.get(id);
+
+            LOGGER.info("Get the data for id {} has been served", id);
+
+            return result.copy();
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Exception occurred in get(id) method {}",exception.getCause().toString());
+
+            return null;
 
         }
     }
+
+    public void update(JsonObject updateData,long id)
+    {
+        try {
+            var previousData = items.get(id);
+
+            var updatedData = updateData.getMap();
+
+            var keySet = updatedData.keySet();
+
+            for (var key : keySet) {
+                previousData.put(key, updatedData.get(key));
+            }
+
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Exception occurred in update method {}",exception.getCause().toString());
+
+
+        }    }
+
+//    public boolean delete(long id)
+//    {
+//        //for discovery id present in provisioned devices
+//        if (provisionedDevices.contains(id))
+//        {
+//            return false;
+//        }
+//        else
+//        {
+//          //to delete credential id
+//            var discoveredDevices = validCredentials.entrySet();
+//
+//            for ( var validCredential : discoveredDevices)
+//            {
+//                if (validCredential.getValue().equals(id))
+//                {
+//                    if (provisionedDevices.contains(validCredential.getKey()))
+//                    {
+//                        return false;
+//                    }
+//                    else
+//                    {
+//                        validCredentials.remove(validCredential.getKey());
+//
+//                        items.remove(id);
+//
+//                        return true;
+//                    }
+//                }
+//
+//            }
+//            //to delete discovery id
+//            if (validCredentials.containsKey(id) )
+//            {
+//                validCredentials.remove(id);
+//            }
+//            items.remove(id);
+//
+//            return true;
+//
+//
+//        }
+//    }
 
     public boolean verify(long key)
     {
-        LOGGER.info("Verification for the key {} is served",key);
+        try
+        {
+            LOGGER.info("Verification for the key {} is served", key);
 
-       return DATA.containsKey(key);
+            return items.containsKey(key);
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Exception occurred in verify method {}",exception.getCause().toString());
 
+            return false;
+
+        }
     }
 
     public boolean verify(String name)
     {
-        var jsonValues = DATA.values();
-
-        for (var jsonValue : jsonValues)
+        try
         {
-            if (name.equals(jsonValue.getString(Constants.NAME)))
+            var values = items.values();
+
+            for (var value : values)
             {
-                return true;
+                if (name.equals(value.getString(Constants.NAME)))
+                {
+                    return true;
+                }
+
             }
+            return false;
+
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Exception occurred in verify(String) method {}",exception.getCause().toString());
+
+            return false;
 
         }
 
-        return false;
+
     }
 }

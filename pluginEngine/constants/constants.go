@@ -3,60 +3,64 @@ package constants
 import "time"
 
 const (
-	Username = "username"
+	USERNAME = "user.name"
 
-	Password = "password"
+	PASSWORD = "password"
 
-	IP = "ip"
+	IP_ADDRESS = "ip.address"
 
-	DefaultPort float64 = 5985
+	DEFAULT_PORT float64 = 5985
 
-	Port = "port"
+	PORT = "port"
 
-	RequestType = "request.type"
+	REQUEST_TYPE = "request.type"
 
-	Discovery = "discovery"
+	DISCOVERY = "discovery"
 
-	Collect = "collect"
+	COLLECT = "collect"
 
-	Status = "status"
+	STATUS = "status"
 
-	Success = "success"
+	SUCCESS = "success"
 
-	Fail = "fail"
+	FAIL = "fail"
 
-	ErrorCode = "error.code"
+	ERROR_CODE = "error.code"
 
-	Error = "error"
+	ERROR = "error"
 
-	ErrorMessage = "error.message"
+	ERROR_MESSAGE = "error.message"
 
-	Result = "result"
+	RESULT = "result"
 
-	TimeOut = "request.timeout.nanoseconds"
+	TIMEOUT = "request.timeout.nanoseconds"
 
-	DefaultTimeOut = 30 * time.Second
+	DEFAULT = 30 * time.Second
 
-	CredentialProfiles = "credential.profiles"
+	CREDENTIAL_PROFILES = "credential.profiles"
 
-	CredentialID = "credential.id"
+	VALID_CREDENTIAL_ID = "valid.credential.id"
+
+	CREDENTIAL_ID = "credential.id"
 
 	//error codes
-	DECODEERROR = "DECODE01"
+	DECODE_ERROR = "DECODE01"
 
-	CONNECTIONERROR = "CONNECTION01"
+	CONNECTION_ERROR = "CONNECTION01"
 
-	COMMANDERROR = "COMMAND01"
+	COMMAND_ERROR = "COMMAND01"
 
 	ENCODEERROR = "ENCODE01"
 
-	CONTEXTMISSINGERROR = "CONTEXT01"
+	CONTEXT_MISSING_ERROR = "CONTEXT01"
 
-	INVALIDREQUESTYPE = "REQUESTTYPE01"
+	INVALID_REQUEST_TYPE = "REQUESTTYPE01"
+
+	SEPERATOR = "||@@||"
 
 	//counter constants
 
-	Hostname = "hostname"
+	HOSTNAME = "hostname"
 
 	SystemNetworkOutputQueueLength = "system.network.output.queue.length"
 
