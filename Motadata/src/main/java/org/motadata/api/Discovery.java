@@ -6,100 +6,64 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import org.motadata.database.Credential;
 import org.motadata.database.Database;
 import org.motadata.constants.Constants;
 import org.motadata.util.Handler;
+import org.motadata.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Discovery {
 
-    public static final Database discoveryDatabase = Database.getDatabase(Constants.DISCOVERY_DATABASE);
+    public static final org.motadata.database.Discovery discoveryDatabase = org.motadata.database.Discovery.getDiscovery();
 
-    public static final Database credentialDatabase = Database.getDatabase(Constants.CREDENTIAL_DATABASE);
+    public static final Credential credentialDatabase =Credential.getCredential();
 
     public static final Logger LOGGER = LoggerFactory.getLogger(Discovery.class);
 
-//    public static JsonObject deleteDiscovery(String id)
-//    {
-//
-//        var response = new JsonObject();
-//
-//        var idVerification = discoveryDatabase.verify(Long.parseLong(id));
-//
-//        if (idVerification)
-//        {
-//            var result = discoveryDatabase.delete(Long.parseLong(id));
-//
-//            if (result)
-//            {
-//                response.put(Constants.ERROR_CODE, Constants.SUCCESS_CODE);
-//
-//                response.put(Constants.MESSAGE, "Successfully deleted the discovery profile");
-//
-//                response.put(Constants.STATUS, Constants.SUCCESS);
-//
-//                LOGGER.info("Deletion successful of id {}",id);
-//
-//            }
-//            else
-//            {
-//                response.put(Constants.ERROR_MESSAGE, "Device is already provisioned");
-//
-//                response.put(Constants.ERROR, "Device Provisioned");
-//
-//                response.put(Constants.ERROR_CODE, Constants.ALREADY_PROVISION);
-//
-//                response.put(Constants.STATUS, Constants.FAIL);
-//
-//                LOGGER.info("Unable to delete as the discovery id is already provisioned",id);
-//            }
-//
-//        }
-//        else
-//        {
-//            response.put(Constants.ERROR_MESSAGE, "Id does not exist");
-//
-//            response.put(Constants.ERROR, "Invalid Id");
-//
-//            response.put(Constants.ERROR_CODE, Constants.INVALID_DISCOVERY_ID);
-//
-//            response.put(Constants.STATUS, Constants.FAIL);
-//
-//            LOGGER.info("Unable to delete as the discovery id is invalid id: {}",id);
-//
-//        }
-//        return response;
-//
-//    }
     private Router router;
 
     private EventBus eventBus;
 
     public void init(Vertx vertx)
     {
-        router = Router.router(vertx);
+        try
+        {
+            router = Router.router(vertx);
 
-        router.route().handler(BodyHandler.create());
+            router.route().handler(BodyHandler.create());
 
-        eventBus = vertx.eventBus();
+            eventBus = vertx.eventBus();
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Some exception has occurred in init method",exception);
+        }
     }
 
     public Router getRouter()
     {
-        router.post(Constants.ROUTE_PATH).handler(this::createDiscovery);
+        try
+        {
+            router.post(Constants.ROUTE_PATH).handler(this::createDiscovery);
 
-        router.get(Constants.ROUTE_PATH).handler(this::getDiscoveries);
+            router.get(Constants.ROUTE_PATH).handler(this::getDiscoveries);
 
-        router.get(Constants.API_WITH_PARAMS).handler(this::getDiscovery);
+            router.get(Constants.API_WITH_PARAMS).handler(this::getDiscovery);
 
-        router.put(Constants.API_WITH_PARAMS).handler(this::updateDiscovery);
+            router.put(Constants.API_WITH_PARAMS).handler(this::updateDiscovery);
 
-        router.post(Constants.RUN_API).handler(this::discoveryRun);
+            router.post(Constants.RUN_API).handler(this::discoveryRun);
 
-        router.get(Constants.RUN_API_RESULT).handler(this::discoveryRunResult);
+            router.get(Constants.RUN_API_RESULT).handler(this::discoveryRunResult);
 
-
+            router.delete(Constants.API_WITH_PARAMS).handler(this::deleteDiscovery);
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Some exception has occurred in get Router method",exception);
+        }
         return router;
     }
 
@@ -117,7 +81,7 @@ public class Discovery {
             {
                 response = Handler.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
 
-                LOGGER.info("Post request  has been served for {} with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
+                LOGGER.warn("Post request  has been served for {} with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -126,8 +90,7 @@ public class Discovery {
             {
                 if (data.containsKey(Constants.IP_ADDRESS) && data.containsKey(Constants.PORT) && data.containsKey(Constants.CREDENTIAL_IDS) && data.containsKey(Constants.DISCOVERY_PROFILE_NAME) &&
 
-                        (!(data.getString(Constants.IP_ADDRESS).isEmpty())) && (!(data.getJsonArray(Constants.CREDENTIAL_IDS).isEmpty())) && (!(data.getString(Constants.PORT).isEmpty())) && (!(data.getString(Constants.DISCOVERY_PROFILE_NAME).isEmpty())))
-
+                        (!(data.getString(Constants.IP_ADDRESS).isEmpty())) && (!(data.getJsonArray(Constants.CREDENTIAL_IDS).isEmpty())) && (Utils.validatePort(data.getString(Constants.PORT))) && (!(data.getString(Constants.DISCOVERY_PROFILE_NAME).isEmpty())))
                 {
                     if (!discoveryDatabase.verify(Constants.DISCOVERY_PROFILE_NAME,data.getString(Constants.DISCOVERY_PROFILE_NAME)))
                     {
@@ -139,7 +102,7 @@ public class Discovery {
                             {
                                 response = Handler.errorHandler("Wrong Credentials", "One of the credential Id is incorrect", Constants.INCORRECT_DISCOVERY);
 
-                                LOGGER.info("Creation of discovery profile failed because one of the credential Id is incorrect");
+                                LOGGER.warn("Creation of discovery profile failed because one of the credential Id is incorrect");
 
                                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -148,6 +111,8 @@ public class Discovery {
                         }
 
                         data.put(Constants.VALID_CREDENTIAL_ID,-1);
+
+                        data.put(Constants.IS_DISCOVERED,false);
 
                         var id = discoveryDatabase.create(data);
 
@@ -170,7 +135,6 @@ public class Discovery {
 
                         LOGGER.info("Creation of discovery profile failed because discovery profile name already exists");
                     }
-
                 }
                 else
                 {
@@ -178,7 +142,7 @@ public class Discovery {
 
                     context.response().setStatusCode(400).end(response.encodePrettily());
 
-                    LOGGER.info("Creation of discovery profile failed because either ip or port profile or discovery name is not present");
+                    LOGGER.warn("Creation of discovery profile failed because either ip or port profile or discovery name is not present");
                 }
             }
 
@@ -190,9 +154,9 @@ public class Discovery {
 
         context.response().setStatusCode(500).end(response.encodePrettily());
 
-        LOGGER.info("Post request  has been served for {}  with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
+        LOGGER.error("Post request  has been served for {}  with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
 
-        LOGGER.error("Exception occurred {}", exception.getMessage());
+        LOGGER.error("Exception occurred ", exception);
     }
 
 }
@@ -211,7 +175,7 @@ public class Discovery {
             {
                 if (result.isEmpty())
                 {
-                    LOGGER.info("Unable to get the discovery details as there are no credential profiles");
+                    LOGGER.warn("Unable to get the discovery details as there are no credential profiles");
 
                     response.put(Constants.MESSAGE, "No discovery profiles are present");
                 }
@@ -241,7 +205,7 @@ public class Discovery {
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
-            LOGGER.info("Get request  has been served for {}  with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
+            LOGGER.error("Get request  has been served for {}  with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
 
             LOGGER.error("Exception occurred {}", exception.getMessage());
 
@@ -250,16 +214,19 @@ public class Discovery {
 
     private void getDiscovery(RoutingContext context)
     {
+        LOGGER.info("Request for get discovery has arrived");
+
         var response = new JsonObject();
 
         try {
             var discoveryId = context.pathParam(Constants.ID);
 
-
-            if (discoveryDatabase.verify(Long.parseLong(discoveryId))) {
+            if (discoveryDatabase.verify(Long.parseLong(discoveryId)))
+            {
                 response = discoveryDatabase.get(Long.parseLong(discoveryId));
 
-                if (response != null) {
+                if (response != null)
+                {
                     response.put(Constants.STATUS, Constants.SUCCESS);
 
                     response.put(Constants.ERROR_CODE, Constants.SUCCESS_CODE);
@@ -268,19 +235,22 @@ public class Discovery {
 
                     context.response().setStatusCode(200).end(response.encodePrettily());
 
-                } else {
+                } else
+                {
                     response = Handler.errorHandler("Failure", "Failed to get the discovery profile", Constants.EXCEPTION);
 
                     LOGGER.error("Some exception might have occurred while fetching the data as the result is null");
 
                     context.response().setStatusCode(500).end(response.encodePrettily());
                 }
-            } else {
+            }
+            else
+            {
                 response = Handler.errorHandler("Invalid ID", "Id does not exist", Constants.INVALID_DISCOVERY_ID);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
-                LOGGER.info("Unable to get the discovery details as there are no discovery profile with specific id");
+                LOGGER.warn("Unable to get the discovery details as there are no discovery profile with specific id");
             }
         }
         catch (Exception exception)
@@ -289,9 +259,9 @@ public class Discovery {
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
-            LOGGER.error("Exception occurred {}", exception.getMessage());
+            LOGGER.error("Exception occurred", exception);
 
-            LOGGER.info("Get request  has been served for {}  with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
+            LOGGER.error("Get request  has been served for {}  with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
 
         }
 
@@ -313,9 +283,9 @@ public class Discovery {
             {
                 response = Handler.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
 
-                LOGGER.info("Put request  has been served for {} with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
-
                 context.response().setStatusCode(400).end(response.encodePrettily());
+
+                LOGGER.warn("Put request  has been served for {} with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
             }
             else
             {
@@ -329,18 +299,17 @@ public class Discovery {
 
                     response.put(Constants.STATUS, Constants.SUCCESS);
 
-                    LOGGER.info("Updation successful for the id {} and the changes are {}", id, data);
-
                     context.response().setStatusCode(200).end(response.encodePrettily());
 
+                    LOGGER.info("Updation successful for the id {} and the changes are {}", id, data);
                 }
                 else
                 {
-                    response = Handler.errorHandler("Invalid credential id", "Discovery id is invalid", Constants.INVALID_DISCOVERY_ID);
+                    response = Handler.errorHandler("Invalid discovery id", "Discovery id is invalid", Constants.INVALID_DISCOVERY_ID);
 
                     context.response().setStatusCode(400).end(response.encodePrettily());
 
-                    LOGGER.info("Unable to update discovery id as the discovery id {} is invalid", id);
+                    LOGGER.warn("Unable to update discovery id as the discovery id {} is invalid", id);
 
                 }
             }
@@ -351,10 +320,9 @@ public class Discovery {
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
-            LOGGER.error("Exception occurred {}", exception.getMessage());
+            LOGGER.error("Exception occurred ", exception);
 
-            LOGGER.info("Put request  has been served for {}  with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
-
+            LOGGER.error("Put request  has been served for {}  with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
         }
     }
 
@@ -368,19 +336,38 @@ public class Discovery {
 
             if (discoveryDatabase.verify(Long.parseLong(id)))
             {
-                eventBus.send(Constants.DISCOVERY_ADDRESS, id);
+                var discoveryProfileDetails = discoveryDatabase.get(Long.parseLong(id));
 
-                response.put(Constants.STATUS, Constants.SUCCESS);
+                if (!discoveryProfileDetails.getBoolean(Constants.IS_DISCOVERED))
+                {
+                    discoveryProfileDetails.put(Constants.ID,id);
 
-                response.put(Constants.MESSAGE, "Discovery Run request has been received");
+                    eventBus.send(Constants.DISCOVERY_ADDRESS,discoveryProfileDetails);
 
-                context.response().setStatusCode(200).end(response.encodePrettily());
+                    response.put(Constants.STATUS, Constants.SUCCESS);
+
+                    response.put(Constants.MESSAGE, "Discovery Run request has been received");
+
+                    context.response().setStatusCode(200).end(response.encodePrettily());
+
+                    LOGGER.info("Discovery run  request  has been successfully received");
+                }
+                else
+                {
+                    response = Handler.errorHandler("Already discovered","Device is already discovered",Constants.ALREADY_DISCOVERED);
+
+                    context.response().setStatusCode(400).end(response.encodePrettily());
+
+                    LOGGER.warn("Unable to discover the device with discovery id {} as it is already discovered",id);
+                }
             }
             else
             {
                 response = Handler.errorHandler("Invalid discovery id","Discovery Id does not exist",Constants.INCORRECT_DISCOVERY);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
+
+                LOGGER.warn("Discovery run failed as the discovery id {} is invalid", Long.parseLong(id));
 
             }
 
@@ -391,9 +378,9 @@ public class Discovery {
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
-            LOGGER.error("Exception occurred  in discovery run method {}",exception.getMessage());
+            LOGGER.error("Exception occurred  in discovery run method ",exception);
 
-            LOGGER.info("Discovery run request  has been served for {}  with result {}", Constants.DISCOVERY_API + Constants.RUN_API, response);
+            LOGGER.error("Discovery run request  has been served for {}  with result {}", Constants.DISCOVERY_API + Constants.RUN_API, response);
 
         }
 
@@ -410,7 +397,7 @@ public class Discovery {
             {
                 var result = discoveryDatabase.get(Long.parseLong(id));
 
-                if (result.getLong(Constants.VALID_CREDENTIAL_ID)!=-1)
+                if (result.getLong(Constants.VALID_CREDENTIAL_ID)!=-1 && result.getBoolean(Constants.IS_DISCOVERED))
                 {
                     response.put(Constants.STATUS,Constants.SUCCESS);
 
@@ -420,9 +407,7 @@ public class Discovery {
 
                     context.response().setStatusCode(200).end(response.encodePrettily());
 
-                    LOGGER.error("Get discovery run api has been served successfully with result {}",response);
-
-
+                    LOGGER.info("Get discovery run api has been served successfully with result {}",response);
                 }
                 else
                 {
@@ -430,9 +415,69 @@ public class Discovery {
 
                    context.response().setStatusCode(400).end(response.encodePrettily());
 
-                    LOGGER.error("Get discovery run api has been served successfully with result {}",response);
+                    LOGGER.warn("Get discovery run api has been served successfully with result {}",response);
 
                 }
+            }
+            else
+            {
+                response = Handler.errorHandler("Invalid discovery id","Discovery id does not exist",Constants.INVALID_DISCOVERY_ID);
+
+                context.response().setStatusCode(400).end(response.encodePrettily());
+
+                LOGGER.warn("Failed to get discovery run result as the id {} is invalid",id);
+
+
+            }
+        }
+        catch (Exception exception)
+        {
+            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+
+            context.response().setStatusCode(500).end(response.encodePrettily());
+
+            LOGGER.error("Some exception occurred in discovey-run-result api ",exception);
+
+        }
+    }
+
+    private void deleteDiscovery(RoutingContext context)
+    {
+        var response = new JsonObject();
+        try
+        {
+            var id = context.pathParam(Constants.ID);
+
+            if (discoveryDatabase.verify(Long.parseLong(id)))
+            {
+                if (discoveryDatabase.delete(Long.parseLong(id)))
+                {
+                    response.put(Constants.STATUS,Constants.SUCCESS);
+
+                    response.put(Constants.MESSAGE,"Deletion of discovery profile is successful");
+
+                    context.response().setStatusCode(200).end(response.encodePrettily());
+
+                    LOGGER.info("Deletion of the discovery id {} is successful",Long.parseLong(id));
+
+                }
+                else
+                {
+                    response = Handler.errorHandler("Failed Deletion","Failed to delete discovery id",Constants.FAILED_DISCOVERY);
+
+                    context.response().setStatusCode(400).end(response.encodePrettily());
+
+                    LOGGER.warn("Deletion of discovery id {} failed as the delete operation in db returned false",id);
+                }
+            }
+            else
+            {
+                response = Handler.errorHandler("Invalid Discovery ID","Discovery ID does not exist",Constants.INVALID_DISCOVERY_ID);
+
+                context.response().setStatusCode(400).end(response.encodePrettily());
+
+                LOGGER.warn("Deletion failed as the discovery id {} is invalid",Long.parseLong(id));
+
             }
         }
         catch (Exception exception)
@@ -441,9 +486,9 @@ public class Discovery {
 
             context.response().setStatusCode(200).end(response.encodePrettily());
 
-            LOGGER.error("Some exception occurred in discovey-run-result api ",exception);
-
-        }    }
+            LOGGER.error("Some exception occurred while deleting discovery",exception);
+        }
+    }
 
 }
 

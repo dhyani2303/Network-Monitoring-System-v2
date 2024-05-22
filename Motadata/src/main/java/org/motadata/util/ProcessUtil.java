@@ -16,19 +16,18 @@ import java.util.concurrent.TimeUnit;
 
 public class ProcessUtil
 {
-
     public static final Logger LOGGER = LoggerFactory.getLogger(ProcessUtil.class);
 
     public static boolean checkAvailability(JsonObject data)
     {
-        var ipAddress = data.getString(Constants.IP_ADDRESS);
-
-        ProcessBuilder processBuilder = new ProcessBuilder("fping", "-c", "3", "-q", ipAddress);
-
-        processBuilder.redirectErrorStream(true);
-
         try
         {
+            var ipAddress = data.getString(Constants.IP_ADDRESS);
+
+            ProcessBuilder processBuilder = new ProcessBuilder("fping", "-c", "3", "-q", ipAddress);
+
+            processBuilder.redirectErrorStream(true);
+
             Process process = processBuilder.start();
 
             var timeout = process.waitFor(Long.parseLong(Utils.configMap.get(Constants.PROCESS_TIMEOUT).toString()), TimeUnit.SECONDS);
@@ -48,21 +47,41 @@ public class ProcessUtil
 
             while ((line = reader.readLine()) != null)
             {
-                if (line.contains("/0%"))
+                if (line.contains("xmt/rcv/%loss"))
                 {
-                    LOGGER.info("Device with IP address {} is up", ipAddress);
+                    var parts = line.split("=", 2);
 
-                    return true;
-                } else
-                {
-                    LOGGER.info("Device with IP address {} is down", ipAddress);
+                    if (parts.length == 2)
+                    {
+                        var lossPercentage = parts[1].split("%")[0].trim();
+
+                        var loss = Integer.parseInt(lossPercentage.split("/")[2]);
+
+                        var result = loss != 100;
+
+                        if (result)
+                        {
+                            LOGGER.info("Device with Ip address {} is up", ipAddress);
+
+                            return true;
+
+                        }
+                        else
+                        {
+                            LOGGER.info("Device with Ip address {} is down", ipAddress);
+
+                            return false;
+                        }
+                    }
                 }
             }
 
         }
         catch (Exception exception)
         {
-            LOGGER.error(exception.getCause().toString());
+            LOGGER.error("Some exception occurred in check availability method ", exception);
+
+            return false;
         }
         return false;
 
@@ -88,6 +107,15 @@ public class ProcessUtil
 
             var timeout = process.waitFor(Long.parseLong(Utils.configMap.get(Constants.PROCESS_TIMEOUT).toString()), TimeUnit.SECONDS);
 
+            if (!timeout)
+            {
+                process.destroyForcibly();
+
+                LOGGER.warn("Process has been killed as it exceeded the timeout duration");
+
+                return null;
+            }
+
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
             String line;
@@ -104,7 +132,6 @@ public class ProcessUtil
                 }
             }
 
-
             var outputs = buffer.toString().split(Constants.REGEX_SEPERATOR);
 
             for (var output : outputs)
@@ -115,26 +142,23 @@ public class ProcessUtil
 
                     results.add(result);
 
-                } else
+                    LOGGER.info("Decoding of the data is successful");
+
+                }
+                else
                 {
                     LOGGER.warn("The output after splitting at seperator came to be null");
                 }
             }
 
-            if (!timeout)
-            {
-                process.destroyForcibly();
+            LOGGER.info("Result is sent to the method that called the spawn plugin engine");
 
-                LOGGER.warn("Process has been killed as it exceeded the timeout duration");
-
-                return null;
-            }
             return results;
 
         }
         catch (Exception exception)
         {
-            LOGGER.error("Some exception has occurred",exception);
+            LOGGER.error("Some exception has occurred", exception);
 
             return null;
 

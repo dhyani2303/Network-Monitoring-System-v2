@@ -42,7 +42,7 @@ public class Database {
         }
         catch (Exception exception)
         {
-            LOGGER.error("Exception occurred in createDatabase method {}",exception.getCause().toString());
+            LOGGER.error("Exception occurred in createDatabase method",exception);
         }
     }
 
@@ -68,7 +68,7 @@ public class Database {
         }
         catch (Exception exception)
         {
-            LOGGER.error("Some exception occurred in function create () {}",exception.getCause().toString());
+            LOGGER.error("Some exception occurred in function create() ",exception);
 
             return -1;
         }
@@ -93,7 +93,7 @@ public class Database {
         }
         catch (Exception exception)
         {
-            LOGGER.error("Some exception occurred while serving in the function get() {}",exception.getCause().toString());
+            LOGGER.error("Some exception occurred while serving in the function get() ",exception);
 
             return null;
         }
@@ -114,7 +114,7 @@ public class Database {
         }
         catch (Exception exception)
         {
-            LOGGER.error("Exception occurred in get(id) method {}",exception.getCause().toString());
+            LOGGER.error("Exception occurred in get(id) method",exception);
 
             return null;
 
@@ -123,68 +123,40 @@ public class Database {
 
     public void update(JsonObject updateData,long id)
     {
-        try {
+        try
+        {
             var previousData = items.get(id);
 
             var updatedData = updateData.getMap();
 
             var keySet = updatedData.keySet();
 
-            for (var key : keySet) {
+            for (var key : keySet)
+            {
                 previousData.put(key, updatedData.get(key));
             }
-
         }
         catch (Exception exception)
         {
-            LOGGER.error("Exception occurred in update method {}",exception.getCause().toString());
+            LOGGER.error("Exception occurred in update method",exception);
+        }
+    }
 
+    public boolean delete(long id)
+    {
+        try
+        {
+            items.remove(id);
 
-        }    }
+            return true;
+        }
+        catch (Exception exception)
+        {
+            LOGGER.info("Some exception has occurred in delete method",exception);
 
-//    public boolean delete(long id)
-//    {
-//        //for discovery id present in provisioned devices
-//        if (provisionedDevices.contains(id))
-//        {
-//            return false;
-//        }
-//        else
-//        {
-//          //to delete credential id
-//            var discoveredDevices = validCredentials.entrySet();
-//
-//            for ( var validCredential : discoveredDevices)
-//            {
-//                if (validCredential.getValue().equals(id))
-//                {
-//                    if (provisionedDevices.contains(validCredential.getKey()))
-//                    {
-//                        return false;
-//                    }
-//                    else
-//                    {
-//                        validCredentials.remove(validCredential.getKey());
-//
-//                        items.remove(id);
-//
-//                        return true;
-//                    }
-//                }
-//
-//            }
-//            //to delete discovery id
-//            if (validCredentials.containsKey(id) )
-//            {
-//                validCredentials.remove(id);
-//            }
-//            items.remove(id);
-//
-//            return true;
-//
-//
-//        }
-//    }
+            return false;
+        }
+    }
 
     public boolean verify(long key)
     {
@@ -196,7 +168,7 @@ public class Database {
         }
         catch (Exception exception)
         {
-            LOGGER.error("Exception occurred in verify method {}",exception.getCause().toString());
+            LOGGER.error("Exception occurred in verify method",exception);
 
             return false;
 
@@ -222,12 +194,9 @@ public class Database {
         }
         catch (Exception exception)
         {
-            LOGGER.error("Exception occurred in verify(String) method {}",exception.getCause().toString());
+            LOGGER.error("Exception occurred in verify(String) method ",exception);
 
             return false;
-
         }
-
-
     }
 }

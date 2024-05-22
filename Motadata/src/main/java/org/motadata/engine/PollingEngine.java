@@ -4,8 +4,9 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.motadata.database.Database;
+import org.motadata.database.Credential;
 import org.motadata.constants.Constants;
+import org.motadata.database.Provision;
 import org.motadata.util.ProcessUtil;
 import org.motadata.util.Utils;
 import org.slf4j.Logger;
@@ -15,9 +16,9 @@ public class PollingEngine extends AbstractVerticle
 {
     public static final Logger LOGGER = LoggerFactory.getLogger(PollingEngine.class);
 
-    Database credentialDatabase = Database.getDatabase(Constants.CREDENTIAL_DATABASE);
+   private final Credential credentialDatabase = Credential.getCredential();
 
-    Database provisionDatabase = Database.getDatabase(Constants.PROVISION_DATABASE);
+    private final Provision provisionDatabase = Provision.getProvision();
 
     public void start(Promise<Void> start)
     {
@@ -36,60 +37,74 @@ public class PollingEngine extends AbstractVerticle
                     for (var provisionedDevice : provisionDevices)
                     {
                         var entries = JsonObject.mapFrom(provisionedDevice);
-                     //   if (ProcessUtil.checkAvailability(device))
-                      //  {
 
-                            var credentialDetails = credentialDatabase.get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString()));
-
-                            entries.put(Constants.REQUEST_TYPE,Constants.COLLECT);
-
-                          entries.put(Constants.USERNAME,credentialDetails.getString(Constants.USERNAME));
-
-                          entries.put(Constants.PASSWORD,credentialDetails.getString(Constants.PASSWORD));
-
-                            context.add(entries);
-
-                            var outputs = ProcessUtil.spawnPluginEngine(context);
-
-                            if (outputs != null)
+                        if (ProcessUtil.checkAvailability(entries))
+                        {
+                            if (!credentialDatabase.get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString())).isEmpty())
                             {
-                                for (var output : outputs)
+                                var credentialDetails = credentialDatabase.get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString()));
+
+                                entries.put(Constants.REQUEST_TYPE, Constants.COLLECT);
+
+                                entries.put(Constants.USERNAME, credentialDetails.getString(Constants.USERNAME));
+
+                                entries.put(Constants.PASSWORD, credentialDetails.getString(Constants.PASSWORD));
+
+                                context.add(entries);
+
+                                var outputs = ProcessUtil.spawnPluginEngine(context);
+
+                                if (outputs != null)
                                 {
-                                    var jsonData = new JsonObject(output.toString());
-
-                                    if (jsonData.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                                    for (var output : outputs)
                                     {
-                                        Utils.writeToFile(vertx, jsonData).onSuccess(v ->
+                                        var jsonData = new JsonObject(output.toString());
 
-                                                        LOGGER.trace("Content written to file {}", jsonData))
+                                        if (jsonData.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                                        {
+                                            Utils.writeToFile(vertx, jsonData).onSuccess(v ->
 
-                                                .onFailure(err ->
+                                                            LOGGER.trace("Content written to file {}", jsonData))
 
-                                                        LOGGER.error("Failed to write file", err));
+                                                    .onFailure(err ->
 
-                                    }
-                                    else
-                                    {
-                                        LOGGER.error("Polling status is fail {}", jsonData);
+                                                            LOGGER.error("Failed to write file", err)
+                                                    );
+                                        }
+                                        else
+                                        {
+                                            LOGGER.error("Polling status is fail {}", jsonData);
+                                        }
                                     }
                                 }
-                            } else {
-                                LOGGER.warn("Null has been return from plugin engine");
+                                else
+                                {
+                                    LOGGER.warn("Null has been return from plugin engine");
+                                }
                             }
-                       // } else {
-
-                         //   LOGGER.info("Polling failed because the device with ip address {} is down",JsonObject.mapFrom(provisionedDevice).getString(Constants.IP_ADDRESS));
-                       // }
+                            else
+                            {
+                                LOGGER.warn("Unable to fetch the credential details of valid credential id {}",entries.getString(Constants.VALID_CREDENTIAL_ID));
+                            }
+                        }
+                         else
+                        {
+                            LOGGER.info("Polling failed because the device with ip address {} is down", JsonObject.mapFrom(provisionedDevice).getString(Constants.IP_ADDRESS));
+                        }
                     }
                 }
             }
             catch (Exception exception)
             {
-                LOGGER.error("Some exception occurred ",exception);
+                LOGGER.error("Some exception occurred ", exception);
             }
 
         });
 
+    }
+    public void stop(Promise<Void> promise)
+    {
+        promise.complete();
     }
 
 }

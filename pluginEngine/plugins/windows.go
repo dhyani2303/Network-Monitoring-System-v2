@@ -7,6 +7,7 @@ import (
 	"PluginEngine/utils"
 	"fmt"
 	"maps"
+	"math"
 	"strconv"
 	"strings"
 	"sync"
@@ -156,7 +157,6 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 	diskMetrics1 := "(Get-Counter -Counter \"\\PhysicalDisk(*)\\Disk Writes/sec\") |  Select-Object -ExpandProperty CounterSamples  | Measure-Object -Property CookedValue -Sum | Select-Object @{Name='system.disk.io.write.bytes.per.sec';Expression={($_.Sum)}} | fl;" +
 		"Get-WmiObject -Class Win32_LogicalDisk |Select-Object DeviceID, @{Name=\"UsedBytes\"; Expression={[math]::Round(($.Size - $.FreeSpace),3)}} |Measure-Object -Property UsedBytes -Sum  | Select-Object @{Name='system.disk.used.bytes';Expression={($_.Sum)}} | fl;" +
-		"(Get-Counter -Counter \"\\PhysicalDisk(*)\\% Idle Time\")  | Select-Object -ExpandProperty CounterSamples | Select-Object @{Name='system.disk.io.time.percent';Expression={(100 - $_.CookedValue)}} |  Measure-Object -Property system.disk.io.time.percent -Sum | Select-Object @{Name='system.disk.io.time.percent';Expression={($_.Sum)}} | fl;" +
 		"(Get-Counter -Counter \"\\PhysicalDisk(*)\\Disk Writes/sec\") | Select-Object -ExpandProperty CounterSamples | Measure-Object -Property CookedValue -Sum | Select-Object @{Name='system.disk.io.write.ops.per.sec';Expression={($_.Sum)}} | fl;" +
 		"(Get-Counter -Counter \"\\PhysicalDisk(_total)\\Avg. Disk Bytes/Transfer\") | Select-Object -ExpandProperty CounterSamples  | Select-Object @{Name='system.disk.io.bytes.per.sec';Expression={($_.CookedValue)}}  | fl;" +
 		"Get-WmiObject -Class Win32_LogicalDisk | Select-Object -Property @{Label='Total'; expression={($_.Size)}} | Measure-Object -Property Total -Sum | Select-Object @{Name='system.disk.capacity.bytes';Expression={($_.Sum)}}|fl;" +
@@ -326,7 +326,7 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 						} else {
 
-							result[metric[0]] = value
+							result[metric[0]] = math.Round(value*100) / 100
 
 						}
 					} else {

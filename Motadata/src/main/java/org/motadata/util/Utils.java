@@ -39,7 +39,8 @@ public class Utils
     {
         Promise<Void> promise = Promise.promise();
 
-        try {
+        try
+        {
             vertx.fileSystem().readFile(System.getProperty("user.dir") + "/config/configuration.json", handler ->
             {
                 if (handler.succeeded())
@@ -66,7 +67,7 @@ public class Utils
         }
         catch (Exception exception)
         {
-            LOGGER.error("Some exception occurred in setConfig method");
+            LOGGER.error("Some exception occurred in setConfig method",exception);
 
             promise.fail("Exception occurred");
         }
@@ -78,15 +79,15 @@ public class Utils
     {
         Promise<Void> promise = Promise.promise();
 
-        try {
-
+        try
+        {
             var ip = data.getString(Constants.IP_ADDRESS);
 
             var now = LocalDateTime.now();
 
             data.put(Constants.TIMESTAMP, now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-            var fileName = ip + ".txt";
+            var fileName = configMap.get(Constants.RESULT_PATH) +ip + ".txt";
 
             var buffer = Buffer.buffer(data.encodePrettily());
 
@@ -114,4 +115,24 @@ public class Utils
 
     }
 
+
+    public static boolean validatePort(String port)
+    {
+        try
+        {
+            if (port == null || port.isEmpty())
+            {
+                return false;
+            }
+
+            return Integer.parseInt(port) > 0 && Integer.parseInt(port) <= 65353 && port.matches("[0-9]+");
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Exception occurred in validatePort method",exception);
+
+            return false;
+
+        }
+    }
 }

@@ -3,6 +3,8 @@ package org.motadata.engine;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
+import org.motadata.database.Credential;
+import org.motadata.database.Discovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonArray;
@@ -15,9 +17,9 @@ import java.util.jar.JarOutputStream;
 
 public class DiscoveryEngine extends AbstractVerticle {
 
-    public static final Database discoveryDatabase = Database.getDatabase(Constants.DISCOVERY_DATABASE);
+    public static final Discovery discoveryDatabase = Discovery.getDiscovery();
 
-    public static final Database credentialDatabase = Database.getDatabase(Constants.CREDENTIAL_DATABASE);
+    public static final Credential credentialDatabase = Credential.getCredential();
 
     public static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryEngine.class);
 
@@ -28,19 +30,16 @@ public class DiscoveryEngine extends AbstractVerticle {
         eventBus.localConsumer(Constants.DISCOVERY_ADDRESS, this::handler);
 
         promise.complete();
-
     }
 
-    public void handler(Message<String> message)
+    public void handler(Message<JsonObject> message)
     {
         try
         {
-            var discoveryId = message.body();
+            var discoveryProfileDetails = message.body();
 
-            var discoveryProfileDetails = discoveryDatabase.get(Long.parseLong(discoveryId));
-
-          //  if (ProcessUtil.checkAvailability(discoveryProfileDetails))
-          //  {
+            if (ProcessUtil.checkAvailability(discoveryProfileDetails))
+           {
                 var context = new JsonArray();
 
                 var  credentialIds =  discoveryProfileDetails.getJsonArray(Constants.CREDENTIAL_IDS).copy();
@@ -80,30 +79,33 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                         contextResult.remove(Constants.REQUEST_TYPE);
 
-                        discoveryDatabase.update(contextResult,Long.parseLong(discoveryId));
+                        contextResult.put(Constants.IS_DISCOVERED,true);
 
-                        LOGGER.info("Discovery ran successfully");
+                        discoveryDatabase.update(contextResult, Long.parseLong(discoveryProfileDetails.getValue(Constants.ID).toString()));
+
+                        LOGGER.info("Discovery ran successfully for id {}", discoveryProfileDetails.getLong(Constants.ID));
                     }
                     else
                     {
-                        LOGGER.info("Discovery failed  errors found are {}: ",contextResult.getJsonArray(Constants.ERROR) );
+                        LOGGER.info("Discovery failed  for the id {} errors found are {}: ", discoveryProfileDetails.getLong(Constants.ID),contextResult.getJsonArray(Constants.ERROR));
                     }
                 }
                 else
                 {
                     LOGGER.info("The output of spawning process builder came out to be null as the output did not come in limited time");
-
                 }
-
-           // }
+           }
         }
         catch (Exception exception)
         {
             LOGGER.error("Some exception occurred in the handler method",exception);
         }
 
-
-
     }
 
+    public void stop(Promise<Void> promise)
+    {
+        promise.complete();
+
+    }
 }

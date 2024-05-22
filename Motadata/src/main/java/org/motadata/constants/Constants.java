@@ -84,6 +84,10 @@ public class Constants {
 
     public static final String VALID_CREDENTIAL_ID = "valid.credential.id";
 
+    public static final String IS_DISCOVERED = "is.discovered";
+
+    public static final String RESULT_PATH = "result.path";
+
     public static final String SEPERATOR = "||@@||";
 
     public static final String REGEX_SEPERATOR = "\\|\\|@@\\|\\|";
@@ -95,6 +99,8 @@ public class Constants {
 
     public static final String INVALID_CREDENTIAL_ID ="CREDENTIAL003";
 
+    public static final String CREDENTIAL_ERROR ="CREDENTIAL004";
+
     public static final String EMPTY_BODY ="EMPTY_BODY001";
 
     public static final String SUCCESS_CODE ="SUCCESS001";
@@ -104,6 +110,8 @@ public class Constants {
     public static final String DUPLICATE_DISCOVERY_NAME ="DISCOVERY003";
 
     public static final String INVALID_DISCOVERY_ID ="DISCOVERY004";
+
+    public static final String ALREADY_DISCOVERED ="DISCOVERY005";
 
     public static final String PROVISION_ERROR = "PROVISION002";
 

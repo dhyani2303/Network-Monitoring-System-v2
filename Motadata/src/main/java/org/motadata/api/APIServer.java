@@ -11,13 +11,17 @@ import org.motadata.util.Utils;
 import org.motadata.constants.Constants;
 
 
-public class APIServer extends AbstractVerticle {
+public class APIServer extends AbstractVerticle
+{
 
     public static final Logger LOGGER = LoggerFactory.getLogger(APIServer.class);
+
     @Override
     public void start(Promise<Void> promise)
     {
-        try {
+
+        try
+        {
             LOGGER.info("API server has been started");
 
             var port = Integer.parseInt(Utils.configMap.get(Constants.HTTP_PORT).toString());
@@ -57,7 +61,7 @@ public class APIServer extends AbstractVerticle {
         }
         catch (Exception exception)
         {
-            LOGGER.error("Some exception occurred",exception);
+            LOGGER.error("Some exception occurred", exception);
 
             promise.fail(promise.future().cause());
         }
@@ -66,13 +70,14 @@ public class APIServer extends AbstractVerticle {
 
     public void stop(Promise<Void> promise)
     {
+
         try
         {
             promise.complete();
         }
         catch (Exception exception)
         {
-            LOGGER.error("Some exception occurred",exception);
+            LOGGER.error("Some exception occurred", exception);
 
         }
     }

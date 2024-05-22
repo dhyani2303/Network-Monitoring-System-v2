@@ -50,7 +50,7 @@
     <configuration name="go build PluginEngine" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
       <module name="pluginEngine" />
       <working_directory value="$PROJECT_DIR$" />
-      <parameters value="W3siaXAuYWRkcmVzcyI6IjE3Mi4xNi44LjExMyIsIm5hbWUiOiJ3aW5kb3ciLCJwb3J0Ijo1OTg1LCJjcmVkZW50aWFsLmlkcyI6WzFdLCJ2YWxpZC5jcmVkZW50aWFsLmlkIjoiIiwiY3JlZGVudGlhbC5wcm9maWxlcyI6W3sidXNlci5uYW1lIjoiZGh2YW5pIiwicGFzc3dvcmQiOiJNaW5kQDEyMyIsIm5hbWUiOiJ3aW5kb3ciLCJjcmVkZW50aWFsLmlkIjoxfV0sInJlcXVlc3QudHlwZSI6ImRpc2NvdmVyeSJ9XQ== " />
+      <parameters value="WwogIHsKICAgICJpcC5hZGRyZXNzIjogIjE3Mi4xNi44LjExMyIsCiAgICJwb3J0IjogIjU5ODUiLCAKICAgICJ1c2VyLm5hbWUiOiAiZGh2YW5pIiwKICAgICAgInBhc3N3b3JkIjogIk1pbmRAMTIzIiwKICAgICAicmVxdWVzdC50eXBlIjogImNvbGxlY3QiCiAgfQpd" />
       <kind value="PACKAGE" />
       <package value="PluginEngine" />
       <directory value="$PROJECT_DIR$" />

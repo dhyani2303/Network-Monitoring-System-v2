@@ -7,6 +7,7 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.motadata.constants.Constants;
 import org.motadata.database.Database;
+import org.motadata.database.Provision;
 import org.motadata.util.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,75 +15,46 @@ import org.slf4j.LoggerFactory;
 
 public class Credential {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(Credential.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Credential.class);
 
-    public final static Database credentialDatabase = Database.getDatabase(Constants.CREDENTIAL_DATABASE);
+    private final static org.motadata.database.Credential credentialDatabase = org.motadata.database.Credential.getCredential();
 
-//    public static JsonObject deleteCredential(String id) {
-//
-//        var response = new JsonObject();
-//
-//        var idVerification = credentialDatabase.verify(Long.parseLong(id));
-//
-//        if (idVerification) {
-//            var result = credentialDatabase.delete(Long.parseLong(id));
-//
-//            if (result) {
-//                response.put(Constants.ERROR_CODE, Constants.SUCCESS_CODE);
-//
-//                response.put(Constants.MESSAGE, "Successfully deleted the credential profile");
-//
-//                response.put(Constants.STATUS, Constants.SUCCESS);
-//
-//                LOGGER.info("Deletion successful of id {}", id);
-//
-//            } else {
-//                response.put(Constants.ERROR_MESSAGE, "Device is already provisioned");
-//
-//                response.put(Constants.ERROR, "Device Provisioned");
-//
-//                response.put(Constants.ERROR_CODE, Constants.ALREADY_PROVISION);
-//
-//                response.put(Constants.STATUS, Constants.FAIL);
-//
-//                LOGGER.info("Unable to delete as the credential id is already provisioned", id);
-//            }
-//
-//        } else {
-//            response.put(Constants.ERROR_MESSAGE, "Id does not exist");
-//
-//            response.put(Constants.ERROR, "Invalid Id");
-//
-//            response.put(Constants.ERROR_CODE, Constants.INVALID_CREDENTIAL_ID);
-//
-//            response.put(Constants.STATUS, Constants.FAIL);
-//
-//            LOGGER.info("Unable to delete as the credential id is invalid id: {}", id);
-//
-//        }
-//
-//        return response;
-//    }
+    private final static Provision provisionDatabase = Provision.getProvision();
 
     private Router router;
 
     public void init(Vertx vertx)
     {
-        router = Router.router(vertx);
+        try
+        {
+            router = Router.router(vertx);
 
-        router.route().handler(BodyHandler.create());
+            router.route().handler(BodyHandler.create());
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Some exception occurred in init method",exception);
+        }
     }
 
     public Router getRouter()
     {
-        router.post(Constants.ROUTE_PATH).handler(this::createCredential);
+        try
+        {
+            router.post(Constants.ROUTE_PATH).handler(this::createCredential);
 
-        router.get(Constants.ROUTE_PATH).handler(this::getCredentials);
+            router.get(Constants.ROUTE_PATH).handler(this::getCredentials);
 
-        router.get(Constants.API_WITH_PARAMS).handler(this::getCredential);
+            router.get(Constants.API_WITH_PARAMS).handler(this::getCredential);
 
-        router.put(Constants.API_WITH_PARAMS).handler(this::updateCredential);
+            router.put(Constants.API_WITH_PARAMS).handler(this::updateCredential);
 
+            router.delete(Constants.API_WITH_PARAMS).handler(this::deleteCredential);
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Some exception occurred in get router method",exception);
+        }
         return router;
     }
 
@@ -90,17 +62,17 @@ public class Credential {
     {
         LOGGER.info("Post request for  {} has come", Constants.CREDENTIAL_API + Constants.ROUTE_PATH);
 
-        var data = context.body().asJsonObject();
-
         var response = new JsonObject();
 
         try
         {
+            var data = context.body().asJsonObject();
+
             if (data.isEmpty())
             {
                 response = Handler.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
 
-                LOGGER.info("Post request  has been served for {} with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
+                LOGGER.warn("Post request  has been served for {} with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -109,8 +81,8 @@ public class Credential {
             {
                 if (data.containsKey(Constants.USERNAME) && data.containsKey(Constants.PASSWORD) && data.containsKey(Constants.CREDENTIAL_PROFILE_NAME) &&
 
-                            (!(data.getString(Constants.USERNAME).isEmpty())) && (!(data.getString(Constants.PASSWORD).isEmpty())) && (!(data.getString(Constants.CREDENTIAL_PROFILE_NAME).isEmpty()))) {
-
+                            (!(data.getString(Constants.USERNAME).isEmpty())) && (!(data.getString(Constants.PASSWORD).isEmpty())) && (!(data.getString(Constants.CREDENTIAL_PROFILE_NAME).isEmpty())))
+                {
                     if (!credentialDatabase.verify(Constants.CREDENTIAL_PROFILE_NAME,data.getString(Constants.CREDENTIAL_PROFILE_NAME)))
                         {
                             var id = credentialDatabase.create(data);
@@ -141,7 +113,7 @@ public class Credential {
                         {
                             response = Handler.errorHandler("Duplicate credential name", "Credential profile with given name already exists", Constants.DUPLICATE_CREDENTIAL_NAME);
 
-                            LOGGER.info("Unable to create credential profile due to duplicate credential name");
+                            LOGGER.warn("Unable to create credential profile due to duplicate credential name");
 
                             context.response().setStatusCode(400).end(response.encodePrettily());
                         }
@@ -153,21 +125,19 @@ public class Credential {
 
                         context.response().setStatusCode(400).end(response.encodePrettily());
 
-                        LOGGER.info("Post request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
+                        LOGGER.warn("Post request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
                     }
-
-
             }
-        } catch (Exception exception)
+        }
+        catch (Exception exception)
         {
-
             response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
-            LOGGER.info("Post request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
+            LOGGER.error("Post request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
 
-            LOGGER.error("Exception occurred {}", exception.getMessage());
+            LOGGER.error("Exception occurred in create credential method", exception);
         }
     }
 
@@ -179,8 +149,6 @@ public class Credential {
 
         try
         {
-            System.out.println(credentialDatabase.get().isEmpty());
-
             var result = credentialDatabase.get();
 
             if (result != null)
@@ -218,9 +186,9 @@ public class Credential {
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
-            LOGGER.info("Get request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
+            LOGGER.error("Get request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
 
-            LOGGER.error("Exception occurred {}", exception.getMessage());
+            LOGGER.error("Exception occurred in get credentials method", exception);
 
         }
     }
@@ -229,11 +197,10 @@ public class Credential {
     {
         var response = new JsonObject();
 
+        var credentialId = context.pathParam(Constants.ID);
+
         try
         {
-            var credentialId = context.pathParam(Constants.ID);
-
-
             if (credentialDatabase.verify(Long.parseLong(credentialId)))
             {
                 response = credentialDatabase.get(Long.parseLong(credentialId));
@@ -247,7 +214,6 @@ public class Credential {
                     LOGGER.info("Retrieved the credential details successfully for id {}", credentialId);
 
                     context.response().setStatusCode(200).end(response.encodePrettily());
-
                 }
                 else
                 {
@@ -256,7 +222,6 @@ public class Credential {
                     LOGGER.error("Some exception might have occurred while fetching the data as the result is null");
 
                     context.response().setStatusCode(500).end(response.encodePrettily());
-
                 }
             }
             else
@@ -265,7 +230,7 @@ public class Credential {
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
-                LOGGER.info("Unable to get the credential details as there are no credential profile with specific id");
+                LOGGER.warn("Unable to get the credential details as there are no credential profile with specific id");
             }
         }
         catch (Exception exception)
@@ -274,12 +239,11 @@ public class Credential {
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
-            LOGGER.info("Get request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
+            LOGGER.error("Get request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
 
-            LOGGER.error("Exception occurred {}", exception.getMessage());
+            LOGGER.error("Exception occurred in get credential method for id {}",credentialId, exception);
 
         }
-
     }
 
     private void updateCredential(RoutingContext context)
@@ -288,17 +252,17 @@ public class Credential {
 
         var id = context.pathParam(Constants.ID);
 
-        var data = context.body().asJsonObject();
-
         var response = new JsonObject();
 
         try
         {
+            var data = context.body().asJsonObject();
+
             if (data.isEmpty())
             {
                 response = Handler.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
 
-                LOGGER.info("Put request  has been served for {} with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
+                LOGGER.warn("Put request  has been served for {} with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
             }
@@ -325,22 +289,100 @@ public class Credential {
 
                     context.response().setStatusCode(400).end(response.encodePrettily());
 
-                    LOGGER.info("Unable to update credential id as the credential id {} is invalid", id);
+                    LOGGER.warn("Unable to update credential id as the credential id {} is invalid", id);
 
                 }
             }
 
-
-        } catch (Exception exception)
+        }
+        catch (Exception exception)
         {
             response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
-            LOGGER.info("Put request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
+            LOGGER.error("Put request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
 
-            LOGGER.error("Exception occurred {}", exception.getMessage());
+            LOGGER.error("Exception occurred in update credential method", exception);
         }
+    }
+
+    private void deleteCredential(RoutingContext context)
+    {
+        LOGGER.info("Delete request for  {} has come", Constants.CREDENTIAL_API + Constants.ROUTE_PATH);
+
+        var id = context.pathParam(Constants.ID);
+
+        var response  = new JsonObject();
+        try
+        {
+            if (credentialDatabase.verify(Long.parseLong(id)))
+            {
+                var details = provisionDatabase.get();
+
+                for (var provisionDevice : details)
+                {
+                    var device = JsonObject.mapFrom(provisionDevice);
+
+                    if (device.getValue(Constants.VALID_CREDENTIAL_ID).toString().equals(id))
+                    {
+                        response = Handler.errorHandler("Already in use","The credential id is already in use with ip address",Constants.CREDENTIAL_ERROR);
+
+                        response.put(Constants.IP_ADDRESS,device.getValue(Constants.IP_ADDRESS));
+
+                        context.response().setStatusCode(403).end(response.encodePrettily());
+
+                        LOGGER.warn("Unable to delete the credential profile as it is used in provisioning the device");
+
+                        return;
+                    }
+                }
+
+
+                if (credentialDatabase.delete(Long.parseLong(id)))
+                {
+                   response.put(Constants.STATUS,Constants.SUCCESS);
+
+                   response.put(Constants.ERROR_CODE,Constants.SUCCESS_CODE);
+
+                   response.put(Constants.MESSAGE,"Deletion successful");
+
+                   LOGGER.info("Deletion of credential profile with id {} is successful",id);
+
+                   context.response().setStatusCode(200).end(response.encodePrettily());
+                }
+                else
+                {
+
+                    response = Handler.errorHandler("Failure in Deletion","Some error occurred while deleting the provisioned device",Constants.PROVISION_ERROR);
+
+                    context.response().setStatusCode(400).end(response.encodePrettily());
+
+                    LOGGER.warn("Unable to delete the provisioned device with id {} as the delete method of db returned false",id);                }
+
+            }
+            else
+            {
+                response = Handler.errorHandler("Invalid credential id","Credential id does not exist",Constants.INVALID_CREDENTIAL_ID);
+
+                context.response().setStatusCode(400).end(response.encodePrettily());
+
+                LOGGER.warn("Unable to delete the credential profile as the id {} is invalid ",id);
+
+            }
+
+        }
+        catch (Exception exception)
+        {
+            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+
+            context.response().setStatusCode(500).end(response.encodePrettily());
+
+            LOGGER.error("Delete request  has been served for {}  with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
+
+            LOGGER.error("Exception occurred in delete method", exception);
+        }
+
     }
 
 
