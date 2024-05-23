@@ -7,14 +7,14 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.motadata.database.Credential;
-import org.motadata.database.Database;
 import org.motadata.constants.Constants;
 import org.motadata.util.Handler;
 import org.motadata.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Discovery {
+public class Discovery
+{
 
     public static final org.motadata.database.Discovery discoveryDatabase = org.motadata.database.Discovery.getDiscovery();
 

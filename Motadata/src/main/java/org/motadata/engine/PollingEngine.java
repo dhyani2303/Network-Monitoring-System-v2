@@ -16,12 +16,13 @@ public class PollingEngine extends AbstractVerticle
 {
     public static final Logger LOGGER = LoggerFactory.getLogger(PollingEngine.class);
 
-   private final Credential credentialDatabase = Credential.getCredential();
+    private final Credential credentialDatabase = Credential.getCredential();
 
     private final Provision provisionDatabase = Provision.getProvision();
 
     public void start(Promise<Void> start)
     {
+
         var pollTime = Long.parseLong(Utils.configMap.get(Constants.POLL_TIME).toString());
 
         vertx.setPeriodic(pollTime, handler ->
@@ -30,7 +31,7 @@ public class PollingEngine extends AbstractVerticle
 
             try
             {
-                if (!provisionDatabase.get().isEmpty())
+                if (!Provision.getProvision().get().isEmpty())
                 {
                     var provisionDevices = provisionDatabase.get();
 
@@ -38,59 +39,70 @@ public class PollingEngine extends AbstractVerticle
                     {
                         var entries = JsonObject.mapFrom(provisionedDevice);
 
-                        if (ProcessUtil.checkAvailability(entries))
+                        ProcessUtil.checkAvailability(entries).onComplete(asyncResult ->
                         {
-                            if (!credentialDatabase.get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString())).isEmpty())
+
+                            if (asyncResult.succeeded())
                             {
-                                var credentialDetails = credentialDatabase.get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString()));
-
-                                entries.put(Constants.REQUEST_TYPE, Constants.COLLECT);
-
-                                entries.put(Constants.USERNAME, credentialDetails.getString(Constants.USERNAME));
-
-                                entries.put(Constants.PASSWORD, credentialDetails.getString(Constants.PASSWORD));
-
-                                context.add(entries);
-
-                                var outputs = ProcessUtil.spawnPluginEngine(context);
-
-                                if (outputs != null)
+                                if (!Credential.getCredential().get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString())).isEmpty())
                                 {
-                                    for (var output : outputs)
+                                    var credentialDetails = credentialDatabase.get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString()));
+
+                                    entries.put(Constants.REQUEST_TYPE, Constants.COLLECT);
+
+                                    entries.put(Constants.USERNAME, credentialDetails.getString(Constants.USERNAME));
+
+                                    entries.put(Constants.PASSWORD, credentialDetails.getString(Constants.PASSWORD));
+
+                                    context.add(entries);
+
+                                    ProcessUtil.spawnPluginEngine(context).onComplete(pluginEngineHandler ->
                                     {
-                                        var jsonData = new JsonObject(output.toString());
 
-                                        if (jsonData.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                                        if (pluginEngineHandler.succeeded())
                                         {
-                                            Utils.writeToFile(vertx, jsonData).onSuccess(v ->
+                                            var outputs = pluginEngineHandler.result();
 
-                                                            LOGGER.trace("Content written to file {}", jsonData))
 
-                                                    .onFailure(err ->
+                                            for (var output : outputs)
+                                            {
+                                                var jsonData = new JsonObject(output.toString());
 
-                                                            LOGGER.error("Failed to write file", err)
-                                                    );
+                                                if (jsonData.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                                                {
+                                                    Utils.writeToFile(vertx, jsonData).onSuccess(v ->
+
+                                                                    LOGGER.trace("Content written to file {}", jsonData))
+
+                                                            .onFailure(err ->
+
+                                                                    LOGGER.error("Failed to write file", err)
+                                                            );
+                                                }
+                                                else
+                                                {
+                                                    LOGGER.error("Polling status is fail {}", jsonData);
+                                                }
+                                            }
+
                                         }
                                         else
                                         {
-                                            LOGGER.error("Polling status is fail {}", jsonData);
+                                            LOGGER.warn("Failure occurred from spawnPluginEngine method {}", pluginEngineHandler.cause().toString());
                                         }
-                                    }
+                                    });
                                 }
                                 else
                                 {
-                                    LOGGER.warn("Null has been return from plugin engine");
+                                    LOGGER.warn("Unable to fetch the credential details of valid credential id {}", entries.getString(Constants.VALID_CREDENTIAL_ID));
                                 }
+
                             }
                             else
                             {
-                                LOGGER.warn("Unable to fetch the credential details of valid credential id {}",entries.getString(Constants.VALID_CREDENTIAL_ID));
+                                LOGGER.warn("Polling failed from the check availability method reason: {}", asyncResult.cause().toString());
                             }
-                        }
-                         else
-                        {
-                            LOGGER.info("Polling failed because the device with ip address {} is down", JsonObject.mapFrom(provisionedDevice).getString(Constants.IP_ADDRESS));
-                        }
+                        });
                     }
                 }
             }
@@ -102,8 +114,10 @@ public class PollingEngine extends AbstractVerticle
         });
 
     }
+
     public void stop(Promise<Void> promise)
     {
+
         promise.complete();
     }
 

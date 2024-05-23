@@ -70,13 +70,9 @@ public abstract class AbstractDatabase
     {
         try
         {
-            var result = new JsonObject();
-
-            result = items.get(id);
-
             LOGGER.info("Get the data for id {} has been served", id);
 
-            return result.copy();
+            return items.get(id).copy();
         }
         catch (Exception exception)
         {

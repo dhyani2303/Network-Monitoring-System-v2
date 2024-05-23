@@ -38,63 +38,75 @@ public class DiscoveryEngine extends AbstractVerticle {
         {
             var discoveryProfileDetails = message.body();
 
-            if (ProcessUtil.checkAvailability(discoveryProfileDetails))
-           {
-                var context = new JsonArray();
-
-                var  credentialIds =  discoveryProfileDetails.getJsonArray(Constants.CREDENTIAL_IDS).copy();
-
-                var credentialProfiles = new JsonArray();
-
-                for (var credentialId : credentialIds)
+            ProcessUtil.checkAvailability(discoveryProfileDetails).onComplete(handler->
+            {
+                if (handler.succeeded())
                 {
-                    var credentialDetails = credentialDatabase.get(Long.parseLong(credentialId.toString()));
+                    var context = new JsonArray();
 
-                    credentialDetails.put(Constants.CREDENTIAL_ID, credentialId);
+                    var  credentialIds =  discoveryProfileDetails.getJsonArray(Constants.CREDENTIAL_IDS).copy();
 
-                    credentialProfiles.add(credentialDetails);
-                }
+                    var credentialProfiles = new JsonArray();
 
-                discoveryProfileDetails.put(Constants.CREDENTIAL_PROFILES, credentialProfiles);
-
-                discoveryProfileDetails.put(Constants.REQUEST_TYPE, Constants.DISCOVERY);
-
-                context.add(discoveryProfileDetails);
-
-                var results = ProcessUtil.spawnPluginEngine(context);
-
-                if (results != null)
-                {
-                    var contextResult = results.getJsonObject(0);
-
-                    if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                    for (var credentialId : credentialIds)
                     {
-                        contextResult.remove(Constants.CREDENTIAL_PROFILES);
+                        var credentialDetails = credentialDatabase.get(Long.parseLong(credentialId.toString()));
 
-                        contextResult.remove(Constants.ERROR);
+                        credentialDetails.put(Constants.CREDENTIAL_ID, credentialId);
 
-                        contextResult.remove(Constants.STATUS);
-
-                        contextResult.remove(Constants.RESULT);
-
-                        contextResult.remove(Constants.REQUEST_TYPE);
-
-                        contextResult.put(Constants.IS_DISCOVERED,true);
-
-                        discoveryDatabase.update(contextResult, Long.parseLong(discoveryProfileDetails.getValue(Constants.ID).toString()));
-
-                        LOGGER.info("Discovery ran successfully for id {}", discoveryProfileDetails.getLong(Constants.ID));
+                        credentialProfiles.add(credentialDetails);
                     }
-                    else
-                    {
-                        LOGGER.info("Discovery failed  for the id {} errors found are {}: ", discoveryProfileDetails.getLong(Constants.ID),contextResult.getJsonArray(Constants.ERROR));
-                    }
+
+                    discoveryProfileDetails.put(Constants.CREDENTIAL_PROFILES, credentialProfiles);
+
+                    discoveryProfileDetails.put(Constants.REQUEST_TYPE, Constants.DISCOVERY);
+
+                    context.add(discoveryProfileDetails);
+
+                    ProcessUtil.spawnPluginEngine(context).onComplete(pluginHandler->{
+
+                        if (pluginHandler.succeeded())
+                        {
+                            var results = pluginHandler.result();
+
+                            var contextResult = results.getJsonObject(0);
+
+                            if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                            {
+                                contextResult.remove(Constants.CREDENTIAL_PROFILES);
+
+                                contextResult.remove(Constants.ERROR);
+
+                                contextResult.remove(Constants.STATUS);
+
+                                contextResult.remove(Constants.RESULT);
+
+                                contextResult.remove(Constants.REQUEST_TYPE);
+
+                                contextResult.put(Constants.IS_DISCOVERED,true);
+
+                                discoveryDatabase.update(contextResult, Long.parseLong(discoveryProfileDetails.getValue(Constants.ID).toString()));
+
+                                LOGGER.info("Discovery ran successfully for id {}", discoveryProfileDetails.getValue(Constants.ID));
+                            }
+                            else
+                            {
+                                LOGGER.info("Discovery failed  for the id {} errors found are {}: ", discoveryProfileDetails.getValue(Constants.ID),contextResult.getJsonArray(Constants.ERROR));
+                            }
+
+                        }
+                        else
+                        {
+                            LOGGER.warn("Failure occurred in spawn plugin engine method {}",pluginHandler.cause().toString());
+                        }
+
+                    });
                 }
                 else
                 {
-                    LOGGER.info("The output of spawning process builder came out to be null as the output did not come in limited time");
+                    LOGGER.warn("Check availability method failed {}",handler.cause().toString());
                 }
-           }
+            });
         }
         catch (Exception exception)
         {
