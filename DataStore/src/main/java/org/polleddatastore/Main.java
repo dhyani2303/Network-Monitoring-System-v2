@@ -22,58 +22,6 @@ public class Main
 
     public static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-
-    //    public static void main(String[] args)
-//    {
-//         Vertx vertx = Vertx.vertx();
-//
-//        var message = new JsonObject();
-//
-//            message.put("asdff","hello");
-//
-//        vertx.fileSystem().open("File1.json", new OpenOptions().setAppend(true).setCreate(true), handler ->
-//        {
-//            if (handler.succeeded())
-//            {
-//                var offset = handler.result().getWritePos();
-//
-//                System.out.println(handler.result().getWritePos() + " Message length: " + message.size());
-//
-//                Buffer buffer;
-//
-//                if (handler.result().getWritePos() == 0)
-//                {
-//                   buffer = Buffer.buffer("[")
-//                                           .appendBuffer(Buffer.buffer(message.encodePrettily()))
-//                                           .appendString("]");
-//
-//                    System.out.println("Offset "+handler.result().getWritePos());
-//
-//                }
-//                else
-//                {   offset = offset -1;
-//
-//                    buffer = Buffer.buffer(",")
-//                                    .appendBuffer(Buffer.buffer(message.encodePrettily()))
-//                                    .appendString( "]");
-//
-//                }
-//                handler.result().write(buffer, offset, wHandler ->
-//                {
-//                    System.out.println("Content is written to file");
-//                    LOGGER.info("File is successfully written");
-//                });
-//
-//                handler.result().close();
-//            }
-//            else
-//            {
-//                LOGGER.warn("Unable to write the content to the file");
-//            }
-//
-//        });
-//
-//    }
     public static void main(String[] args)
     {
         try
@@ -105,10 +53,6 @@ public class Main
                             {
                                 System.out.println("Inside execute blocking handler" + Thread.currentThread().getName());
 
-                                //                         vertx.fileSystem().exists(file, handler ->
-                                //                         {
-                                //                           if (handler.succeeded())
-                                //
                                 vertx.fileSystem().open(file, new OpenOptions().setAppend(true).setCreate(true), openHandler ->
                                 {
                                     if (openHandler.succeeded())
@@ -161,13 +105,6 @@ public class Main
                                         LOGGER.warn("Unable to write the content to the file");
                                     }
                                 });
-
-                                //}
-                                //         else
-                                //       {
-
-                                //       }
-                                //    });
 
                             });
                         }
