@@ -1,13 +1,8 @@
 package org.motadata;
 
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.ThreadingModel;
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
-import org.motadata.api.APIServer;
-import org.motadata.database.Database;
 
-import org.motadata.constants.Constants;
+import io.vertx.core.Vertx;
+import org.motadata.api.APIServer;
 import org.motadata.engine.DiscoveryEngine;
 import org.motadata.engine.PollingEngine;
 import org.motadata.util.Utils;

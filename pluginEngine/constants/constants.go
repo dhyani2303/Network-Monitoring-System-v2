@@ -43,6 +43,8 @@ const (
 
 	CREDENTIAL_ID = "credential.id"
 
+	TIMESTAMP = "timestamp"
+
 	//error codes
 	DECODE_ERROR = "DECODE01"
 

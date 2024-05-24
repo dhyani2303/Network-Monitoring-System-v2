@@ -1,7 +1,6 @@
 package org.motadata.database;
 
 
-import io.vertx.core.impl.ConcurrentHashSet;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.motadata.constants.Constants;

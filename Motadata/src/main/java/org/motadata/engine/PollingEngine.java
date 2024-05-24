@@ -11,6 +11,9 @@ import org.motadata.util.ProcessUtil;
 import org.motadata.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zeromq.SocketType;
+import org.zeromq.ZContext;
+
 
 public class PollingEngine extends AbstractVerticle
 {
@@ -22,96 +25,87 @@ public class PollingEngine extends AbstractVerticle
 
     public void start(Promise<Void> start)
     {
-
-        var pollTime = Long.parseLong(Utils.configMap.get(Constants.POLL_TIME).toString());
-
-        vertx.setPeriodic(pollTime, handler ->
+        try
         {
-            var context = new JsonArray();
+            var pollTime = Long.parseLong(Utils.configMap.get(Constants.POLL_TIME).toString());
 
-            try
+            var zContext = new ZContext();
+
+            var socket = zContext.createSocket(SocketType.PUSH);
+
+            socket.bind(Utils.configMap.get(Constants.ZMQ_ADDRESS).toString());
+
+            vertx.setPeriodic(pollTime, handler ->
             {
-                if (!Provision.getProvision().get().isEmpty())
-                {
-                    var provisionDevices = provisionDatabase.get();
+                var context = new JsonArray();
 
-                    for (var provisionedDevice : provisionDevices)
+                    if (!Provision.getProvision().get().isEmpty())
                     {
-                        var entries = JsonObject.mapFrom(provisionedDevice);
+                        var provisionDevices = provisionDatabase.get();
 
-                        ProcessUtil.checkAvailability(entries).onComplete(asyncResult ->
+                        for (var provisionedDevice : provisionDevices)
                         {
+                            var entries = JsonObject.mapFrom(provisionedDevice);
 
-                            if (asyncResult.succeeded())
+                            ProcessUtil.checkAvailability(entries).onComplete(asyncResult ->
                             {
-                                if (!Credential.getCredential().get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString())).isEmpty())
+
+                                if (asyncResult.succeeded())
                                 {
-                                    var credentialDetails = credentialDatabase.get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString()));
-
-                                    entries.put(Constants.REQUEST_TYPE, Constants.COLLECT);
-
-                                    entries.put(Constants.USERNAME, credentialDetails.getString(Constants.USERNAME));
-
-                                    entries.put(Constants.PASSWORD, credentialDetails.getString(Constants.PASSWORD));
-
-                                    context.add(entries);
-
-                                    ProcessUtil.spawnPluginEngine(context).onComplete(pluginEngineHandler ->
+                                    if (!Credential.getCredential().get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString())).isEmpty())
                                     {
+                                        var credentialDetails = credentialDatabase.get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString()));
 
-                                        if (pluginEngineHandler.succeeded())
+                                        entries.put(Constants.REQUEST_TYPE, Constants.COLLECT);
+
+                                        entries.put(Constants.USERNAME, credentialDetails.getString(Constants.USERNAME));
+
+                                        entries.put(Constants.PASSWORD, credentialDetails.getString(Constants.PASSWORD));
+
+                                        context.add(entries);
+
+                                        ProcessUtil.spawnPluginEngine(context).onComplete(pluginEngineHandler ->
                                         {
-                                            var outputs = pluginEngineHandler.result();
-
-
-                                            for (var output : outputs)
+                                            if (pluginEngineHandler.succeeded())
                                             {
-                                                var jsonData = new JsonObject(output.toString());
+                                                var outputs = pluginEngineHandler.result();
 
-                                                if (jsonData.getString(Constants.STATUS).equals(Constants.SUCCESS))
-                                                {
-                                                    Utils.writeToFile(vertx, jsonData).onSuccess(v ->
+                                                    for (var output : outputs)
+                                                    {
+                                                        socket.send(output);
 
-                                                                    LOGGER.trace("Content written to file {}", jsonData))
+                                                        LOGGER.trace("Content has been sent over zmq {}", output);
 
-                                                            .onFailure(err ->
+                                                    }
 
-                                                                    LOGGER.error("Failed to write file", err)
-                                                            );
-                                                }
-                                                else
-                                                {
-                                                    LOGGER.error("Polling status is fail {}", jsonData);
-                                                }
                                             }
+                                            else
+                                            {
+                                                LOGGER.warn("Failure occurred from spawnPluginEngine method {}", pluginEngineHandler.cause().toString());
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        LOGGER.warn("Unable to fetch the credential details of valid credential id {}", entries.getString(Constants.VALID_CREDENTIAL_ID));
+                                    }
 
-                                        }
-                                        else
-                                        {
-                                            LOGGER.warn("Failure occurred from spawnPluginEngine method {}", pluginEngineHandler.cause().toString());
-                                        }
-                                    });
                                 }
                                 else
                                 {
-                                    LOGGER.warn("Unable to fetch the credential details of valid credential id {}", entries.getString(Constants.VALID_CREDENTIAL_ID));
+                                    LOGGER.warn("Polling failed from the check availability method reason: {}", asyncResult.cause().toString());
                                 }
-
-                            }
-                            else
-                            {
-                                LOGGER.warn("Polling failed from the check availability method reason: {}", asyncResult.cause().toString());
-                            }
-                        });
+                            });
+                        }
                     }
-                }
-            }
-            catch (Exception exception)
-            {
-                LOGGER.error("Some exception occurred ", exception);
-            }
 
-        });
+
+            });
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Some exception has occurred",exception);
+        }
 
     }
 

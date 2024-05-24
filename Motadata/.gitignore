@@ -12,7 +12,8 @@ target/
 *.iml
 *.ipr
 .idea
-/pluginEngine
+pluginEngine/
+result/
 
 *.log
 ### Eclipse ###

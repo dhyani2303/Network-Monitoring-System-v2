@@ -6,7 +6,6 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.motadata.database.Credential;
-import org.motadata.database.Database;
 import org.motadata.constants.Constants;
 import org.motadata.database.Discovery;
 import org.motadata.util.Handler;
@@ -79,9 +78,9 @@ public class Provision {
 
                       discoveryProfile.remove(Constants.DISCOVERY_PROFILE_NAME);
 
-                      var provisonDevices = provisionDatabase.get();
+                      var provisionDevices = provisionDatabase.get();
 
-                      for (var provisionDevice : provisonDevices)
+                      for (var provisionDevice : provisionDevices)
                       {
 
                           if (discoveryProfile.getString(Constants.IP_ADDRESS).equals(JsonObject.mapFrom(provisionDevice).getString(Constants.IP_ADDRESS)))
@@ -178,7 +177,7 @@ public class Provision {
 
             response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
-            LOGGER.error("Some exception has occurred while getting  the proisioned device data",exception);
+            LOGGER.error("Some exception has occurred while getting  the provisioned device data",exception);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
         }

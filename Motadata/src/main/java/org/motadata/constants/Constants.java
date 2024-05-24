@@ -88,6 +88,8 @@ public class Constants {
 
     public static final String RESULT_PATH = "result.path";
 
+    public static final String ZMQ_ADDRESS = "zmq.address";
+
     public static final String SEPERATOR = "||@@||";
 
     public static final String REGEX_SEPERATOR = "\\|\\|@@\\|\\|";

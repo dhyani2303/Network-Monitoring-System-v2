@@ -9,11 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.motadata.database.Database;
 import org.motadata.constants.Constants;
 import org.motadata.util.ProcessUtil;
-
-import java.util.jar.JarOutputStream;
+import java.util.Base64;
 
 public class DiscoveryEngine extends AbstractVerticle {
 
@@ -67,31 +65,44 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                         if (pluginHandler.succeeded())
                         {
-                            var results = pluginHandler.result();
+                            var outputs = pluginHandler.result();
 
-                            var contextResult = results.getJsonObject(0);
-
-                            if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                            for (var output : outputs)
                             {
-                                contextResult.remove(Constants.CREDENTIAL_PROFILES);
+                                if (output!=null && !output.trim().isEmpty())
+                                {
+                                     var contextResult = new JsonObject(new String(Base64.getDecoder().decode(output)));
 
-                                contextResult.remove(Constants.ERROR);
+                                    if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                                    {
+                                        contextResult.remove(Constants.CREDENTIAL_PROFILES);
 
-                                contextResult.remove(Constants.STATUS);
+                                        contextResult.remove(Constants.ERROR);
 
-                                contextResult.remove(Constants.RESULT);
+                                        contextResult.remove(Constants.STATUS);
 
-                                contextResult.remove(Constants.REQUEST_TYPE);
+                                        contextResult.remove(Constants.RESULT);
 
-                                contextResult.put(Constants.IS_DISCOVERED,true);
+                                        contextResult.remove(Constants.REQUEST_TYPE);
 
-                                discoveryDatabase.update(contextResult, Long.parseLong(discoveryProfileDetails.getValue(Constants.ID).toString()));
+                                        contextResult.put(Constants.IS_DISCOVERED,true);
 
-                                LOGGER.info("Discovery ran successfully for id {}", discoveryProfileDetails.getValue(Constants.ID));
-                            }
-                            else
-                            {
-                                LOGGER.info("Discovery failed  for the id {} errors found are {}: ", discoveryProfileDetails.getValue(Constants.ID),contextResult.getJsonArray(Constants.ERROR));
+                                        discoveryDatabase.update(contextResult, Long.parseLong(discoveryProfileDetails.getValue(Constants.ID).toString()));
+
+                                        LOGGER.info("Discovery ran successfully for id {}", discoveryProfileDetails.getValue(Constants.ID));
+                                    }
+                                    else
+                                    {
+                                        LOGGER.info("Discovery failed  for the id {} errors found are {}: ", discoveryProfileDetails.getValue(Constants.ID),contextResult.getJsonArray(Constants.ERROR));
+                                    }
+
+
+                                }
+                                else
+                                {
+                                    LOGGER.warn("The output after splitting is null");
+                                }
+
                             }
 
                         }

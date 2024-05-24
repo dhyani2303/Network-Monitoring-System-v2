@@ -436,7 +436,7 @@ public class Discovery
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
-            LOGGER.error("Some exception occurred in discovey-run-result api ",exception);
+            LOGGER.error("Some exception occurred in discovery-run-result api ",exception);
 
         }
     }

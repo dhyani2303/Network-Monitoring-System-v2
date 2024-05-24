@@ -1,6 +1,5 @@
 package org.motadata.database;
 
-import io.vertx.core.json.JsonObject;
 
 import java.util.concurrent.ConcurrentHashMap;
 

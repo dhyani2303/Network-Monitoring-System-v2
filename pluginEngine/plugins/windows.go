@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 func Discovery(context map[string]interface{}, channel chan map[string]interface{}) {
@@ -380,6 +381,9 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 		context[constants.STATUS] = constants.SUCCESS
 
 	}
+
+	context[constants.TIMESTAMP] = time.Now().Format(time.DateTime)
+
 	context[constants.RESULT] = result
 
 	context[constants.ERROR] = errors

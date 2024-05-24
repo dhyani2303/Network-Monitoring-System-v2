@@ -6,7 +6,6 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.motadata.constants.Constants;
-import org.motadata.database.Database;
 import org.motadata.database.Provision;
 import org.motadata.util.Handler;
 import org.slf4j.Logger;
