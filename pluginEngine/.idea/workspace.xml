@@ -5,13 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11072b6d-0123-4b0a-a636-7e9cd8baff88" name="Changes" comment="Made changes in the discovery function to return error on failure of discovery">
-      <change beforePath="$PROJECT_DIR$/bootstrap.go" beforeDir="false" afterPath="$PROJECT_DIR$/bootstrap.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/winrm.go" beforeDir="false" afterPath="$PROJECT_DIR$/client/winrm.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/constants/constants.go" beforeDir="false" afterPath="$PROJECT_DIR$/constants/constants.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugins/windows.go" beforeDir="false" afterPath="$PROJECT_DIR$/plugins/windows.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/helper.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/helper.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/validator.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/validator.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/test/java/APITest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/Pusher.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/example.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/database/Database.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/resources/logback.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/resources/logback.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,7 +21,7 @@
   </component>
   <component name="GOROOT" url="file://$USER_HOME$/sdk/go1.21.9" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6

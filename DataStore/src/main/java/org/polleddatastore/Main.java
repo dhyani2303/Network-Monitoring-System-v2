@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 public class Main
 {
-
     public static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args)
@@ -40,64 +39,43 @@ public class Main
                     {
                         var message = consumerHandler.body().toString();
 
-                        System.out.println(message);
-
                         var contextResult = new JsonObject(new String(Base64.getDecoder().decode(message)));
 
                         var file = Util.configMap.get(Constants.RESULT_PATH) + contextResult.getString(Constants.IP_ADDRESS) + ".json";
 
                         if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
                         {
-
                             vertx.executeBlocking(id ->
                             {
-                                System.out.println("Inside execute blocking handler" + Thread.currentThread().getName());
-
                                 vertx.fileSystem().open(file, new OpenOptions().setAppend(true).setCreate(true), openHandler ->
                                 {
                                     if (openHandler.succeeded())
                                     {
-                                        var asyncFile = openHandler.result();
+                                        var offset = openHandler.result().getWritePos();
 
-                                        asyncFile.lock().onComplete(asyncFileLock ->
+                                        Buffer buffer;
+
+                                        if (openHandler.result().getWritePos() == 0)
                                         {
-                                            if (asyncFileLock.succeeded())
-                                            {
-                                                var offset = openHandler.result().getWritePos();
+                                            buffer = Buffer.buffer("[")
+                                                    .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
+                                                    .appendString("]");
+                                        }
+                                        else
+                                        {
+                                            offset = offset - 1;
 
-                                                System.out.println(openHandler.result().getWritePos() + " Message length: " + message.length());
+                                            buffer = Buffer.buffer(",")
+                                                    .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
+                                                    .appendString("]");
 
-                                                Buffer buffer;
+                                        }
+                                        openHandler.result().write(buffer, offset, wHandler ->
+                                        {
+                                            LOGGER.info("File is successfully written");
 
-                                                if (openHandler.result().getWritePos() == 0)
-                                                {
-                                                    buffer = Buffer.buffer("[")
-                                                            .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
-                                                            .appendString("]");
-
-                                                    System.out.println("Offset " + openHandler.result().getWritePos());
-
-                                                }
-                                                else
-                                                {
-                                                    offset = offset - 1;
-
-                                                    buffer = Buffer.buffer(",")
-                                                            .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
-                                                            .appendString("]");
-
-                                                }
-                                                openHandler.result().write(buffer, offset, wHandler ->
-                                                {
-
-                                                    System.out.println("Content is written to file");
-
-                                                    LOGGER.info("File is successfully written");
-
-                                                });
-                                                openHandler.result().close();
-                                            }
                                         });
+                                        openHandler.result().close();
 
                                     }
                                     else
@@ -110,19 +88,15 @@ public class Main
                         }
                         else
                         {
-                            LOGGER.warn("Data has status failed {}",contextResult);
+                            LOGGER.warn("Data has status failed {}", contextResult);
                         }
                     });
-
-
 
                     try
                     {
                         ZContext context = new ZContext();
 
                         var socket = context.createSocket(SocketType.PULL);
-
-                        System.out.println(Util.configMap.get(Constants.ZMQ_ADDRESS).toString());
 
                         socket.connect(Util.configMap.get(Constants.ZMQ_ADDRESS).toString());
 
@@ -138,18 +112,6 @@ public class Main
                             }
                         }).start();
 
-//
-                        //   Buffer buffer = Buffer.buffer(message);
-
-
-//                        while (!Thread.currentThread().isInterrupted())
-//                        {
-//
-//                            byte[] message = socket.recv(0);
-//
-//                            Buffer buffer = Buffer.buffer(message);
-//
-//
                     }
                     catch (Exception exception)
                     {
@@ -173,25 +135,3 @@ public class Main
 
 }
 
-//             vertx.fileSystem().openBlocking("File1.txt", new OpenOptions().setCreate(true).setAppend(true))
-//                     .write(buffer).onComplete(handelr->{
-//
-//                            if (handelr.succeeded())
-//                            {
-//                                System.out.println("Content written to file");
-//
-//                            }
-//                            else
-//                            {
-//                                System.out.println("Failed");
-//                            }
-//
-//                        });
-
-
-//
-//                  System.out.println(new String(message));
-//
-//                    fileWriter.write(new String(message));
-//
-//                    offset = message.length;
