@@ -40,11 +40,15 @@ public class APIServer extends AbstractVerticle
 
             var provision = new Provision();
 
+            var polling = new Polling();
+
             credential.init(vertx);
 
             discovery.init(vertx);
 
             provision.init(vertx);
+
+            polling.init(vertx);
 
             router.route(Constants.CREDENTIAL_API).subRouter(credential.getRouter());
 
@@ -52,9 +56,11 @@ public class APIServer extends AbstractVerticle
 
             router.route(Constants.PROVISION_API).subRouter(provision.getRouter());
 
+            router.route(Constants.POLLING_API).subRouter(polling.getRouter());
+
             httpServer.requestHandler(router).listen();
 
-            LOGGER.info("Subrouter of credential,discovery and provision api have been deployed");
+            LOGGER.info("Sub router of credential,discovery,polling and provision api have been deployed");
 
             promise.complete();
 

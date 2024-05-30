@@ -38,7 +38,7 @@ public class DiscoveryEngine extends AbstractVerticle {
 
             ProcessUtil.checkAvailability(discoveryProfileDetails).onComplete(handler->
             {
-                if (handler.succeeded())
+             if (handler.succeeded())
                 {
                     var context = new JsonArray();
 

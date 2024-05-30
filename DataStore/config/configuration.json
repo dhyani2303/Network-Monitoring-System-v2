@@ -1,4 +1,7 @@
 {
- "zmq.address": "tcp://localhost:5585",
- "result.path": "/home/dhyani/Documents/Network-Monitoring-System-v2/DataStore/result/"
+ "zmq.write.address": "tcp://localhost:5585",
+
+ "result.path": "/home/dhyani/Documents/Network-Monitoring-System-v2/DataStore/result/",
+
+ "zmq.read.address" : "tcp://localhost:5586"
 }

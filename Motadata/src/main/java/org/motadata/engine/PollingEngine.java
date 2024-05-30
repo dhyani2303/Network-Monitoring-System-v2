@@ -49,7 +49,6 @@ public class PollingEngine extends AbstractVerticle
 
                             ProcessUtil.checkAvailability(entries).onComplete(asyncResult ->
                             {
-
                                 if (asyncResult.succeeded())
                                 {
                                     if (!Credential.getCredential().get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString())).isEmpty())
@@ -75,9 +74,7 @@ public class PollingEngine extends AbstractVerticle
                                                         socket.send(output);
 
                                                         LOGGER.trace("Content has been sent over zmq {}", output);
-
                                                     }
-
                                             }
                                             else
                                             {

@@ -382,7 +382,7 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 	}
 
-	context[constants.TIMESTAMP] = time.Now().Format(time.DateTime)
+	context[constants.TIMESTAMP] = time.Now().UnixMilli()
 
 	context[constants.RESULT] = result
 

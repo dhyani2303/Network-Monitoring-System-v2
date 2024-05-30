@@ -21,103 +21,117 @@ public class Main
 {
     public static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
+    static Vertx vertx = Vertx.vertx();
+
     public static void main(String[] args)
     {
         try
         {
-            Vertx vertx = Vertx.vertx();
-
-            var eventBus = vertx.eventBus();
-
             Util.setConfig(vertx).onComplete(setConfigHandler ->
             {
                 if (setConfigHandler.succeeded())
                 {
                     LOGGER.info("Configuration has been set");
 
-                    eventBus.localConsumer("address", consumerHandler ->
-                    {
-                        var message = consumerHandler.body().toString();
+                    vertx.deployVerticle(WriteFile.class.getName()).onComplete(handler->{
 
-                        var contextResult = new JsonObject(new String(Base64.getDecoder().decode(message)));
-
-                        var file = Util.configMap.get(Constants.RESULT_PATH) + contextResult.getString(Constants.IP_ADDRESS) + ".json";
-
-                        if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
+                        if (handler.succeeded())
                         {
-                            vertx.executeBlocking(id ->
-                            {
-                                vertx.fileSystem().open(file, new OpenOptions().setAppend(true).setCreate(true), openHandler ->
-                                {
-                                    if (openHandler.succeeded())
-                                    {
-                                        var offset = openHandler.result().getWritePos();
-
-                                        Buffer buffer;
-
-                                        if (openHandler.result().getWritePos() == 0)
-                                        {
-                                            buffer = Buffer.buffer("[")
-                                                    .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
-                                                    .appendString("]");
-                                        }
-                                        else
-                                        {
-                                            offset = offset - 1;
-
-                                            buffer = Buffer.buffer(",")
-                                                    .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
-                                                    .appendString("]");
-
-                                        }
-                                        openHandler.result().write(buffer, offset, wHandler ->
-                                        {
-                                            LOGGER.info("File is successfully written");
-
-                                        });
-                                        openHandler.result().close();
-
-                                    }
-                                    else
-                                    {
-                                        LOGGER.warn("Unable to write the content to the file");
-                                    }
-                                });
-
-                            });
+                            LOGGER.info("Write file verticle has been deployed successfully");
                         }
                         else
                         {
-                            LOGGER.warn("Data has status failed {}", contextResult);
+                            LOGGER.warn("Unable to deploy write file verticle");
                         }
                     });
 
-                    try
-                    {
-                        ZContext context = new ZContext();
+                    vertx.deployVerticle(ReadFile.class.getName()).onComplete(readHandler->{
 
-                        var socket = context.createSocket(SocketType.PULL);
-
-                        socket.connect(Util.configMap.get(Constants.ZMQ_ADDRESS).toString());
-
-                        new Thread(() ->
+                        if (readHandler.succeeded())
                         {
-
-                            while (true)
-                            {
-                                var message = socket.recv();
-
-                                eventBus.send("address", new String(message));
-
-                            }
-                        }).start();
-
-                    }
-                    catch (Exception exception)
-                    {
-                        System.out.println(exception);
-                    }
-
+                            LOGGER.info("Read file verticle has been deployed successfully");
+                        }
+                        else
+                        {
+                            LOGGER.warn("Failed to deploy the read file verticle");
+                        }
+                    });
+//                    eventBus.localConsumer("address", consumerHandler ->
+//                    {
+//                        var message = consumerHandler.body().toString();
+//
+//                        var contextResult = new JsonObject(new String(Base64.getDecoder().decode(message)));
+//
+//                        var file = Util.configMap.get(Constants.RESULT_PATH) + contextResult.getString(Constants.IP_ADDRESS) + ".json";
+//
+//                        if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
+//                        {
+//                            vertx.executeBlocking(id ->
+//                            {
+//                                var asyncFile = vertx.fileSystem().openBlocking(file, new OpenOptions().setAppend(true).setCreate(true));
+//
+//                                var offset = asyncFile.getWritePos();
+//
+//                                Buffer buffer;
+//
+//                                if (offset == 0)
+//                                {
+//                                    buffer = Buffer.buffer("{" + "\n")
+//                                            .appendString("\"" + contextResult.getString("timestamp") + "\":")
+//                                            .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
+//                                            .appendString("\n" + "}");
+////
+//                                }
+//                                else
+//                                {
+//                                    offset = offset - 1;
+//
+//                                    buffer = Buffer.buffer("," + "\n")
+//                                            .appendString("\"" + contextResult.getString("timestamp") + "\":")
+//                                            .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
+//                                            .appendString("\n" + "}");
+//
+//                                }
+//                                asyncFile.write(buffer, offset, wHandler ->
+//                                {
+//                                    LOGGER.info("File is successfully written");
+//
+//                                });
+//                                asyncFile.close();
+//
+//                            });
+//                        }
+//                        else
+//                        {
+//                            LOGGER.warn("Data has status failed {}", contextResult);
+//                        }
+//                    });
+//
+//                    try
+//                    {
+//                        ZContext context = new ZContext();
+//
+//                        var socket = context.createSocket(SocketType.PULL);
+//
+//                        socket.connect(Util.configMap.get(Constants.ZMQ_ADDRESS).toString());
+//
+//                        new Thread(() ->
+//                        {
+//
+//                            while (true)
+//                            {
+//                                var message = socket.recv();
+//
+//                                eventBus.send("address", new String(message));
+//
+//                            }
+//                        }).start();
+//
+//                    }
+//                    catch (Exception exception)
+//                    {
+//                        System.out.println(exception);
+//
                 }
                 else
                 {

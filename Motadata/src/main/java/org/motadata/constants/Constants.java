@@ -16,7 +16,11 @@ public class Constants {
 
     public static final String API_WITH_PARAMS ="/:id";
 
+    public static final String API_WITH_TWO_PARAMS ="/:id/:time";
+
     public static final String DISCOVERY_API ="/discovery/*";
+
+    public static final String POLLING_API ="/poll/*";
 
     public static final String RUN_API ="/run/:id";
 
@@ -56,12 +60,6 @@ public class Constants {
 
     public static final String DISCOVERY_ID ="discovery.id";
 
-    public static final String CREDENTIAL_DATABASE ="credential.database";
-
-    public static final String DISCOVERY_DATABASE ="discovery.database";
-
-    public static final String PROVISION_DATABASE ="provision.database";
-
     public static final String CREDENTIAL_ID ="credential.id";
 
     public static final String REQUEST_TYPE ="request.type";
@@ -86,7 +84,9 @@ public class Constants {
 
     public static final String IS_DISCOVERED = "is.discovered";
 
-    public static final String RESULT_PATH = "result.path";
+    public static final String TIME = "time";
+
+    public static final String DATA_DEFAULT_TIME = "data.default.time";
 
     public static final String ZMQ_ADDRESS = "zmq.address";
 
@@ -122,5 +122,7 @@ public class Constants {
     public static final String EXCEPTION ="EXCEPTION001";
 
     public static final String FAILED_DISCOVERY="DISCOVERY_FAILED001";
+
+    public static final String INVALID_PROVISION_ID ="PROVISION003";
 
 }
