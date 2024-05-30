@@ -2,7 +2,10 @@ module PluginEngine
 
 go 1.21
 
-require github.com/masterzen/winrm v0.0.0-20231227165926-e811dad5ac77
+require (
+	github.com/masterzen/winrm v0.0.0-20231227165926-e811dad5ac77
+	github.com/pebbe/zmq4 v1.2.11
+)
 
 require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect

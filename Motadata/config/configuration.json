@@ -7,6 +7,8 @@
   "plugin.path": "/home/dhyani/Documents/Network-Monitoring-System-v2/Motadata/pluginEngine/PluginEngine",
   "result.path": "/home/dhyani/Documents/Network-Monitoring-System-v2/Motadata/result/",
   "zmq.address": "tcp://localhost:5585",
-  "data.default.time" : "1585679400000"
+  "data.default.time" : "1585679400000",
+  "zmq.sender.address" : "tcp://localhost:5587",
+  "zmq.receiver.address" : "tcp://localhost:5588"
 
 }

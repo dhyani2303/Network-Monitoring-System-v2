@@ -90,6 +90,18 @@ public class Constants {
 
     public static final String ZMQ_ADDRESS = "zmq.address";
 
+    public static final String ZMQ_SENDER_ADDRESS = "zmq.sender.address";
+
+    public static final String ZMQ_RECEIVER_ADDRESS = "zmq.receiver.address";
+
+     public static final String SEND_ADDRESS = "data.send.address";
+
+     public static final String RECEIVE_ADDRESS = "data.receive.address";
+
+     public static final String COLLECT_ADDRESS = "collect.address";
+
+     public static final String DISCOVERY_DATA_ADDRESS = "discovery.data.address";
+
     public static final String SEPERATOR = "||@@||";
 
     public static final String REGEX_SEPERATOR = "\\|\\|@@\\|\\|";

@@ -31,7 +31,7 @@ public class ReadFile extends AbstractVerticle
 
             var socket = context.createSocket(SocketType.ROUTER);
 
-            socket.connect("tcp://localhost:5586");
+            socket.connect(Util.configMap.get(Constants.ZMQ_READ_ADDRESS).toString());
 
             eventBus.<JsonObject>localConsumer(Constants.READ_ADDRESS,consumerHandler->
             {
@@ -68,17 +68,13 @@ public class ReadFile extends AbstractVerticle
                                         }
                                     }
 
-                                    System.out.println(response);
-
-                                    System.out.println("Receiver side identity while swending : "+ data.getString("identity"));
-
                                     socket.send(data.getBinary("identity"), ZMQ.SNDMORE);
 
                                     socket.send(Base64.getEncoder().encodeToString(response.encode().getBytes()));
                                 }
                                 else
                                 {
-                                    System.out.println("Unable to read the file" + handler.cause());
+                                   LOGGER.warn("Unable to read the file" + handler.cause());
                                 }
                             });
                         }
@@ -109,8 +105,7 @@ public class ReadFile extends AbstractVerticle
 
                             eventBus.<JsonObject>send(Constants.READ_ADDRESS, new JsonObject().put("identity", identity).put("message", new String(message)));
 
-                            //  eventBus.send(Constants.READ_ADDRESS, new String(message));
-//
+
                         }
                     }
                     catch (Exception exception)
@@ -131,8 +126,4 @@ public class ReadFile extends AbstractVerticle
 
     }
 
-//    public void stop(Promise<Void> stopPromise)
-//    {
-//        stopPromise.complete();
-//    }
 }

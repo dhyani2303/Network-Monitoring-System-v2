@@ -11,9 +11,11 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.motadata.constants.Constants;
 import org.motadata.util.ProcessUtil;
+
 import java.util.Base64;
 
-public class DiscoveryEngine extends AbstractVerticle {
+public class DiscoveryEngine extends AbstractVerticle
+{
 
     public static final Discovery discoveryDatabase = Discovery.getDiscovery();
 
@@ -36,13 +38,13 @@ public class DiscoveryEngine extends AbstractVerticle {
         {
             var discoveryProfileDetails = message.body();
 
-            ProcessUtil.checkAvailability(discoveryProfileDetails).onComplete(handler->
-            {
-             if (handler.succeeded())
-                {
+        //    ProcessUtil.checkAvailability(discoveryProfileDetails).onComplete(handler ->
+        //    {
+          //      if (handler.succeeded())
+            //    {
                     var context = new JsonArray();
 
-                    var  credentialIds =  discoveryProfileDetails.getJsonArray(Constants.CREDENTIAL_IDS).copy();
+                    var credentialIds = discoveryProfileDetails.getJsonArray(Constants.CREDENTIAL_IDS).copy();
 
                     var credentialProfiles = new JsonArray();
 
@@ -61,74 +63,106 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                     context.add(discoveryProfileDetails);
 
-                    ProcessUtil.spawnPluginEngine(context).onComplete(pluginHandler->{
+                    vertx.eventBus().<JsonArray>send(Constants.SEND_ADDRESS, context);
 
-                        if (pluginHandler.succeeded())
+                    vertx.eventBus().<JsonObject>localConsumer(Constants.DISCOVERY_DATA_ADDRESS, readHandler ->
+                    {
+                        var contextResult = readHandler.body();
+
+                        if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
                         {
-                            var outputs = pluginHandler.result();
+                            contextResult.remove(Constants.CREDENTIAL_PROFILES);
 
-                            for (var output : outputs)
-                            {
-                                if (output!=null && !output.trim().isEmpty())
-                                {
-                                     var contextResult = new JsonObject(new String(Base64.getDecoder().decode(output)));
+                            contextResult.remove(Constants.ERROR);
 
-                                    if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
-                                    {
-                                        contextResult.remove(Constants.CREDENTIAL_PROFILES);
+                            contextResult.remove(Constants.STATUS);
 
-                                        contextResult.remove(Constants.ERROR);
+                            contextResult.remove(Constants.RESULT);
 
-                                        contextResult.remove(Constants.STATUS);
+                            contextResult.remove(Constants.REQUEST_TYPE);
 
-                                        contextResult.remove(Constants.RESULT);
+                            contextResult.put(Constants.IS_DISCOVERED, true);
 
-                                        contextResult.remove(Constants.REQUEST_TYPE);
+                            discoveryDatabase.update(contextResult, Long.parseLong(discoveryProfileDetails.getValue(Constants.ID).toString()));
 
-                                        contextResult.put(Constants.IS_DISCOVERED,true);
-
-                                        discoveryDatabase.update(contextResult, Long.parseLong(discoveryProfileDetails.getValue(Constants.ID).toString()));
-
-                                        LOGGER.info("Discovery ran successfully for id {}", discoveryProfileDetails.getValue(Constants.ID));
-                                    }
-                                    else
-                                    {
-                                        LOGGER.info("Discovery failed  for the id {} errors found are {}: ", discoveryProfileDetails.getValue(Constants.ID),contextResult.getJsonArray(Constants.ERROR));
-                                    }
-
-
-                                }
-                                else
-                                {
-                                    LOGGER.warn("The output after splitting is null");
-                                }
-
-                            }
-
+                            LOGGER.info("Discovery ran successfully for id {}", discoveryProfileDetails.getValue(Constants.ID));
                         }
                         else
                         {
-                            LOGGER.warn("Failure occurred in spawn plugin engine method {}",pluginHandler.cause().toString());
+                            LOGGER.info("Discovery failed  for the id {} errors found are {}: ", discoveryProfileDetails.getValue(Constants.ID), contextResult.getJsonArray(Constants.ERROR));
                         }
 
                     });
-                }
-                else
-                {
-                    LOGGER.warn("Check availability method failed {}",handler.cause().toString());
-                }
-            });
+
+           //     }
+            //    else
+            //    {
+            //        LOGGER.warn("Check availability method failed {}", handler.cause().toString());
+           //     }
+         //   });
+
+//                    ProcessUtil.spawnPluginEngine(context).onComplete(pluginHandler->{
+//
+//                        if (pluginHandler.succeeded())
+//                        {
+//                            var outputs = pluginHandler.result();
+//
+//                            for (var output : outputs)
+//                            {
+//                                if (output!=null && !output.trim().isEmpty())
+//                                {
+//                                     var contextResult = new JsonObject(new String(Base64.getDecoder().decode(output)));
+//
+//                                    if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
+//                                    {
+//                                        contextResult.remove(Constants.CREDENTIAL_PROFILES);
+//
+//                                        contextResult.remove(Constants.ERROR);
+//
+//                                        contextResult.remove(Constants.STATUS);
+//
+//                                        contextResult.remove(Constants.RESULT);
+//
+//                                        contextResult.remove(Constants.REQUEST_TYPE);
+//
+//                                        contextResult.put(Constants.IS_DISCOVERED,true);
+//
+//                                        discoveryDatabase.update(contextResult, Long.parseLong(discoveryProfileDetails.getValue(Constants.ID).toString()));
+//
+//                                        LOGGER.info("Discovery ran successfully for id {}", discoveryProfileDetails.getValue(Constants.ID));
+//                                    }
+//                                    else
+//                                    {
+//                                        LOGGER.info("Discovery failed  for the id {} errors found are {}: ", discoveryProfileDetails.getValue(Constants.ID),contextResult.getJsonArray(Constants.ERROR));
+//                                    }
+//
+//
+//                                }
+//                                else
+//                                {
+//                                    LOGGER.warn("The output after splitting is null");
+//                                }
+//
+//                            }
+//
+//                        }
+//                        else
+//                        {
+//                            LOGGER.warn("Failure occurred in spawn plugin engine method {}",pluginHandler.cause().toString());
+//                        }
+//
+//                    });
         }
         catch (Exception exception)
         {
-            LOGGER.error("Some exception occurred in the handler method",exception);
+            LOGGER.error("Some exception occurred in the handler method", exception);
         }
 
     }
 
+
     public void stop(Promise<Void> promise)
     {
         promise.complete();
-
     }
 }

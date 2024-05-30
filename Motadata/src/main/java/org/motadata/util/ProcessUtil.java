@@ -9,20 +9,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.zeromq.SocketType;
+import org.zeromq.ZContext;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 
-public class
-ProcessUtil
+public class ProcessUtil
 {
     public static final Logger LOGGER = LoggerFactory.getLogger(ProcessUtil.class);
 
     public static Future<Boolean> checkAvailability(JsonObject data)
     {
-       Promise<Boolean> promise = Promise.promise();
+        Promise<Boolean> promise = Promise.promise();
 
         Bootstrap.getVertx().executeBlocking(id ->
         {
@@ -62,7 +64,7 @@ ProcessUtil
 
                         if (parts.length == 2)
                         {
-                            var lossPercentage = parts[1].split("/",3);
+                            var lossPercentage = parts[1].split("/", 3);
 
                             var result = Integer.parseInt(lossPercentage[1].trim()) - Integer.parseInt(lossPercentage[0].trim());
 
@@ -76,7 +78,7 @@ ProcessUtil
                             {
                                 LOGGER.info("Device with Ip address {} is down", ipAddress);
 
-                                promise.fail("Device with Ip address" + ipAddress +"is down");
+                                promise.fail("Device with Ip address" + ipAddress + "is down");
 
                                 return;
                             }
@@ -88,7 +90,7 @@ ProcessUtil
             }
             catch (Exception exception)
             {
-                LOGGER.error("Some exception occurred in check availability method",exception);
+                LOGGER.error("Some exception occurred in check availability method", exception);
 
                 promise.fail("Some exception occurred inside execute blocking of check availability method");
             }
@@ -108,10 +110,19 @@ ProcessUtil
 
             String encodedContext = Base64.getEncoder().encodeToString(context.toString().getBytes());
 
-            Bootstrap.getVertx().executeBlocking(id->
+            Bootstrap.getVertx().executeBlocking(id ->
             {
                 try
                 {
+
+                    var zContext = new ZContext();
+
+                    var socket = zContext.createSocket(SocketType.PUSH);
+
+                    socket.bind("tcp://localhost:5587");
+
+                    socket.send(encodedContext);
+
                     ProcessBuilder processBuilder = new ProcessBuilder(Utils.configMap.get(Constants.PLUGIN_PATH).toString(), encodedContext);
 
                     processBuilder.redirectErrorStream(true);
@@ -126,45 +137,44 @@ ProcessUtil
 
                         LOGGER.warn("Process has been killed as it exceeded the timeout duration");
 
-                       promise.fail("Process has been killed as it exceeded the timeout duration");
+                        promise.fail("Process has been killed as it exceeded the timeout duration");
 
-                       return;
+                        return;
 
                     }
 
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-                        String line;
+                    String line;
 
-                        var buffer = Buffer.buffer();
+                    var buffer = Buffer.buffer();
 
-                        var count = 0;
+                    var count = 0;
 
-                        while ((line = reader.readLine()) != null && count <= contextLength)
+                    while ((line = reader.readLine()) != null && count <= contextLength)
+                    {
+                        buffer.appendString(line);
+
+                        if (line.contains(Constants.SEPERATOR))
                         {
-                            buffer.appendString(line);
-
-                            if (line.contains(Constants.SEPERATOR))
-                            {
-                                count++;
-                            }
+                            count++;
                         }
+                    }
 
-                        var outputs = buffer.toString().split(Constants.REGEX_SEPERATOR);
+                    var outputs = buffer.toString().split(Constants.REGEX_SEPERATOR);
 
-                        promise.complete(outputs);
+                    promise.complete(outputs);
 
-                        LOGGER.info("Result is sent to the method that called the spawn plugin engine");
+                    LOGGER.info("Result is sent to the method that called the spawn plugin engine");
 
                 }
                 catch (Exception exception)
                 {
-                    LOGGER.error("Some exception occurred in executing block",exception);
+                    LOGGER.error("Some exception occurred in executing block", exception);
 
                     promise.fail("Exception occurred inside execute blocking code");
                 }
             });
-
 
         }
         catch (Exception exception)

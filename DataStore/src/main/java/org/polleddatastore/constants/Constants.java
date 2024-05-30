@@ -19,6 +19,7 @@ public class Constants
   public static final String READ_ADDRESS = "read.address";
 
   public static final String TIMESTAMP = "timestamp";
+
   public static final String RESULT = "result";
 
 }

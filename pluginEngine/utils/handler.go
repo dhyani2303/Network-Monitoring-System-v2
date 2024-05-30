@@ -15,8 +15,9 @@ func ErrorHandler(errorCode string, errMessage string) map[string]interface{} {
 		recovery := recover()
 
 		if recovery != nil {
+
+			logger.Fatal(fmt.Sprintf("Some panic occurred. Panic: %s", recovery))
 		}
-		logger.Fatal(fmt.Sprintf("Some panic occurred. Panic: %s", recovery))
 	}()
 
 	err := make(map[string]interface{})

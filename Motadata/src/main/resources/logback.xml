@@ -55,6 +55,14 @@
         </encoder>
     </appender>
 
+    <appender name="SENDER_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>logs/sender.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
     <appender name="POLLINGAPI_LOGS" class="ch.qos.logback.core.FileAppender">
         <file>logs/pollingAPI.log</file>
         <encoder>
@@ -82,6 +90,16 @@
             <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
         </encoder>
     </appender>
+
+    <appender name="RECEIVER_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>logs/receiver.log</file>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+
 
     <!-- Root Logger -->
     <root level="info">
@@ -129,6 +147,15 @@
 
     <logger name="org.motadata.api.Polling" level="TRACE" additivity="false">
         <appender-ref ref="POLLINGAPI_LOGS" />
+    </logger>
+
+    <logger name="org.motadata.zmq.Sender" level="TRACE" additivity="false">
+        <appender-ref ref="SENDER_LOGS" />
+    </logger>
+
+
+    <logger name="org.motadata.zmq.Receiver" level="TRACE" additivity="false">
+        <appender-ref ref="RECEIVER_LOGS" />
     </logger>
 
 
