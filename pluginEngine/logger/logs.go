@@ -21,8 +21,14 @@ type Logger struct {
 var logLevel = 2
 
 func NewLogger(directory, component string) Logger {
+
+	dirPath := filepath.Join("./logs/", directory)
+
+	_ = os.MkdirAll(dirPath, 0755)
+
 	return Logger{
-		directory: fmt.Sprintf("/home/dhyani/Documents/Network-Monitoring-System-v2/logs/%s", directory),
+
+		directory: "./logs/" + directory,
 		component: component,
 	}
 }

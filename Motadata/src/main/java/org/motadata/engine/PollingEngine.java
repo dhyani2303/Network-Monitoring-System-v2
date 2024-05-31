@@ -49,10 +49,10 @@ public class PollingEngine extends AbstractVerticle
                         {
                             var entries = JsonObject.mapFrom(provisionedDevice);
 
-//                            ProcessUtil.checkAvailability(entries).onComplete(asyncResult ->
-//                            {
-//                                if (asyncResult.succeeded())
-//                                {
+                            ProcessUtil.checkAvailability(entries).onComplete(asyncResult ->
+                            {
+                                if (asyncResult.succeeded())
+                                {
                                     if (!Credential.getCredential().get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString())).isEmpty())
                                     {
                                         var credentialDetails = credentialDatabase.get(Long.parseLong(entries.getValue(Constants.VALID_CREDENTIAL_ID).toString()));
@@ -69,6 +69,7 @@ public class PollingEngine extends AbstractVerticle
 
                                         vertx.eventBus().<JsonObject>localConsumer(Constants.COLLECT_ADDRESS,fetchHandler->
                                         {
+                                            System.out.println("Data" +fetchHandler.body());
                                             socket.send(Base64.getEncoder().encodeToString(fetchHandler.body().encode().getBytes()));
 
                                             LOGGER.trace("Content has been sent over zmq {}", fetchHandler.body());
@@ -98,12 +99,12 @@ public class PollingEngine extends AbstractVerticle
                                         LOGGER.warn("Unable to fetch the credential details of valid credential id {}", entries.getString(Constants.VALID_CREDENTIAL_ID));
                                     }
 
-//                                }
-//                                else
-//                                {
-//                                    LOGGER.warn("Polling failed from the check availability method reason: {}", asyncResult.cause().toString());
-//                                }
-                         //   });
+                                }
+                                else
+                                {
+                                    LOGGER.warn("Polling failed from the check availability method reason: {}", asyncResult.cause().toString());
+                                }
+                            });
                         }
                     }
 

@@ -38,10 +38,10 @@ public class DiscoveryEngine extends AbstractVerticle
         {
             var discoveryProfileDetails = message.body();
 
-        //    ProcessUtil.checkAvailability(discoveryProfileDetails).onComplete(handler ->
-        //    {
-          //      if (handler.succeeded())
-            //    {
+            ProcessUtil.checkAvailability(discoveryProfileDetails).onComplete(handler ->
+            {
+                if (handler.succeeded())
+                {
                     var context = new JsonArray();
 
                     var credentialIds = discoveryProfileDetails.getJsonArray(Constants.CREDENTIAL_IDS).copy();
@@ -94,12 +94,12 @@ public class DiscoveryEngine extends AbstractVerticle
 
                     });
 
-           //     }
-            //    else
-            //    {
-            //        LOGGER.warn("Check availability method failed {}", handler.cause().toString());
-           //     }
-         //   });
+                }
+                else
+                {
+                    LOGGER.warn("Check availability method failed {}", handler.cause().toString());
+                }
+            });
 
 //                    ProcessUtil.spawnPluginEngine(context).onComplete(pluginHandler->{
 //

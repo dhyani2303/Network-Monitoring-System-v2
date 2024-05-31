@@ -29,17 +29,24 @@ public class Receiver extends AbstractVerticle
 
             eventBus.<String>localConsumer(Constants.RECEIVE_ADDRESS,handler->
             {
-                var response = new JsonObject(new String(Base64.getDecoder().decode(handler.body())));
-
-                if (response.getString(Constants.REQUEST_TYPE).equals(Constants.COLLECT))
+                if(!handler.body().isEmpty())
                 {
-                    eventBus.send(Constants.COLLECT_ADDRESS,response);
+                    var response = new JsonObject(new String(Base64.getDecoder().decode(handler.body())));
 
-                }
-                else
-                {
-                    eventBus.send(Constants.DISCOVERY_DATA_ADDRESS,response);
+                    if (response.getString(Constants.REQUEST_TYPE).equals(Constants.COLLECT))
+                    {
+                        eventBus.send(Constants.COLLECT_ADDRESS, response);
 
+                        LOGGER.info("The request type is collect and message is sent over event bus " + response);
+
+                    }
+                    else
+                    {
+                        eventBus.send(Constants.DISCOVERY_DATA_ADDRESS, response);
+
+                        LOGGER.info("The request type is discovery and message is sent over event bus " + response);
+
+                    }
                 }
 
 
@@ -49,9 +56,12 @@ public class Receiver extends AbstractVerticle
             {
                 while (true)
                 {
-                    var message = socket.recv();
+                    var message = socket.recv(0);
 
                     eventBus.send(Constants.RECEIVE_ADDRESS,new String(message));
+
+                    LOGGER.info("New message is received "+ new String(message));
+
                 }
             }).start();
 
