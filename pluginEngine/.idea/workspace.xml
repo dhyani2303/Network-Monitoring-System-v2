@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11072b6d-0123-4b0a-a636-7e9cd8baff88" name="Changes" comment="Made changes in the discovery function to return error on failure of discovery">
-      <change beforePath="$PROJECT_DIR$/src/client/winrm.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/winrm.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/plugin/windows.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/plugin/windows.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +61,7 @@
       <recent name="$PROJECT_DIR$/src/utils" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build bootstrap.go">
+  <component name="RunManager" selected="Go Build.go build PluginEngine/src">
     <configuration name="go build PluginEngine (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="pluginEngine" />
       <working_directory value="$PROJECT_DIR$" />
@@ -69,6 +69,15 @@
       <package value="PluginEngine" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/push.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build PluginEngine/src" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="pluginEngine" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="PluginEngine/src" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/src/bootstrap.go" />
       <method v="2" />
     </configuration>
     <configuration name="go build bootstrap.go" type="GoApplicationRunConfiguration" factoryName="Go Application" singleton="false" temporary="true" nameIsGenerated="true">
@@ -90,12 +99,14 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Go Build.go build PluginEngine/src" />
       <item itemvalue="Go Build.go build example.go" />
       <item itemvalue="Go Build.go build bootstrap.go" />
       <item itemvalue="Go Build.go build PluginEngine (1)" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build PluginEngine/src" />
         <item itemvalue="Go Build.go build bootstrap.go" />
         <item itemvalue="Go Build.go build PluginEngine (1)" />
         <item itemvalue="Go Build.go build example.go" />
@@ -139,11 +150,6 @@
           <url>file://$PROJECT_DIR$/src/utils/metrics.go</url>
           <line>2</line>
           <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/plugin/windows.go</url>
-          <line>128</line>
-          <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
