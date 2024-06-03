@@ -5,15 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11072b6d-0123-4b0a-a636-7e9cd8baff88" name="Changes" comment="Made changes in the discovery function to return error on failure of discovery">
-      <change afterPath="$PROJECT_DIR$/processor/contextProcessor.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/zmq/communication.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/DiscoveryEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/DiscoveryEngine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/PollingEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/PollingEngine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/zmq/Receiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/zmq/Receiver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/WinrmCommands.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/dataTypes.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/utils.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/ReadFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/ReadFile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/WriteFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/WriteFile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/example.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/example.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PluginEngine" beforeDir="false" afterPath="$PROJECT_DIR$/PluginEngine" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bootstrap.go" beforeDir="false" afterPath="$PROJECT_DIR$/bootstrap.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logger/logs.go" beforeDir="false" afterPath="$PROJECT_DIR$/logger/logs.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bootstrap.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/bootstrap.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/winrm.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/winrm.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/constants/constants.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/consts/constants.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logger/logs.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/logs.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plugins/windows.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/plugin/windows.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/processor/contextProcessor.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/WinrmCommands.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/encode_decode.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/handler.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/helper.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/metrics.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/validator.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/zmq/communication.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/server.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,31 +50,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;Go Build.go build PluginEngine (1).executor&quot;: &quot;Debug&quot;,
-    &quot;Go Build.go build PluginEngine.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build bootstrap.go.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build example.go.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/root/GolandProjects/awesomeProject/panicDeferRecover&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "Go Build.go build PluginEngine (1).executor": "Debug",
+    "Go Build.go build PluginEngine.executor": "Run",
+    "Go Build.go build bootstrap.go.executor": "Run",
+    "Go Build.go build example.go.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/root/GolandProjects/awesomeProject/panicDeferRecover",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/processor" />
-      <recent name="$PROJECT_DIR$/plugins" />
-      <recent name="$PROJECT_DIR$/utils" />
+      <recent name="$PROJECT_DIR$/src/plugin" />
+      <recent name="$PROJECT_DIR$/src/server" />
+      <recent name="$PROJECT_DIR$/src/client" />
+      <recent name="$PROJECT_DIR$/src/consts" />
+      <recent name="$PROJECT_DIR$/src/utils" />
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build bootstrap.go">
@@ -141,9 +155,14 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/bootstrap.go</url>
-          <line>144</line>
-          <option name="timeStamp" value="3" />
+          <url>file://$PROJECT_DIR$/src/utils/metrics.go</url>
+          <line>2</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/src/plugin/windows.go</url>
+          <line>128</line>
+          <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

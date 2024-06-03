@@ -21,10 +21,18 @@ public class Main
 {
     public static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    static Vertx vertx = Vertx.vertx();
+    private static final Vertx vertx = Vertx.vertx();
+
+    public static  Vertx getVertx()
+    {
+        return vertx;
+
+    }
 
     public static void main(String[] args)
     {
+        var eventBus = vertx.eventBus();
+
         try
         {
             Util.setConfig(vertx).onComplete(setConfigHandler ->
@@ -33,27 +41,57 @@ public class Main
                 {
                     LOGGER.info("Configuration has been set");
 
-                    vertx.deployVerticle(WriteFile.class.getName()).onComplete(handler->{
+//                    vertx.deployVerticle(WriteFile.class.getName()).onComplete(handler->{
+//
+//                        if (handler.succeeded())
+//                        {
+//                            LOGGER.info("Write file verticle has been deployed successfully");
+//                        }
+//                        else
+//                        {
+//                            LOGGER.warn("Unable to deploy write file verticle");
+//                        }
+//                    });
+//
+//                    vertx.deployVerticle(ReadFile.class.getName()).onComplete(readHandler->{
+//
+//                        if (readHandler.succeeded())
+//                        {
+//                            LOGGER.info("Read file verticle has been deployed successfully");
+//                        }
+//                        else
+//                        {
+//                            LOGGER.warn("Failed to deploy the read file verticle");
+//                        }
+//                    })
+                    eventBus.localConsumer(Constants.WRITE_ADDRESS,handler->
+                    {
+                        var message = handler.body().toString();
 
-                        if (handler.succeeded())
+                        var contextResult = new JsonObject(new String(Base64.getDecoder().decode(message)));
+
+                        if (contextResult.getString("request.type").equals("read.file"))
                         {
-                            LOGGER.info("Write file verticle has been deployed successfully");
+                            org.polledcontextstore.ReadFile.readFile(contextResult);
                         }
-                        else
-                        {
-                            LOGGER.warn("Unable to deploy write file verticle");
-                        }
+
+
                     });
 
-                    vertx.deployVerticle(ReadFile.class.getName()).onComplete(readHandler->{
+                    ZContext context = new ZContext();
 
-                        if (readHandler.succeeded())
+                    var pullSocket = context.createSocket(SocketType.PULL);
+
+                    pullSocket.connect(Util.configMap.get(Constants.ZMQ_WRITE_ADDRESS).toString());
+
+                    new Thread(() ->
+                    {
+                        while (true)
                         {
-                            LOGGER.info("Read file verticle has been deployed successfully");
-                        }
-                        else
-                        {
-                            LOGGER.warn("Failed to deploy the read file verticle");
+                            var message = pullSocket.recv();
+
+                            eventBus.send(Constants.WRITE_ADDRESS, new String(message));
+
                         }
                     });
                 }

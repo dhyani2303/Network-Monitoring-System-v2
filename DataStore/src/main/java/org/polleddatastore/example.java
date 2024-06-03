@@ -1,6 +1,9 @@
 package org.polleddatastore;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.OpenOptions;
 import io.vertx.core.json.JsonObject;
 import org.polleddatastore.constants.Constants;
 import org.polleddatastore.utils.Util;
@@ -17,8 +20,37 @@ import java.util.Base64;
 
 public class example
 {
+
     public static void main(String[] args)
     {
+        Vertx vertx = Vertx.vertx();
+
+        new Thread(() ->
+        {
+            vertx.fileSystem().open("./result/example.txt", new OpenOptions().setCreate(true), handler ->
+            {
+                if (handler.succeeded())
+                {
+                    var asyncFile = handler.result();
+
+                    while(true)
+                    {
+                        asyncFile.write(Buffer.buffer("hello there"));
+                    }
+                }
+            });
+        }).start();
+            vertx.fileSystem().readFile("./result/example.txt", handler ->
+            {
+
+                if (handler.succeeded())
+                {
+                    var asyncFile = handler.result();
+
+                    System.out.println(asyncFile.toString());
+                }
+            });
+
 //        Vertx vertx = Vertx.vertx();
 //
 //        String desiredTimestamp = "1717045200000";
@@ -55,45 +87,46 @@ public class example
 //            System.out.println(exception.getMessage());
 //        }
 //
-        try
-        {
-            var context = new ZContext();
 
-            var socket = context.createSocket(SocketType.DEALER);
-
-            var data = new JsonObject();
-
-            data.put(Constants.TIMESTAMP,"1717045200000");
-
-            data.put(Constants.IP_ADDRESS,"172.16.8.113");
-
-            socket.bind("tcp://localhost:5586");
-
-            socket.send(Base64.getEncoder().encodeToString(data.encode().getBytes()));
-
-            new Thread(() ->
-            {
-                while (true)
-                {
-                    var bytes = socket.recv();
-
-                    var string = new String(bytes);
-
-                    var result = Base64.getDecoder().decode(bytes);
-
-                    System.out.println("Result: "+ new String(result) );
-                }
-            }).start();
-
-        }
-        catch (Exception exception)
-        {
-            System.out.println(exception.fillInStackTrace());
-        }
-
-
-    }
-}
+//        try
+//        {
+//            var context = new ZContext();
+//
+//            var socket = context.createSocket(SocketType.DEALER);
+//
+//            var data = new JsonObject();
+//
+//            data.put(Constants.TIMESTAMP,"1717045200000");
+//
+//            data.put(Constants.IP_ADDRESS,"172.16.8.113");
+//
+//            socket.bind("tcp://localhost:5586");
+//
+//            socket.send(Base64.getEncoder().encodeToString(data.encode().getBytes()));
+//
+//            new Thread(() ->
+//            {
+//                while (true)
+//                {
+//                    var bytes = socket.recv();
+//
+//                    var string = new String(bytes);
+//
+//                    var result = Base64.getDecoder().decode(bytes);
+//
+//                    System.out.println("Result: "+ new String(result) );
+//                }
+//            }).start();
+//
+//        }
+//        catch (Exception exception)
+//        {
+//            System.out.println(exception.fillInStackTrace());
+//        }
+//
+//
+//    }
+//}
 //
 //var asyncFile = vertx.fileSystem().openBlocking("result/192.168.2.230.json", new OpenOptions().setCreate(false));
 //
@@ -109,3 +142,7 @@ public class example
 //        }
 //
 //        });
+
+    }
+
+}

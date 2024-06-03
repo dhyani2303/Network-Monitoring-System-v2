@@ -1,9 +1,12 @@
-package org.polleddatastore;
+package org.polledcontextstore;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.polledcontextstore.constants.Constants;
+import org.polledcontextstore.utils.Util;
+import org.polleddatastore.Main;
 import org.polleddatastore.constants.Constants;
 import org.polleddatastore.utils.Util;
 import org.slf4j.Logger;
@@ -17,111 +20,97 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 
-public class ReadFile extends AbstractVerticle
+public class ReadFile
 {
     public static final Logger LOGGER = LoggerFactory.getLogger(ReadFile.class);
 
-    public void start(Promise<Void> promise)
+    public static void readFile(JsonObject context)
     {
+        var vertx = Main.getVertx();
+
         var eventBus = vertx.eventBus();
 
         try
         {
-            ZContext context = new ZContext();
+//            ZContext context = new ZContext();
+//
+//            var socket = context.createSocket(SocketType.ROUTER);
+//
+//            socket.connect(Util.configMap.get(Constants.ZMQ_READ_ADDRESS).toString());
 
-            var socket = context.createSocket(SocketType.ROUTER);
+            //   eventBus.<JsonObject>localConsumer(Constants.READ_ADDRESS, consumerHandler ->
+            // {
+//                try
+//                {
 
-            socket.connect(Util.configMap.get(Constants.ZMQ_READ_ADDRESS).toString());
+            var fileName = Util.configMap.get(Constants.RESULT_PATH) + context.getString(Constants.IP_ADDRESS) + ".json";
 
-            eventBus.<JsonObject>localConsumer(Constants.READ_ADDRESS,consumerHandler->
+            vertx.fileSystem().readFile(fileName).onComplete(handler ->
             {
-                try
+                if (handler.succeeded())
                 {
-                    var data = consumerHandler.body();
+                    var response = new JsonObject();
 
-                    var contextResult = new JsonObject(new String(Base64.getDecoder().decode(data.getString("message"))));
-
-                    var fileName = Util.configMap.get(Constants.RESULT_PATH) + contextResult.getString(Constants.IP_ADDRESS) + ".json";
-
-                    vertx.executeBlocking(id->
+                    for (var key : (handler.result().toJsonObject().fieldNames()))
                     {
-                        try
+                        if (Long.parseLong(key) >= Long.parseLong(context.getString(Constants.TIMESTAMP)))
                         {
-                            vertx.fileSystem().readFile(fileName).onComplete(handler ->
-                            {
-                                if (handler.succeeded())
-                                {
-                                    var response = new JsonObject();
+                            Date date = new Date(Long.parseLong(key));
 
-                                    for (var key : (handler.result().toJsonObject().fieldNames()))
-                                    {
-                                        if (Long.parseLong(key) >= Long.parseLong(contextResult.getString(Constants.TIMESTAMP)))
-                                        {
-                                            Date date = new Date(Long.parseLong(key));
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-                                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String formattedDate = formatter.format(date);
 
-                                            String formattedDate = formatter.format(date);
+                            response.put(formattedDate, handler.result().toJsonObject().getJsonObject(key).getJsonObject(Constants.RESULT));
 
-                                            response.put(formattedDate,handler.result().toJsonObject().getJsonObject(key).getJsonObject(Constants.RESULT));
-
-                                        }
-                                    }
-
-                                    socket.send(data.getBinary("identity"), ZMQ.SNDMORE);
-
-                                    socket.send(Base64.getEncoder().encodeToString(response.encode().getBytes()));
-                                }
-                                else
-                                {
-                                   LOGGER.warn("Unable to read the file" + handler.cause());
-                                }
-                            });
                         }
-                        catch (Exception exception)
-                        {
-                            LOGGER.error("Some exception occurred inside the executr blocking code",exception);
-                        }
-                    });
+                    }
+
+//                    socket.send(context.getBinary("identity"), ZMQ.SNDMORE);
+//
+//                    socket.send(Base64.getEncoder().encodeToString(response.encode().getBytes()));
                 }
-                catch (Exception exception)
+                else
                 {
-                    LOGGER.error("Exception occurred in local consumer",exception);
+                    LOGGER.warn("Unable to read the file" + handler.cause());
                 }
 
             });
+//                }
+//                catch (Exception exception)
+//                {
+//                    LOGGER.error("Exception occurred in local consumer", exception);
+//                }
 
-             new Thread(() ->
+            //    });
+
+            new Thread(() ->
+            {
+                try
                 {
-                    try
+                    while (true)
                     {
-                        while (true)
-                        {
-                            var identity = socket.recv();
+                        var identity = socket.recv();
 
-                            System.out.println("Received identity : "+ new String(identity));
+                        System.out.println("Received identity : " + new String(identity));
 
-                            var message = socket.recv();
+                        var message = socket.recv();
 
-                            eventBus.<JsonObject>send(Constants.READ_ADDRESS, new JsonObject().put("identity", identity).put("message", new String(message)));
+                        eventBus.<JsonObject>send(Constants.READ_ADDRESS, new JsonObject().put("identity", identity).put("message", new String(message)));
 
-
-                        }
                     }
-                    catch (Exception exception)
-                    {
-                        LOGGER.error("Some exception occurred in the another thread",exception);
-                    }
-                }).start();
-
-
+                }
+                catch (Exception exception)
+                {
+                    LOGGER.error("Some exception occurred in the another thread", exception);
+                }
+            }).start();
 
         }
         catch (Exception exception)
         {
-            LOGGER.error("Exception occurred",exception);
+            LOGGER.error("Exception occurred", exception);
 
-           promise.fail("Exception occurred");
         }
 
     }

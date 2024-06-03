@@ -31,46 +31,35 @@ public class WriteFile extends AbstractVerticle
 
                 var file = Util.configMap.get(Constants.RESULT_PATH) + contextResult.getString(Constants.IP_ADDRESS) + ".json";
 
-                    vertx.executeBlocking(id ->
-                    {
-                        try
-                        {
-                            var asyncFile = vertx.fileSystem().openBlocking(file, new OpenOptions().setAppend(true).setCreate(true));
+                var asyncFile = vertx.fileSystem().openBlocking(file, new OpenOptions().setAppend(true).setCreate(true));
 
-                            var offset = asyncFile.getWritePos();
+                var offset = asyncFile.getWritePos();
 
-                            Buffer buffer;
+                Buffer buffer;
 
-                            if (offset == 0)
-                            {
-                                buffer = Buffer.buffer("{" + "\n")
-                                        .appendString("\"" + contextResult.getString("timestamp") + "\":")
-                                        .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
-                                        .appendString("\n" + "}");
-                            }
-                            else
-                            {
-                                offset = offset - 2;
+                if (offset == 0)
+                {
+                    buffer = Buffer.buffer("{" + "\n")
+                            .appendString("\"" + contextResult.getString("timestamp") + "\":")
+                            .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
+                            .appendString("\n" + "}");
+                }
+                else
+                {
+                    offset = offset - 2;
 
-                                buffer = Buffer.buffer("," + "\n")
-                                        .appendString("\"" + contextResult.getString("timestamp") + "\":")
-                                        .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
-                                        .appendString("\n" + "}");
+                    buffer = Buffer.buffer("," + "\n")
+                            .appendString("\"" + contextResult.getString("timestamp") + "\":")
+                            .appendBuffer(Buffer.buffer(contextResult.encodePrettily()))
+                            .appendString("\n" + "}");
 
-                            }
-                            asyncFile.write(buffer, offset, wHandler ->
-                            {
-                                LOGGER.info("File is successfully written");
+                }
+                asyncFile.write(buffer, offset, wHandler ->
+                {
+                    LOGGER.info("File is successfully written");
 
-                            });
-                            asyncFile.close();
-                        }
-                        catch (Exception exception)
-                        {
-                            LOGGER.error("Some exception occurred inside execute blocking",exception);
-                        }
-
-                    });
+                });
+                asyncFile.close();
 
             });
 
@@ -104,7 +93,7 @@ public class WriteFile extends AbstractVerticle
         }
         catch (Exception exception)
         {
-            LOGGER.error("Exception occurred",exception);
+            LOGGER.error("Exception occurred", exception);
 
             promise.fail("exception occurred");
 

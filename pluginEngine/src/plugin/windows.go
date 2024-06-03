@@ -1,10 +1,9 @@
-package plugins
+package plugin
 
 import (
-	"PluginEngine/client"
-	"PluginEngine/constants"
-	"PluginEngine/logger"
-	"PluginEngine/utils"
+	"PluginEngine/src/client"
+	. "PluginEngine/src/consts"
+	utils2 "PluginEngine/src/utils"
 	"fmt"
 	"maps"
 	"math"
@@ -14,11 +13,11 @@ import (
 	"time"
 )
 
+var logger = utils2.NewLogger("plugins", "windows")
+
 func Discovery(context map[string]interface{}, channel chan map[string]interface{}) {
 
-	logger := logger.NewLogger("plugins", "windows")
-
-	errors := make([]map[string]interface{}, 0)
+	errors := make([]map[string]interface{}, 0) // errors has value as map[string]interface{} and this map stores errorCode as well as errorMessage. errorCode are custom made
 
 	result := make(map[string]interface{})
 
@@ -31,27 +30,28 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 			logger.Fatal(fmt.Sprintf("Some panic occurred %v\n", err))
 
 		}
+		return
 
 	}()
 
-	logger.Info(fmt.Sprintf("Inside the Discovery Method"))
+	logger.Info(fmt.Sprintf("Inside the Discover Method"))
 
-	if credentialProfiles, ok := context[constants.CREDENTIAL_PROFILES].([]interface{}); ok {
+	if credentialProfiles, ok := context[CredentialProfiles].([]interface{}); ok {
 
 		for _, credential := range credentialProfiles {
 
 			if credentialProfile, ok := credential.(map[string]interface{}); ok {
 
-				credentialProfile[constants.IP_ADDRESS] = context[constants.IP_ADDRESS]
+				credentialProfile[IpAddress] = context[IpAddress]
 
-				if context[constants.PORT] != nil {
+				if context[Port] != nil {
 
-					credentialProfile[constants.PORT] = context[constants.PORT]
+					credentialProfile[Port] = context[Port]
 				}
 
-				if context[constants.TIMEOUT] != nil {
+				if context[Timeout] != nil {
 
-					credentialProfile[constants.TIMEOUT] = context[constants.TIMEOUT]
+					credentialProfile[Timeout] = context[Timeout]
 				}
 
 				client.SetContext(credentialProfile)
@@ -59,15 +59,22 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 
 			connection, err := client.CreateConnection()
 
-			if err == nil {
+			if err != nil {
 
+				errors = append(errors, utils2.ErrorHandler(ConnectionError, err.Error()))
+
+				logger.Error(fmt.Sprintf("Error occurred %v", err))
+
+				continue
+
+			} else {
 				command := "hostname"
 
 				output, errorOutput, exitCode, err := client.ExecuteCommand(connection, command)
 
 				if err != nil {
 
-					errors = append(errors, utils.ErrorHandler(constants.CONNECTION_ERROR, err.Error()))
+					errors = append(errors, utils2.ErrorHandler(ConnectionError, err.Error()))
 
 					logger.Error(fmt.Sprintf("Error occurred %v\n", err))
 
@@ -75,7 +82,7 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 
 				} else if exitCode != 0 {
 
-					errors = append(errors, utils.ErrorHandler(constants.COMMAND_ERROR, errorOutput))
+					errors = append(errors, utils2.ErrorHandler(CommandError, errorOutput))
 
 					logger.Error(fmt.Sprintf("Error occurred %v\n", errorOutput))
 
@@ -83,52 +90,43 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 
 				} else {
 
-					if id, ok := credential.(map[string]interface{})[constants.CREDENTIAL_ID]; ok {
+					if id, ok := credential.(map[string]interface{})[CredentialId]; ok {
 
-						context[constants.VALID_CREDENTIAL_ID] = id
+						context[ValidCredentialId] = id
 					}
-					result[constants.IP_ADDRESS] = context[constants.IP_ADDRESS]
+					result[IpAddress] = context[IpAddress]
 
-					result[constants.HOSTNAME] = strings.Trim(output, "\r\n")
+					result[Hostname] = strings.Trim(output, "\r\n")
 
 					break
 
 				}
-			} else {
-
-				errors = append(errors, utils.ErrorHandler(constants.CONNECTION_ERROR, err.Error()))
-
-				logger.Error(fmt.Sprintf("ERROR occurred %v", err))
-
-				continue
 			}
 
 		}
 		if len(result) > 0 {
 
-			context[constants.STATUS] = constants.SUCCESS
+			context[Status] = Success
 
 		} else {
 
-			context[constants.STATUS] = constants.FAIL
-
-			context[constants.VALID_CREDENTIAL_ID] = -1
+			context[Status] = Fail
 
 		}
-		context[constants.RESULT] = result
+		context[Result] = result
 
-		context[constants.ERROR] = errors
+		context[Error] = errors
 
 	}
 	channel <- context
+
+	return
 
 }
 
 func Collect(context map[string]interface{}, channel chan map[string]interface{}) {
 
-	logger := logger.NewLogger("plugins", "windows")
-
-	logger.Info("Inside the Collect method")
+	logger.Trace("Collector method has been called")
 
 	defer func() {
 
@@ -211,7 +209,7 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 	errors := make([]map[string]interface{}, 0)
 
-	internalChannel := make(chan map[string]interface{}, 6)
+	notification := make(chan map[string]interface{}, 6)
 
 	result := make(map[string]interface{})
 
@@ -235,13 +233,13 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 				logger.Error(fmt.Sprintf("Unable to create connection context: %v", err))
 
-				errors = append(errors, utils.ErrorHandler(constants.CONNECTION_ERROR, err.Error()))
+				errors = append(errors, utils2.ErrorHandler(ConnectionError, err.Error()))
 
-				response[constants.ERROR] = errors
+				response[Error] = errors
 
-				response[constants.RESULT] = make(map[string]interface{})
+				response[Result] = make(map[string]interface{})
 
-				internalChannel <- response
+				notification <- response
 
 				return
 			}
@@ -256,17 +254,17 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 				response := make(map[string]interface{})
 
-				logger.Error(fmt.Sprintf("ERROR while making connection for command %v\n", command))
+				logger.Error(fmt.Sprintf("Error while making connection for command %v\n", command))
 
-				err := utils.ErrorHandler(constants.CONNECTION_ERROR, err.Error())
+				err := utils2.ErrorHandler(ConnectionError, err.Error())
 
-				response[constants.ERROR] = err
+				response[Error] = err
 
-				response[constants.RESULT] = make(map[string]interface{})
+				response[Result] = make(map[string]interface{})
 
 				logger.Info(fmt.Sprintf("%v\n", context))
 
-				internalChannel <- response
+				notification <- response
 
 				return
 
@@ -276,15 +274,15 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 				response := make(map[string]interface{})
 
-				logger.Error(fmt.Sprintf("ERROR while making executing command %v\n", command))
+				logger.Error(fmt.Sprintf("Error while making executing command %v\n", command))
 
-				err := utils.ErrorHandler(constants.COMMAND_ERROR, errorOutput)
+				err := utils2.ErrorHandler(CommandError, errorOutput)
 
-				response[constants.ERROR] = err
+				response[Error] = err
 
-				response[constants.RESULT] = make(map[string]interface{})
+				response[Result] = make(map[string]interface{})
 
-				internalChannel <- response
+				notification <- response
 
 				return
 
@@ -317,7 +315,7 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 					metric[1] = strings.TrimSpace(metric[1])
 
-					if utils.MetricsMap[metric[0]] == "Count" {
+					if utils2.MetricsMap[metric[0]] == "Count" {
 
 						value, err := strconv.ParseFloat(metric[1], 64)
 
@@ -337,36 +335,40 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 				}
 
-				response[constants.RESULT] = result
+				response[Result] = result
 
-				response[constants.ERROR] = ""
+				response[Error] = ""
 
-				internalChannel <- response
+				notification <- response
 
 			}
 
-		}(command, internalChannel)
+			return
+
+		}(command, notification)
 
 	}
 
 	go func() {
 		wg.Wait()
 
-		close(internalChannel)
+		close(notification)
+
+		return
 	}()
 
 	for commandLength > 0 {
 
 		select {
 
-		case output := <-internalChannel:
+		case output := <-notification:
 
-			if output[constants.ERROR] != "" {
+			if output[Error] != "" {
 
-				errors = append(errors, output[constants.ERROR].(map[string]interface{}))
+				errors = append(errors, output[Error].(map[string]interface{}))
 			}
 
-			maps.Copy(result, output[constants.RESULT].(map[string]interface{}))
+			maps.Copy(result, output[Result].(map[string]interface{}))
 
 			commandLength--
 		}
@@ -374,19 +376,19 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 	if len(errors) > 0 {
 
-		context[constants.STATUS] = constants.FAIL
+		context[Status] = Fail
 
 	} else {
 
-		context[constants.STATUS] = constants.SUCCESS
+		context[Status] = Success
 
 	}
 
-	context[constants.TIMESTAMP] = time.Now().UnixMilli()
+	context[Timestamp] = time.Now().UnixMilli()
 
-	context[constants.RESULT] = result
+	context[Result] = result
 
-	context[constants.ERROR] = errors
+	context[Error] = errors
 
 	channel <- context
 
