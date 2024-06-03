@@ -63,6 +63,8 @@ func (client *WinRmClient) CreateConnection() (*winrm.Client, error) {
 		if err := recover(); err != nil {
 
 			logger.Fatal(fmt.Sprintf("%s", err))
+
+			client.error = append(client.error, fmt.Errorf("%v", err))
 		}
 	}()
 

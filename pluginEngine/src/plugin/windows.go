@@ -17,7 +17,7 @@ var logger = utils2.NewLogger("plugins", "windows")
 
 func Discovery(context map[string]interface{}, channel chan map[string]interface{}) {
 
-	errors := make([]map[string]interface{}, 0) // errors has value as map[string]interface{} and this map stores errorCode as well as errorMessage. errorCode are custom made
+	errors := make([]interface{}, 0) // errors store map[string]interface{} and this map stores errorCode as well as errorMessage. errorCode are custom made
 
 	result := make(map[string]interface{})
 
