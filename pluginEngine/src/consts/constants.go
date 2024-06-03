@@ -13,7 +13,7 @@ const (
 
 	RequestType = "request.type"
 
-	Discover = "discover"
+	Discover = "discovery"
 
 	Collector = "collect"
 

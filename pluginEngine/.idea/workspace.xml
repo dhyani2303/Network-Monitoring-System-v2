@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11072b6d-0123-4b0a-a636-7e9cd8baff88" name="Changes" comment="Made changes in the discovery function to return error on failure of discovery">
-      <change beforePath="$PROJECT_DIR$/src/plugin/windows.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/plugin/windows.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/consts/constants.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/consts/constants.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,6 +37,7 @@
     "DefaultGoTemplateProperty": "Go File",
     "Go Build.go build PluginEngine (1).executor": "Debug",
     "Go Build.go build PluginEngine.executor": "Run",
+    "Go Build.go build PluginEngine/src.executor": "Debug",
     "Go Build.go build bootstrap.go.executor": "Run",
     "Go Build.go build example.go.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -147,9 +149,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/utils/metrics.go</url>
-          <line>2</line>
-          <option name="timeStamp" value="4" />
+          <url>file://$PROJECT_DIR$/src/bootstrap.go</url>
+          <line>58</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
