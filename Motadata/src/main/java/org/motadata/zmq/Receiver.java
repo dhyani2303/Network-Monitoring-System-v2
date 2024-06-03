@@ -25,7 +25,7 @@ public class Receiver extends AbstractVerticle
 
             var socket = zContext.createSocket(SocketType.PULL);
 
-            socket.bind(Utils.configMap.get(Constants.ZMQ_RECEIVER_ADDRESS).toString());
+            socket.bind(config().getString("receiver.address"));
 
             eventBus.<String>localConsumer(Constants.RECEIVE_ADDRESS,handler->
             {
@@ -33,20 +33,28 @@ public class Receiver extends AbstractVerticle
                 {
                     var response = new JsonObject(new String(Base64.getDecoder().decode(handler.body())));
 
-                    if (response.getString(Constants.REQUEST_TYPE).equals(Constants.COLLECT))
+                    var requestType = response.getString(Constants.REQUEST_TYPE);
+
+                    if (requestType.equals(Constants.COLLECT))
                     {
                         eventBus.send(Constants.COLLECT_ADDRESS, response);
 
                         LOGGER.info("The request type is collect and message is sent over event bus " + response);
 
                     }
-                    else
+                    else if (requestType.equals(Constants.DISCOVERY))
                     {
                         eventBus.send(Constants.DISCOVERY_DATA_ADDRESS, response);
 
                         LOGGER.info("The request type is discovery and message is sent over event bus " + response);
 
                     }
+                    else if(requestType.equals("read.file"))
+                    {
+                        eventBus.send("read.data.address",response);
+
+                    }
+
                 }
 
 

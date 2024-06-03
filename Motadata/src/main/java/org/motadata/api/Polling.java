@@ -26,11 +26,15 @@ public class Polling
 
     private static final Provision provisionDatabase = Provision.getProvision();
 
+    private Vertx vertx;
+
 
     public void init(Vertx vertx)
     {
         try
         {
+            this.vertx = vertx;
+
             router = Router.router(vertx);
 
             router.route().handler(BodyHandler.create());
@@ -81,14 +85,13 @@ public class Polling
 
                   var result=  collectData(contextToSend);
 
-                  if (result!=null)
+                  if (result.containsKey(Constants.RESULT))
                   {
-
                       response.put(Constants.STATUS, Constants.SUCCESS);
 
                       response.put(Constants.ERROR_CODE, Constants.SUCCESS_CODE);
 
-                      response.put(Constants.RESULT, result);
+                      response.put(Constants.RESULT, result.getValue(Constants.RESULT));
 
                       context.response().setStatusCode(200).end(response.encodePrettily());
 
@@ -210,28 +213,40 @@ public class Polling
     {
         try
         {
-            var zContext = new ZContext();
+            context.put(Constants.REQUEST_TYPE,"read.file");
 
-            var socket = zContext.createSocket(SocketType.DEALER);
+            vertx.eventBus().send("db",Base64.getEncoder().encodeToString(context.encode().getBytes()));
 
-            socket.bind("tcp://localhost:5586");
+            vertx.eventBus().<JsonObject>localConsumer("read.data.address",handler->{
 
-            var encodedContext = Base64.getEncoder().encodeToString(context.encode().getBytes());
+                System.out.println(handler.body());
 
-            socket.send(encodedContext);
+                context.put(Constants.RESULT,handler.body());
 
-            var result = new JsonObject(new String(Base64.getDecoder().decode( socket.recv())));
-
-            socket.close();
-
-            return result;
+            });
+//            var zContext = new ZContext();
+//
+//            var socket = zContext.createSocket(SocketType.DEALER);
+//
+//            socket.bind("tcp://localhost:5586");
+//
+//            var encodedContext = Base64.getEncoder().encodeToString(context.encode().getBytes());
+//
+//            socket.send(encodedContext);
+//
+//            var result = new JsonObject(new String(Base64.getDecoder().decode( socket.recv())));
+//
+//            socket.close();
+//
+//            return result;
 
         }
         catch (Exception exception)
         {
         LOGGER.error("Some exception occurred inside the collect data method",exception);
         }
-        return null;
+
+        return context;
     }
 
 }

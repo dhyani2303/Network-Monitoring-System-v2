@@ -43,7 +43,7 @@ func (client *WinRmClient) SetContext(context map[string]interface{}) {
 
 	if _, ok := context[Port]; ok {
 
-		client.port = utils.ToFloat(context[Port])
+		client.port = utils.ToInt(context[Port])
 
 	}
 

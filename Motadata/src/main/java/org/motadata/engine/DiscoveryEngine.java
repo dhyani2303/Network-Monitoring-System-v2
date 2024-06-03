@@ -63,7 +63,7 @@ public class DiscoveryEngine extends AbstractVerticle
 
                     context.add(discoveryProfileDetails);
 
-                    vertx.eventBus().<JsonArray>send(Constants.SEND_ADDRESS, context);
+                    vertx.eventBus().<String >send("plugin",  Base64.getEncoder().encodeToString(context.encode().getBytes()));
 
                     vertx.eventBus().<JsonObject>localConsumer(Constants.DISCOVERY_DATA_ADDRESS, readHandler ->
                     {

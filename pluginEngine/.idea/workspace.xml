@@ -5,8 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11072b6d-0123-4b0a-a636-7e9cd8baff88" name="Changes" comment="Made changes in the discovery function to return error on failure of discovery">
+      <change afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/utils/FileUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/ReadFile.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/WriteFile.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/utils/Push.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/utils/Push.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/Bootstrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/Bootstrap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/DiscoveryEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/DiscoveryEngine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/zmq/Receiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/zmq/Receiver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/zmq/Sender.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/zmq/Sender.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/consts/constants.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/consts/constants.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client/winrm.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/winrm.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/datatypes.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/datatypes.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +47,7 @@
     "DefaultGoTemplateProperty": "Go File",
     "Go Build.go build PluginEngine (1).executor": "Debug",
     "Go Build.go build PluginEngine.executor": "Run",
-    "Go Build.go build PluginEngine/src.executor": "Debug",
+    "Go Build.go build PluginEngine/src.executor": "Run",
     "Go Build.go build bootstrap.go.executor": "Run",
     "Go Build.go build example.go.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",

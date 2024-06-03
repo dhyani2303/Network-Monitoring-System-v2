@@ -2,7 +2,9 @@ package org.motadata.zmq;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.motadata.constants.Constants;
 import org.motadata.util.ProcessUtil;
 import org.motadata.util.Utils;
@@ -26,13 +28,15 @@ public class Sender extends AbstractVerticle
 
             var socket = zContext.createSocket(SocketType.PUSH);
 
-            socket.bind(Utils.configMap.get(Constants.ZMQ_SENDER_ADDRESS).toString());
+            socket.bind(config().getString("sender.address"));
 
-            eventBus.<JsonArray>localConsumer(Constants.SEND_ADDRESS, handler->{
+            eventBus.<String>localConsumer(config().getString("event.type"), handler->{
 
-                String encodedContext = Base64.getEncoder().encodeToString(handler.body().toString().getBytes());
+                new Thread(()->{
 
-                socket.send(encodedContext);
+                    socket.send(handler.body());
+
+                }).start();
 
             });
 

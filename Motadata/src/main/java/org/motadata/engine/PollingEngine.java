@@ -31,11 +31,11 @@ public class PollingEngine extends AbstractVerticle
         {
             var pollTime = Long.parseLong(Utils.configMap.get(Constants.POLL_TIME).toString());
 
-            var zContext = new ZContext();
-
-            var socket = zContext.createSocket(SocketType.PUSH);
-
-            socket.bind(Utils.configMap.get(Constants.ZMQ_ADDRESS).toString());
+//            var zContext = new ZContext();
+//
+//            var socket = zContext.createSocket(SocketType.PUSH);
+//
+//            socket.bind(Utils.configMap.get(Constants.ZMQ_ADDRESS).toString());
 
             vertx.setPeriodic(pollTime, handler ->
             {
@@ -65,12 +65,15 @@ public class PollingEngine extends AbstractVerticle
 
                                         context.add(entries);
 
-                                        vertx.eventBus().send(Constants.SEND_ADDRESS,context);
+                                        vertx.eventBus().send("plugin",Base64.getEncoder().encodeToString(context.encode().getBytes()));
 
                                         vertx.eventBus().<JsonObject>localConsumer(Constants.COLLECT_ADDRESS,fetchHandler->
                                         {
-                                            System.out.println("Data" +fetchHandler.body());
-                                            socket.send(Base64.getEncoder().encodeToString(fetchHandler.body().encode().getBytes()));
+                                          //  socket.send(Base64.getEncoder().encodeToString(fetchHandler.body().encode().getBytes()));
+
+                                            fetchHandler.body().put(Constants.REQUEST_TYPE,"write.file");
+
+                                            vertx.eventBus().send("db",Base64.getEncoder().encodeToString(fetchHandler.body().encode().getBytes()));
 
                                             LOGGER.trace("Content has been sent over zmq {}", fetchHandler.body());
 

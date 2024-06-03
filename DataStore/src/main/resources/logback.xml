@@ -14,23 +14,15 @@
         </encoder>
     </appender>
 
-    <appender name="ReadFile_LOGS" class="ch.qos.logback.core.FileAppender">
-        <file>logs/readFile.log</file>
+    <appender name="FileUtil_LOGS" class="ch.qos.logback.core.FileAppender">
+        <file>logs/fileUtil.log</file>
         <encoder>
             <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
         </encoder>
     </appender>
-
 
     <appender name="MAIN_LOGS" class="ch.qos.logback.core.FileAppender">
         <file>logs/main.log</file>
-        <encoder>
-            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <appender name="WriteFile_LOGS" class="ch.qos.logback.core.FileAppender">
-        <file>logs/writeFile.log</file>
         <encoder>
             <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%file:%line] %msg%n</pattern>
         </encoder>
@@ -49,11 +41,8 @@
         <appender-ref ref="MAIN_LOGS" />
     </logger>
 
-    <logger name="org.polleddatastore.ReadFile" level="TRACE" additivity="false">
-        <appender-ref ref="ReadFile_LOGS" />
-    </logger>
-    <logger name="org.polleddatastore.WriteFile" level="TRACE" additivity="false">
-        <appender-ref ref="WriteFile_LOGS" />
+    <logger name="org.polleddatastore.utils.FileUtil" level="TRACE" additivity="false">
+        <appender-ref ref="FileUtil_LOGS" />
     </logger>
 
 

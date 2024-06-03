@@ -43,7 +43,7 @@ func ToString(data interface{}) string {
 	return ""
 }
 
-func ToFloat(data interface{}) int {
+func ToInt(data interface{}) int {
 
 	defer func() {
 
