@@ -3,30 +3,27 @@ package org.motadata.api;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServerOptions;
+import org.motadata.util.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.vertx.ext.web.Router;
-
-import org.motadata.util.Utils;
 import org.motadata.constants.Constants;
 
 
-public class APIServer extends AbstractVerticle
+public  class APIServer extends AbstractVerticle
 {
-
     public static final Logger LOGGER = LoggerFactory.getLogger(APIServer.class);
 
     @Override
     public void start(Promise<Void> promise)
     {
-
         try
         {
             LOGGER.info("API server has been started");
 
-            var port = Integer.parseInt(Utils.configMap.get(Constants.HTTP_PORT).toString());
+            var port = Config.getPort();
 
-            var host = Utils.configMap.get(Constants.HTTP_HOST).toString();
+            var host = Config.getHost();
 
             var httpServerOptions = new HttpServerOptions().setPort(port).setHost(host);
 
@@ -41,14 +38,6 @@ public class APIServer extends AbstractVerticle
             var provision = new Provision();
 
             var polling = new Polling();
-
-            credential.init(vertx);
-
-            discovery.init(vertx);
-
-            provision.init(vertx);
-
-            polling.init(vertx);
 
             router.route(Constants.CREDENTIAL_API).subRouter(credential.getRouter());
 
@@ -76,14 +65,17 @@ public class APIServer extends AbstractVerticle
 
     public void stop(Promise<Void> promise)
     {
-
         try
         {
             promise.complete();
+
+            LOGGER.info("stop method is called");
         }
         catch (Exception exception)
         {
             LOGGER.error("Some exception occurred", exception);
+
+            promise.fail(exception);
 
         }
     }

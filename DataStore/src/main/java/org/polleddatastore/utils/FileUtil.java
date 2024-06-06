@@ -63,6 +63,7 @@ public class FileUtil
                         }
 
                         context.put("result",response);
+
                         eventBus.send(Constants.READ_ADDRESS, Base64.getEncoder().encodeToString(context.encodePrettily().getBytes()));
 
                         LOGGER.trace("Content has been sent over event bus");

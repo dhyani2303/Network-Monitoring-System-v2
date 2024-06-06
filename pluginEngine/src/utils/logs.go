@@ -18,7 +18,7 @@ type Logger struct {
 	component string
 }
 
-var logLevel = 2
+var logLevel = 0
 
 func NewLogger(directory, component string) Logger {
 

@@ -2,13 +2,10 @@
   "http.host": "localhost",
   "http.port": 8000,
   "poll.time":60000,
-  "batch.size": 5,
   "process.timeout": 40,
-  "plugin.path": "/home/dhyani/Documents/Network-Monitoring-System-v2/Motadata/pluginEngine/PluginEngine",
-  "result.path": "/home/dhyani/Documents/Network-Monitoring-System-v2/Motadata/result/",
-  "zmq.address": "tcp://localhost:5585",
   "data.default.time" : "1585679400000",
-  "zmq.sender.address" : "tcp://localhost:5587",
-  "zmq.receiver.address" : "tcp://localhost:5588"
-
+  "zmq.plugin.sender.address" : "tcp://localhost:5587",
+  "zmq.plugin.receiver.address" : "tcp://localhost:5588",
+  "zmq.db.sender.address": "tcp://localhost:5585",
+  "zmq.db.receiver.address": "tcp://localhost:5586"
 }

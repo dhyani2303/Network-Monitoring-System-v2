@@ -1,14 +1,14 @@
 package org.motadata.api;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import org.motadata.Bootstrap;
 import org.motadata.database.Credential;
 import org.motadata.constants.Constants;
 import org.motadata.database.Discovery;
-import org.motadata.util.Handler;
+import org.motadata.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,20 +22,13 @@ public class Provision {
 
     private static final Credential credentialDatabase = Credential.getCredential();
 
-    private Router router;
+    private final Router router;
 
-    public void init(Vertx vertx)
+    public Provision()
     {
-        try
-        {
-            router = Router.router(vertx);
+        router = Router.router(Bootstrap.getVertx());
 
-            router.route().handler(BodyHandler.create());
-        }
-        catch (Exception exception)
-        {
-            LOGGER.error("Some exception occurred in init method",exception);
-        }
+        router.route().handler(BodyHandler.create());
     }
 
     public Router getRouter()
@@ -55,7 +48,6 @@ public class Provision {
 
         }
         return router;
-
     }
 
     private void provisionDevice(RoutingContext context)
@@ -85,7 +77,7 @@ public class Provision {
 
                           if (discoveryProfile.getString(Constants.IP_ADDRESS).equals(JsonObject.mapFrom(provisionDevice).getString(Constants.IP_ADDRESS)))
                           {
-                              response = Handler.errorHandler("Already Provisioned", "The device with the given ip address is already provisioned", Constants.ALREADY_PROVISION);
+                              response = Utils.errorHandler("Already Provisioned", "The device with the given ip address is already provisioned", Constants.ALREADY_PROVISION);
 
                               response.put(Constants.IP_ADDRESS, discoveryProfile.getValue(Constants.IP_ADDRESS));
 
@@ -112,7 +104,7 @@ public class Provision {
                   }
                   else
                   {
-                      response = Handler.errorHandler("Missing credential profile","Credential profile is already deleted",Constants.PROVISION_ERROR);
+                      response = Utils.errorHandler("Missing credential profile","Credential profile is already deleted",Constants.PROVISION_ERROR);
 
                       context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -121,7 +113,7 @@ public class Provision {
               }
               else
               {
-                  response = Handler.errorHandler("Not yet Discovered","Device is not yet discovered",Constants.PROVISION_ERROR);
+                  response = Utils.errorHandler("Not yet Discovered","Device is not yet discovered",Constants.PROVISION_ERROR);
 
                   context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -130,7 +122,7 @@ public class Provision {
            }
            else
            {
-               response = Handler.errorHandler("Invalid discovery Id","Discovery ID is invalid",Constants.INVALID_DISCOVERY_ID);
+               response = Utils.errorHandler("Invalid discovery Id","Discovery ID is invalid",Constants.INVALID_DISCOVERY_ID);
 
                LOGGER.info("Provision request served with response {} ",response);
 
@@ -140,7 +132,7 @@ public class Provision {
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             LOGGER.error("Some exception has occurred while provisioning the device",exception);
 
@@ -175,7 +167,7 @@ public class Provision {
         catch (Exception exception)
         {
 
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             LOGGER.error("Some exception has occurred while getting  the provisioned device data",exception);
 
@@ -206,7 +198,7 @@ public class Provision {
                 }
                 else
                 {
-                    response = Handler.errorHandler("Failure in Deletion","Some error occurred while deleting the provisioned device",Constants.PROVISION_ERROR);
+                    response = Utils.errorHandler("Failure in Deletion","Some error occurred while deleting the provisioned device",Constants.PROVISION_ERROR);
 
                     context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -215,7 +207,7 @@ public class Provision {
             }
             else
             {
-                response = Handler.errorHandler("Invalid Provision Id","Provision id does not exist",Constants.PROVISION_ERROR);
+                response = Utils.errorHandler("Invalid Provision Id","Provision id does not exist",Constants.PROVISION_ERROR);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -224,7 +216,7 @@ public class Provision {
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             LOGGER.error("Some exception has occurred while unprovisioning the device",exception);
 

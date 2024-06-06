@@ -15,7 +15,7 @@ import (
 
 var logger = utils2.NewLogger("plugins", "windows")
 
-func Discovery(context map[string]interface{}, channel chan map[string]interface{}) {
+func Discovery(context map[string]interface{}, channel chan string) {
 
 	errors := make([]map[string]interface{}, 0) // errors slice store map[string]interface{} and this map stores errorCode as well as errorMessage. errorCode are custom made
 
@@ -118,13 +118,24 @@ func Discovery(context map[string]interface{}, channel chan map[string]interface
 		context[Error] = errors
 
 	}
-	channel <- context
+	encodedResult, err := utils2.Encode(context)
+
+	if err != nil {
+
+		logger.Fatal(fmt.Sprintf("Some error occurred while encoding in discovery method %v\n", err))
+
+		return
+	}
+
+	channel <- encodedResult
+
+	logger.Trace(fmt.Sprintf("Message has been sent over the channel in discovery method %v\n", encodedResult))
 
 	return
 
 }
 
-func Collect(context map[string]interface{}, channel chan map[string]interface{}) {
+func Collect(context map[string]interface{}, channel chan string) {
 
 	logger.Trace("Collector method has been called")
 
@@ -135,7 +146,7 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 			logger.Fatal(fmt.Sprintf("Some panic occurred %v\n", err))
 
 		}
-
+		return
 	}()
 
 	cpuMetrics := "(Get-Counter -Counter \"\\Processor(_total)\\% Idle Time\") | Select-Object -ExpandProperty CounterSamples |  Select-Object @{Name='system.cpu.idle.percent';Expression={($_.CookedValue)}} | fl;" +
@@ -246,7 +257,7 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 			defer wg.Done()
 
-			logger.Info(fmt.Sprintf("Executing command with command name : %v", command))
+			logger.Trace(fmt.Sprintf("Executing command with command name : %v", command))
 
 			output, errorOutput, exitCode, err := client.ExecuteCommand(connection, command)
 
@@ -261,8 +272,6 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 				response[Error] = err
 
 				response[Result] = make(map[string]interface{})
-
-				logger.Info(fmt.Sprintf("%v\n", context))
 
 				notification <- response
 
@@ -349,13 +358,9 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 	}
 
-	go func() {
-		wg.Wait()
+	wg.Wait()
 
-		close(notification)
-
-		return
-	}()
+	close(notification)
 
 	for commandLength > 0 {
 
@@ -390,7 +395,18 @@ func Collect(context map[string]interface{}, channel chan map[string]interface{}
 
 	context[Error] = errors
 
-	channel <- context
+	encodedResult, err := utils2.Encode(context)
+
+	if err != nil {
+
+		logger.Fatal(fmt.Sprintf("Some error occurred while encoding in collect method %v\n", err))
+
+		return
+	}
+
+	logger.Trace(fmt.Sprintf("Message has been sent over the channel from collect method %v\n", encodedResult))
+
+	channel <- encodedResult
 
 	return
 }

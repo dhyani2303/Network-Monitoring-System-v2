@@ -43,29 +43,6 @@ public class Main
                     {
                         LOGGER.info("Configuration has been set");
 
-//                    vertx.deployVerticle(WriteFile.class.getName()).onComplete(handler->{
-//
-//                        if (handler.succeeded())
-//                        {
-//                            LOGGER.info("Write file verticle has been deployed successfully");
-//                        }
-//                        else
-//                        {
-//                            LOGGER.warn("Unable to deploy write file verticle");
-//                        }
-//                    });
-//
-//                    vertx.deployVerticle(ReadFile.class.getName()).onComplete(readHandler->{
-//
-//                        if (readHandler.succeeded())
-//                        {
-//                            LOGGER.info("Read file verticle has been deployed successfully");
-//                        }
-//                        else
-//                        {
-//                            LOGGER.warn("Failed to deploy the read file verticle");
-//                        }
-//                    })
                         eventBus.localConsumer(Constants.WRITE_ADDRESS, handler ->
                         {
                             try

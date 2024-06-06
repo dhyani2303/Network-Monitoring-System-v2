@@ -1,14 +1,13 @@
 package org.motadata.api;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import org.motadata.Bootstrap;
 import org.motadata.database.Credential;
 import org.motadata.constants.Constants;
-import org.motadata.util.Handler;
 import org.motadata.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,24 +21,17 @@ public class Discovery
 
     public static final Logger LOGGER = LoggerFactory.getLogger(Discovery.class);
 
-    private Router router;
+    private final Router router;
 
-    private EventBus eventBus;
+    private final EventBus eventBus;
 
-    public void init(Vertx vertx)
+    public Discovery()
     {
-        try
-        {
-            router = Router.router(vertx);
+        router = Router.router(Bootstrap.getVertx());
 
-            router.route().handler(BodyHandler.create());
+        router.route().handler(BodyHandler.create());
 
-            eventBus = vertx.eventBus();
-        }
-        catch (Exception exception)
-        {
-            LOGGER.error("Some exception has occurred in init method",exception);
-        }
+        eventBus = Bootstrap.getVertx().eventBus();
     }
 
     public Router getRouter()
@@ -79,7 +71,7 @@ public class Discovery
         {
             if (data.isEmpty())
             {
-                response = Handler.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
+                response = Utils.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
 
                 LOGGER.warn("Post request  has been served for {} with result {}", Constants.DISCOVERY_API + Constants.ROUTE_PATH, response);
 
@@ -100,7 +92,7 @@ public class Discovery
                         {
                             if (!credentialDatabase.verify(Long.parseLong(credentialId.toString())))
                             {
-                                response = Handler.errorHandler("Wrong Credentials", "One of the credential Id is incorrect", Constants.INCORRECT_DISCOVERY);
+                                response = Utils.errorHandler("Wrong Credentials", "One of the credential Id is incorrect", Constants.INCORRECT_DISCOVERY);
 
                                 LOGGER.warn("Creation of discovery profile failed because one of the credential Id is incorrect");
 
@@ -129,7 +121,7 @@ public class Discovery
                     }
                     else
                     {
-                        response = Handler.errorHandler("Duplicate Discovery Name", "Discovery profile with the name already exists", Constants.DUPLICATE_DISCOVERY_NAME);
+                        response = Utils.errorHandler("Duplicate Discovery Name", "Discovery profile with the name already exists", Constants.DUPLICATE_DISCOVERY_NAME);
 
                         context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -138,7 +130,7 @@ public class Discovery
                 }
                 else
                 {
-                    response = Handler.errorHandler("Invalid Context", "Some parameters are empty of missing", Constants.INCORRECT_DISCOVERY);
+                    response = Utils.errorHandler("Invalid Context", "Some parameters are empty of missing", Constants.INCORRECT_DISCOVERY);
 
                     context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -150,7 +142,7 @@ public class Discovery
         catch(Exception exception)
         {
 
-        response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+        response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
         context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -192,7 +184,7 @@ public class Discovery
             }
             else
             {
-                response = Handler.errorHandler("Failure", "Failed to get the credential profiles", Constants.EXCEPTION);
+                response = Utils.errorHandler("Failure", "Failed to get the credential profiles", Constants.EXCEPTION);
 
                 LOGGER.error("Some exception might have occurred while fetching the data as the result is null");
 
@@ -201,7 +193,7 @@ public class Discovery
             }
         } catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -237,7 +229,7 @@ public class Discovery
 
                 } else
                 {
-                    response = Handler.errorHandler("Failure", "Failed to get the discovery profile", Constants.EXCEPTION);
+                    response = Utils.errorHandler("Failure", "Failed to get the discovery profile", Constants.EXCEPTION);
 
                     LOGGER.error("Some exception might have occurred while fetching the data as the result is null");
 
@@ -246,7 +238,7 @@ public class Discovery
             }
             else
             {
-                response = Handler.errorHandler("Invalid ID", "Id does not exist", Constants.INVALID_DISCOVERY_ID);
+                response = Utils.errorHandler("Invalid ID", "Id does not exist", Constants.INVALID_DISCOVERY_ID);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -255,7 +247,7 @@ public class Discovery
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -281,7 +273,7 @@ public class Discovery
         {
             if (data.isEmpty())
             {
-                response = Handler.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
+                response = Utils.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -305,7 +297,7 @@ public class Discovery
                 }
                 else
                 {
-                    response = Handler.errorHandler("Invalid discovery id", "Discovery id is invalid", Constants.INVALID_DISCOVERY_ID);
+                    response = Utils.errorHandler("Invalid discovery id", "Discovery id is invalid", Constants.INVALID_DISCOVERY_ID);
 
                     context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -316,7 +308,7 @@ public class Discovery
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -354,7 +346,7 @@ public class Discovery
                 }
                 else
                 {
-                    response = Handler.errorHandler("Already discovered","Device is already discovered",Constants.ALREADY_DISCOVERED);
+                    response = Utils.errorHandler("Already discovered","Device is already discovered",Constants.ALREADY_DISCOVERED);
 
                     context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -363,7 +355,7 @@ public class Discovery
             }
             else
             {
-                response = Handler.errorHandler("Invalid discovery id","Discovery Id does not exist",Constants.INCORRECT_DISCOVERY);
+                response = Utils.errorHandler("Invalid discovery id","Discovery Id does not exist",Constants.INCORRECT_DISCOVERY);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -374,7 +366,7 @@ public class Discovery
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -411,7 +403,7 @@ public class Discovery
                 }
                 else
                 {
-                   response= Handler.errorHandler("Failed Discovery","Failed to run discovery",Constants.FAILED_DISCOVERY);
+                   response= Utils.errorHandler("Failed Discovery","Failed to run discovery",Constants.FAILED_DISCOVERY);
 
                    context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -421,7 +413,7 @@ public class Discovery
             }
             else
             {
-                response = Handler.errorHandler("Invalid discovery id","Discovery id does not exist",Constants.INVALID_DISCOVERY_ID);
+                response = Utils.errorHandler("Invalid discovery id","Discovery id does not exist",Constants.INVALID_DISCOVERY_ID);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -432,7 +424,7 @@ public class Discovery
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -463,7 +455,7 @@ public class Discovery
                 }
                 else
                 {
-                    response = Handler.errorHandler("Failed Deletion","Failed to delete discovery id",Constants.FAILED_DISCOVERY);
+                    response = Utils.errorHandler("Failed Deletion","Failed to delete discovery id",Constants.FAILED_DISCOVERY);
 
                     context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -472,7 +464,7 @@ public class Discovery
             }
             else
             {
-                response = Handler.errorHandler("Invalid Discovery ID","Discovery ID does not exist",Constants.INVALID_DISCOVERY_ID);
+                response = Utils.errorHandler("Invalid Discovery ID","Discovery ID does not exist",Constants.INVALID_DISCOVERY_ID);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -482,7 +474,7 @@ public class Discovery
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(200).end(response.encodePrettily());
 

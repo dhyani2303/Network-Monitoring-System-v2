@@ -5,12 +5,15 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.motadata.api.APIServer;
+import org.motadata.constants.Constants;
 import org.motadata.engine.DiscoveryEngine;
 import org.motadata.engine.PollingEngine;
-import org.motadata.util.Utils;
+import org.motadata.util.Config;
 import org.motadata.zmq.Receiver;
 import org.motadata.zmq.Sender;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 public class Bootstrap
 {
@@ -18,7 +21,6 @@ public class Bootstrap
 
     public static Vertx getVertx()
     {
-
         return vertx;
     }
 
@@ -27,63 +29,87 @@ public class Bootstrap
 
         var LOGGER = LoggerFactory.getLogger(Bootstrap.class);
 
-        var pluginEngineSender = new JsonObject().put("sender.address","tcp://localhost:5587").put("event.type","plugin");
-
-        var pluginEngineReceiver = new JsonObject().put("receiver.address","tcp://localhost:5588").put("event.type","plugin");
-
-        var fileWriteSender = new JsonObject().put("sender.address","tcp://localhost:5585").put("event.type","db");
-
-        var fileReadReceiver = new JsonObject().put("receiver.address","tcp://localhost:5586").put("event.type","db");
-
+        var deploymentIds = new ArrayList<String>();
 
         try
         {
-            Utils.setConfig(vertx).onComplete(configHandler ->
+            Config.setConfig().onComplete(configHandler ->
+            {
+                var pluginEngineSender = new JsonObject().put(Constants.SENDER_ADDRESS, Config.getZMQPluginSenderAddress()).put(Constants.EVENT_TYPE, Constants.PLUGIN);
 
-                    vertx.deployVerticle(APIServer.class.getName()).onComplete(handler ->
-                    {
+                var pluginEngineReceiver = new JsonObject().put(Constants.RECEIVER_ADDRESS, Config.getZMQPluginReceiverAddress()).put(Constants.EVENT_TYPE, Constants.PLUGIN);
 
-                        LOGGER.info("API server has been deployed");
+                var fileWriteSender = new JsonObject().put(Constants.SENDER_ADDRESS, Config.getZMQDBSenderAddress()).put(Constants.EVENT_TYPE, Constants.DB);
 
-                        vertx.deployVerticle(DiscoveryEngine.class.getName()).onComplete(discoveryEngineHandler ->
-                                {
+                var fileReadReceiver = new JsonObject().put(Constants.RECEIVER_ADDRESS, Config.getZMQDBReceiverAddress()).put(Constants.EVENT_TYPE, Constants.DB);
 
-                                    LOGGER.info("Discovery Engine has been deployed");
+                vertx.deployVerticle(APIServer.class.getName()).onComplete(handler ->
+                        {
+                            LOGGER.info("API server has been deployed");
 
-                                    vertx.deployVerticle(PollingEngine.class.getName()).onComplete(pollingEngineHandler ->
+                            deploymentIds.add(handler.result());
+
+                            vertx.deployVerticle(DiscoveryEngine.class.getName()).onComplete(discoveryEngineHandler ->
                                     {
-                                        LOGGER.info("Polling Engine has been deployed");
+                                        LOGGER.info("Discovery Engine has been deployed");
 
-                                        vertx.deployVerticle(Sender.class.getName(),new DeploymentOptions().setConfig(pluginEngineSender)).onComplete(senderHandler ->
+                                        deploymentIds.add(discoveryEngineHandler.result());
+
+                                        vertx.deployVerticle(PollingEngine.class.getName()).onComplete(pollingEngineHandler ->
                                         {
+                                            LOGGER.info("Polling Engine has been deployed");
 
-                                            LOGGER.info("Sender verticle has been deployed");
+                                            deploymentIds.add(pollingEngineHandler.result());
 
-                                            vertx.deployVerticle(Receiver.class.getName(), new DeploymentOptions().setConfig(pluginEngineReceiver),receiverHandler ->
+                                            vertx.deployVerticle(Sender.class.getName(), new DeploymentOptions().setConfig(pluginEngineSender)).onComplete(senderHandler ->
                                             {
 
-                                                LOGGER.info("Receiver verticle has been deployed");
+                                                LOGGER.info("Sender verticle has been deployed");
+
+                                                deploymentIds.add(senderHandler.result());
+
+                                                vertx.deployVerticle(Receiver.class.getName(), new DeploymentOptions().setConfig(pluginEngineReceiver), receiverHandler ->
+                                                {
+
+                                                    LOGGER.info("Receiver verticle has been deployed");
+
+                                                    deploymentIds.add(receiverHandler.result());
+
+                                                });
                                             });
+
+                                            vertx.deployVerticle(Sender.class.getName(), new DeploymentOptions().setConfig(fileWriteSender)).onComplete(sendHandler ->
+                                            {
+
+                                                LOGGER.info("Another sender handler has been deployed");
+
+                                                deploymentIds.add(sendHandler.result());
+
+                                                vertx.deployVerticle(Receiver.class.getName(), new DeploymentOptions().setConfig(fileReadReceiver)).onComplete(receiveHandler ->
+                                                {
+                                                    LOGGER.info("Another receiver handler has been deployed");
+
+                                                    deploymentIds.add(receiveHandler.result());
+
+                                                });
+                                            });
+
                                         });
 
-                                        vertx.deployVerticle(Sender.class.getName(),new DeploymentOptions().setConfig(fileWriteSender)).onComplete(sendHandler->{
+                                    }
+                            );
 
-                                            LOGGER.info("Another sender handler has been deployed");
+                        }
 
-                                            vertx.deployVerticle(Receiver.class.getName(),new DeploymentOptions().setConfig(fileReadReceiver)).onComplete(receiveHandler->{
+                );
+            });
 
-                                                LOGGER.info("Another receiver handler has been deployed");
-                                            });
-                                        });
+            Runtime.getRuntime().addShutdownHook(new Thread(() ->
 
-                                    });
-
-                                }
-                        );
-
-                    }
-                    ));
+                    deploymentIds.forEach(vertx::undeploy)
+            ));
         }
+
         catch (Exception exception)
         {
             LOGGER.error("Some exception occurred", exception);

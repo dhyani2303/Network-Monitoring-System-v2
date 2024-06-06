@@ -88,23 +88,31 @@ public class Constants {
 
     public static final String DATA_DEFAULT_TIME = "data.default.time";
 
-    public static final String ZMQ_ADDRESS = "zmq.address";
-
-    public static final String ZMQ_SENDER_ADDRESS = "zmq.sender.address";
-
-    public static final String ZMQ_RECEIVER_ADDRESS = "zmq.receiver.address";
-
-     public static final String SEND_ADDRESS = "data.send.address";
-
      public static final String RECEIVE_ADDRESS = "data.receive.address";
 
      public static final String COLLECT_ADDRESS = "collect.address";
 
      public static final String DISCOVERY_DATA_ADDRESS = "discovery.data.address";
 
-    public static final String SEPERATOR = "||@@||";
+     public static final String SENDER_ADDRESS = "sender.address";
 
-    public static final String REGEX_SEPERATOR = "\\|\\|@@\\|\\|";
+     public static final String ZMQ_PLUGIN_SENDER_ADDRESS =  "zmq.plugin.sender.address";
+
+     public static final String ZMQ_DB_SENDER_ADDRESS =  "zmq.db.sender.address";
+
+     public static final String ZMQ_PLUGIN_RECEIVER_ADDRESS =  "zmq.plugin.receiver.address";
+
+     public static final String ZMQ_DB_RECEIVER_ADDRESS =  "zmq.db.receiver.address";
+
+     public static final String RECEIVER_ADDRESS = "receiver.address";
+
+     public static final String EVENT_TYPE = "event.type";
+
+     public static final String READ_FILE = "read.file";
+
+     public static final String PLUGIN = "plugin";
+
+     public static final String DB= "db";
 
     //Error code
     public static final String INCORRECT_CREDENTIAL ="CREDENTIAL001";

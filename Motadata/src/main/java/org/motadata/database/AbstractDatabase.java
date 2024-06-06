@@ -30,12 +30,12 @@ public abstract class AbstractDatabase
             {
                 value.put(Constants.ID, key);
 
-                result.add(value);
+                result.add(value.copy());
             });
 
             LOGGER.info("Get all the data has been served");
 
-            return result.copy();
+            return result;
         }
         catch (Exception exception)
         {

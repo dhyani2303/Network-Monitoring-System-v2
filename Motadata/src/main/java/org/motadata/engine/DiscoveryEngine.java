@@ -16,7 +16,6 @@ import java.util.Base64;
 
 public class DiscoveryEngine extends AbstractVerticle
 {
-
     public static final Discovery discoveryDatabase = Discovery.getDiscovery();
 
     public static final Credential credentialDatabase = Credential.getCredential();
@@ -63,7 +62,7 @@ public class DiscoveryEngine extends AbstractVerticle
 
                     context.add(discoveryProfileDetails);
 
-                    vertx.eventBus().<String >send("plugin",  Base64.getEncoder().encodeToString(context.encode().getBytes()));
+                    vertx.eventBus().send("plugin",  Base64.getEncoder().encodeToString(context.encode().getBytes()));
 
                     vertx.eventBus().<JsonObject>localConsumer(Constants.DISCOVERY_DATA_ADDRESS, readHandler ->
                     {
@@ -100,58 +99,6 @@ public class DiscoveryEngine extends AbstractVerticle
                     LOGGER.warn("Check availability method failed {}", handler.cause().toString());
                 }
             });
-
-//                    ProcessUtil.spawnPluginEngine(context).onComplete(pluginHandler->{
-//
-//                        if (pluginHandler.succeeded())
-//                        {
-//                            var outputs = pluginHandler.result();
-//
-//                            for (var output : outputs)
-//                            {
-//                                if (output!=null && !output.trim().isEmpty())
-//                                {
-//                                     var contextResult = new JsonObject(new String(Base64.getDecoder().decode(output)));
-//
-//                                    if (contextResult.getString(Constants.STATUS).equals(Constants.SUCCESS))
-//                                    {
-//                                        contextResult.remove(Constants.CREDENTIAL_PROFILES);
-//
-//                                        contextResult.remove(Constants.ERROR);
-//
-//                                        contextResult.remove(Constants.STATUS);
-//
-//                                        contextResult.remove(Constants.RESULT);
-//
-//                                        contextResult.remove(Constants.REQUEST_TYPE);
-//
-//                                        contextResult.put(Constants.IS_DISCOVERED,true);
-//
-//                                        discoveryDatabase.update(contextResult, Long.parseLong(discoveryProfileDetails.getValue(Constants.ID).toString()));
-//
-//                                        LOGGER.info("Discovery ran successfully for id {}", discoveryProfileDetails.getValue(Constants.ID));
-//                                    }
-//                                    else
-//                                    {
-//                                        LOGGER.info("Discovery failed  for the id {} errors found are {}: ", discoveryProfileDetails.getValue(Constants.ID),contextResult.getJsonArray(Constants.ERROR));
-//                                    }
-//
-//
-//                                }
-//                                else
-//                                {
-//                                    LOGGER.warn("The output after splitting is null");
-//                                }
-//
-//                            }
-//
-//                        }
-//                        else
-//                        {
-//                            LOGGER.warn("Failure occurred in spawn plugin engine method {}",pluginHandler.cause().toString());
-//                        }
-//
-//                    });
         }
         catch (Exception exception)
         {
@@ -163,6 +110,19 @@ public class DiscoveryEngine extends AbstractVerticle
 
     public void stop(Promise<Void> promise)
     {
-        promise.complete();
+        try
+        {
+            promise.complete();
+
+            LOGGER.info("stop method is called");
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error("Some exception occurred", exception);
+
+            promise.fail(exception);
+
+        }
+
     }
 }

@@ -5,18 +5,33 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11072b6d-0123-4b0a-a636-7e9cd8baff88" name="Changes" comment="Made changes in the discovery function to return error on failure of discovery">
-      <change afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/utils/FileUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/ReadFile.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/WriteFile.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/utils/Push.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/utils/Push.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/util/Config.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/example.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/utils/FileUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/utils/FileUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DataStore/src/main/java/org/polleddatastore/utils/Push.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/config/configuration.json" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/config/configuration.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/Bootstrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/Bootstrap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/APIServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/APIServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/Credential.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/Credential.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/Discovery.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/Discovery.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/Polling.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/Polling.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/Provision.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/api/Provision.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/constants/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/constants/Constants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/database/AbstractDatabase.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/database/AbstractDatabase.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/DiscoveryEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/DiscoveryEngine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/PollingEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/engine/PollingEngine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/example.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/util/Handler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/util/ProcessUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/util/ProcessUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/util/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/util/Utils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/zmq/Receiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/zmq/Receiver.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/zmq/Sender.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/java/org/motadata/zmq/Sender.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Motadata/src/main/resources/logback.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Motadata/src/main/resources/logback.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/winrm.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/winrm.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/datatypes.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/datatypes.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bootstrap.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/bootstrap.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/plugin/windows.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/plugin/windows.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/logs.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/logs.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -154,16 +169,5 @@
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/bootstrap.go</url>
-          <line>58</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

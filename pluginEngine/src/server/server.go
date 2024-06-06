@@ -8,34 +8,62 @@ import (
 
 var logger = utils.NewLogger("servers", "receiver")
 
-func Receive(channel chan string) {
+type Sockets struct {
+	sender, receiver *zmq4.Socket
+}
 
-	socket, err := zmq4.NewSocket(zmq4.PULL)
+func (sockets *Sockets) Init() (err error) {
+
+	sockets.sender, err = zmq4.NewSocket(zmq4.PUSH)
 
 	if err != nil {
 
-		logger.Fatal(fmt.Sprintf("error occurred while creating socket %s", err))
+		logger.Fatal(fmt.Sprintf("error occurred while creating  sender socket %s", err))
+
+		return
+	}
+	if err = sockets.sender.Connect("tcp://localhost:5588"); err != nil {
+
+		logger.Fatal(fmt.Sprintf("error occurred while connecting sender socket %s", err))
 
 		return
 	}
 
-	defer func(socket *zmq4.Socket) {
+	sockets.receiver, err = zmq4.NewSocket(zmq4.PULL)
 
-		if socket != nil {
+	if err != nil {
 
-			err = socket.Close()
-		}
-
-		return
-
-	}(socket)
-
-	if err := socket.Connect("tcp://localhost:5587"); err != nil {
-
-		logger.Fatal(fmt.Sprintf("error occurred while connecting to socket %s", err))
+		logger.Fatal(fmt.Sprintf("error occurred while creating receiver socket %s", err))
 
 		return
 	}
+
+	if err = sockets.receiver.Connect("tcp://localhost:5587"); err != nil {
+
+		logger.Fatal(fmt.Sprintf("error occurred while connecting receiver socket %s", err))
+
+		return
+	}
+
+	return
+
+}
+
+func (sockets *Sockets) Close() (err error) {
+
+	if sockets.sender != nil {
+
+		err = sockets.sender.Close()
+	}
+	if sockets.receiver != nil {
+
+		err = sockets.receiver.Close()
+	}
+
+	return
+
+}
+func (sockets *Sockets) Receive(channel chan string) {
 
 	defer func() {
 
@@ -45,13 +73,13 @@ func Receive(channel chan string) {
 
 		}
 
-		close(channel)
+		sockets.Receive(channel)
 
-		return
 	}()
 
 	for {
-		message, err := socket.Recv(0)
+
+		message, err := sockets.receiver.Recv(0)
 
 		logger.Trace(fmt.Sprintf("new message has been received: %s", message))
 
@@ -64,27 +92,12 @@ func Receive(channel chan string) {
 
 		channel <- message
 
-		logger.Trace(fmt.Sprintf("Message has been sent over channel. Message : %v", message))
-
 	}
 
 	return
 }
 
-func Send(channel chan string) {
-
-	socket, err := zmq4.NewSocket(zmq4.PUSH)
-
-	defer func(socket *zmq4.Socket) {
-
-		if socket != nil {
-
-			err = socket.Close()
-		}
-
-		return
-
-	}(socket)
+func (sockets *Sockets) Send(channel chan string) {
 
 	defer func() {
 
@@ -93,29 +106,13 @@ func Send(channel chan string) {
 			logger.Fatal(fmt.Sprintf("Some panic occurred %v\n", err))
 		}
 
-		close(channel)
-
-		return
+		sockets.Send(channel)
 	}()
-
-	if err != nil {
-
-		logger.Fatal(fmt.Sprintf("error occurred while creating socket %s", err))
-
-		return
-	}
-
-	if err := socket.Connect("tcp://localhost:5588"); err != nil {
-
-		logger.Fatal(fmt.Sprintf("error occurred while connecting to socket %s", err))
-
-		return
-	}
 
 	for {
 		message := <-channel
 
-		if _, err := socket.Send(message, 0); err != nil {
+		if _, err := sockets.sender.Send(message, 0); err != nil {
 
 			logger.Fatal(fmt.Sprintf("Error occurred while sending message to socket %s", err))
 

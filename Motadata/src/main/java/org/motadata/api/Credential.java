@@ -1,39 +1,32 @@
 package org.motadata.api;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import org.motadata.Bootstrap;
 import org.motadata.constants.Constants;
 import org.motadata.database.Provision;
-import org.motadata.util.Handler;
+import org.motadata.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class Credential {
-
+public class Credential
+{
     private static final Logger LOGGER = LoggerFactory.getLogger(Credential.class);
 
     private final static org.motadata.database.Credential credentialDatabase = org.motadata.database.Credential.getCredential();
 
     private final static Provision provisionDatabase = Provision.getProvision();
 
-    private Router router;
+    private final Router router;
 
-    public void init(Vertx vertx)
+    public Credential()
     {
-        try
-        {
-            router = Router.router(vertx);
+        router = Router.router(Bootstrap.getVertx());
 
-            router.route().handler(BodyHandler.create());
-        }
-        catch (Exception exception)
-        {
-            LOGGER.error("Some exception occurred in init method",exception);
-        }
+        router.route().handler(BodyHandler.create());
     }
 
     public Router getRouter()
@@ -69,7 +62,7 @@ public class Credential {
 
             if (data.isEmpty())
             {
-                response = Handler.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
+                response = Utils.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
 
                 LOGGER.warn("Post request  has been served for {} with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
 
@@ -100,7 +93,7 @@ public class Credential {
                             }
                             else
                             {
-                                response = Handler.errorHandler("Failure", "Failed to create credential profile", Constants.EXCEPTION);
+                                response = Utils.errorHandler("Failure", "Failed to create credential profile", Constants.EXCEPTION);
 
                                 context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -110,7 +103,7 @@ public class Credential {
                         }
                         else
                         {
-                            response = Handler.errorHandler("Duplicate credential name", "Credential profile with given name already exists", Constants.DUPLICATE_CREDENTIAL_NAME);
+                            response = Utils.errorHandler("Duplicate credential name", "Credential profile with given name already exists", Constants.DUPLICATE_CREDENTIAL_NAME);
 
                             LOGGER.warn("Unable to create credential profile due to duplicate credential name");
 
@@ -120,7 +113,7 @@ public class Credential {
                     }
                     else
                     {
-                        response = Handler.errorHandler("Missing Parameters", "Some of the parameters are either missing or empty", Constants.INCORRECT_CREDENTIAL);
+                        response = Utils.errorHandler("Missing Parameters", "Some of the parameters are either missing or empty", Constants.INCORRECT_CREDENTIAL);
 
                         context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -130,7 +123,7 @@ public class Credential {
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -171,7 +164,7 @@ public class Credential {
             }
             else
             {
-                response = Handler.errorHandler("Failure", "Failed to get the credential profiles", Constants.EXCEPTION);
+                response = Utils.errorHandler("Failure", "Failed to get the credential profiles", Constants.EXCEPTION);
 
                 LOGGER.error("Some exception might have occurred while fetching the data as the result is null");
 
@@ -181,7 +174,7 @@ public class Credential {
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -216,7 +209,7 @@ public class Credential {
                 }
                 else
                 {
-                    response = Handler.errorHandler("Failure", "Failed to get the credential profile", Constants.EXCEPTION);
+                    response = Utils.errorHandler("Failure", "Failed to get the credential profile", Constants.EXCEPTION);
 
                     LOGGER.error("Some exception might have occurred while fetching the data as the result is null");
 
@@ -225,7 +218,7 @@ public class Credential {
             }
             else
             {
-                response = Handler.errorHandler("Invalid ID", "Id does not exist", Constants.INVALID_CREDENTIAL_ID);
+                response = Utils.errorHandler("Invalid ID", "Id does not exist", Constants.INVALID_CREDENTIAL_ID);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -234,7 +227,7 @@ public class Credential {
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -259,7 +252,7 @@ public class Credential {
 
             if (data.isEmpty())
             {
-                response = Handler.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
+                response = Utils.errorHandler("Empty Body", "Request body is empty", Constants.EMPTY_BODY);
 
                 LOGGER.warn("Put request  has been served for {} with result {}", Constants.CREDENTIAL_API + Constants.ROUTE_PATH, response);
 
@@ -284,7 +277,7 @@ public class Credential {
                 }
                 else
                 {
-                    response = Handler.errorHandler("Invalid credential id", "Credential id is invalid", Constants.INVALID_CREDENTIAL_ID);
+                    response = Utils.errorHandler("Invalid credential id", "Credential id is invalid", Constants.INVALID_CREDENTIAL_ID);
 
                     context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -296,7 +289,7 @@ public class Credential {
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
@@ -325,7 +318,7 @@ public class Credential {
 
                     if (device.getValue(Constants.VALID_CREDENTIAL_ID).toString().equals(id))
                     {
-                        response = Handler.errorHandler("Already in use","The credential id is already in use with ip address",Constants.CREDENTIAL_ERROR);
+                        response = Utils.errorHandler("Already in use","The credential id is already in use with ip address",Constants.CREDENTIAL_ERROR);
 
                         response.put(Constants.IP_ADDRESS,device.getValue(Constants.IP_ADDRESS));
 
@@ -353,7 +346,7 @@ public class Credential {
                 else
                 {
 
-                    response = Handler.errorHandler("Failure in Deletion","Some error occurred while deleting the provisioned device",Constants.PROVISION_ERROR);
+                    response = Utils.errorHandler("Failure in Deletion","Some error occurred while deleting the provisioned device",Constants.PROVISION_ERROR);
 
                     context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -362,7 +355,7 @@ public class Credential {
             }
             else
             {
-                response = Handler.errorHandler("Invalid credential id","Credential id does not exist",Constants.INVALID_CREDENTIAL_ID);
+                response = Utils.errorHandler("Invalid credential id","Credential id does not exist",Constants.INVALID_CREDENTIAL_ID);
 
                 context.response().setStatusCode(400).end(response.encodePrettily());
 
@@ -373,7 +366,7 @@ public class Credential {
         }
         catch (Exception exception)
         {
-            response = Handler.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
+            response = Utils.errorHandler("Exception occurred", exception.getMessage(), Constants.EXCEPTION);
 
             context.response().setStatusCode(500).end(response.encodePrettily());
 
